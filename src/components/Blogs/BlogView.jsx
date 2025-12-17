@@ -192,6 +192,8 @@ const BlogView = () => {
                 Featured: {blog.featured ? "Yes" : "No"}
               </Typography>
               <Typography variant="body2">Priority: {blog.priority ?? 0}</Typography>
+              <Typography variant="body2">Views: {blog.views ?? 0}</Typography>
+              <Typography variant="body2">Likes: {blog.likes ?? 0}</Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: 1.5 }}>
                 <Avatar
                   src={buildImageUrl(blog.authorImage)}

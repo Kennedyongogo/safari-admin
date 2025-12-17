@@ -54,13 +54,7 @@ const BlogCreate = () => {
     status: "draft",
   });
 
-  const categoryOptions = [
-    "Wildlife",
-    "Travel Tips",
-    "Conservation",
-    "Photography",
-    "Guides",
-  ];
+  const categoryOptions = ["Wildlife", "Travel Tips", "Conservation", "Photography", "Guides", "Other"];
 
   const handleInputChange = (field, value) => {
     setBlogForm((prev) => ({ ...prev, [field]: value }));

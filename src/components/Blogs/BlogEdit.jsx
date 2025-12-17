@@ -342,6 +342,7 @@ const BlogEdit = () => {
                   <MenuItem value="Conservation">Conservation</MenuItem>
                   <MenuItem value="Photography">Photography</MenuItem>
                   <MenuItem value="Guides">Guides</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
                 </Select>
               </FormControl>
               <TextField
