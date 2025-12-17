@@ -4,10 +4,6 @@ import { Box, CircularProgress, Card } from "@mui/material";
 import Navbar from "./Navbar";
 import Settings from "../Pages/Settings";
 import NotFound from "../Pages/NotFound";
-import Projects from "./Projects/Projects";
-import ProjectView from "./Projects/ProjectView";
-import ProjectEdit from "./Projects/ProjectEdit";
-import ProjectCreate from "./Projects/ProjectCreate";
 import MissionCategories from "./MissionCategories/MissionCategories";
 import MissionCategoryView from "./MissionCategories/MissionCategoryView";
 import MissionCategoryCreate from "./MissionCategories/MissionCategoryCreate";
@@ -16,6 +12,10 @@ import Posts from "./Posts/Posts";
 import PostView from "./Posts/PostView";
 import PostCreate from "./Posts/PostCreate";
 import PostEdit from "./Posts/PostEdit";
+import Blogs from "./Blogs/Blogs";
+import BlogCreate from "./Blogs/BlogCreate";
+import BlogView from "./Blogs/BlogView";
+import BlogEdit from "./Blogs/BlogEdit";
 import Issues from "./Issues/Issues";
 import Review from "./Review/Review";
 import CharityMap from "../CharityMap";
@@ -71,10 +71,6 @@ function PageRoutes() {
         ) : (
           <Routes>
             <Route path="home" element={<Navigate to="/analytics" replace />} />
-            <Route path="projects" element={<Projects />} />
-            <Route path="projects/create" element={<ProjectCreate />} />
-            <Route path="projects/:id" element={<ProjectView />} />
-            <Route path="projects/:id/edit" element={<ProjectEdit />} />
             <Route path="mission-categories" element={<MissionCategories />} />
             <Route path="mission-categories/create" element={<MissionCategoryCreate />} />
             <Route path="mission-categories/:id" element={<MissionCategoryView />} />
@@ -83,6 +79,10 @@ function PageRoutes() {
             <Route path="posts/create" element={<PostCreate />} />
             <Route path="posts/:id" element={<PostView />} />
             <Route path="posts/:id/edit" element={<PostEdit />} />
+            <Route path="blogs" element={<Blogs />} />
+            <Route path="blogs/create" element={<BlogCreate />} />
+            <Route path="blogs/:id" element={<BlogView />} />
+            <Route path="blogs/:id/edit" element={<BlogEdit />} />
             <Route path="issues" element={<Issues />} />
             <Route path="testimonies" element={<Navigate to="/reviews" replace />} />
             <Route path="reviews" element={<Review />} />

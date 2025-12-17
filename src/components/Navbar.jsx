@@ -160,9 +160,9 @@ const Navbar = (props) => {
   const adminItems = [
     { text: "Dashboard", icon: <Dashboard />, path: "/analytics" },
     {
-      text: "Projects",
-      icon: <Business />,
-      path: "/projects",
+      text: "Blogs",
+      icon: <Article />,
+      path: "/blogs",
     },
     {
       text: "Reports",
