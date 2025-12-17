@@ -231,27 +231,23 @@ const Blogs = () => {
                     },
                   }}
                 >
-                  <TableCell>#</TableCell>
+                  <TableCell>NO</TableCell>
                   <TableCell>Title</TableCell>
-                  <TableCell>Slug</TableCell>
                   <TableCell>Category</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Featured</TableCell>
-                  <TableCell>Publish Date</TableCell>
-                  <TableCell>Read Time</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                       <CircularProgress sx={{ color: "#667eea" }} />
                     </TableCell>
                   </TableRow>
                 ) : blogs.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                       <Typography color="text.secondary">No blogs found.</Typography>
                     </TableCell>
                   </TableRow>
@@ -268,9 +264,6 @@ const Blogs = () => {
                         <Typography variant="caption" color="text.secondary">
                           {blog.excerpt?.slice(0, 80) || ""}
                         </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip label={blog.slug} size="small" />
                       </TableCell>
                       <TableCell>
                         <Chip
@@ -292,27 +285,6 @@ const Blogs = () => {
                           size="small"
                           sx={{ textTransform: "capitalize" }}
                         />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          icon={<StarIcon sx={{ fontSize: 16 }} />}
-                          label={blog.featured ? "Yes" : "No"}
-                          size="small"
-                          color={blog.featured ? "primary" : "default"}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Box display="flex" alignItems="center" gap={0.5}>
-                          <CalendarIcon sx={{ fontSize: 16, color: "#667eea" }} />
-                          <Typography variant="body2">
-                            {formatDate(blog.publishDate || blog.createdAt)}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {blog.readTime ? `${blog.readTime} min` : "—"}
-                        </Typography>
                       </TableCell>
                       <TableCell align="right">
                         <Tooltip title="View blog">

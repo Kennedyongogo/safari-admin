@@ -14,8 +14,18 @@ import {
   CircularProgress,
   Alert,
   Stack,
+  Divider,
 } from "@mui/material";
-import { ArrowBack, Edit, CalendarToday, Star, Article } from "@mui/icons-material";
+import {
+  ArrowBack,
+  Edit,
+  CalendarToday,
+  Star,
+  Article,
+  Visibility,
+  ThumbUp,
+  AccessTime,
+} from "@mui/icons-material";
 
 const BlogView = () => {
   const { id } = useParams();
@@ -116,7 +126,7 @@ const BlogView = () => {
             borderRadius: 2,
             position: "relative",
             overflow: "hidden",
-            mb: 4,
+            mb: 2,
           }}
         >
           <Box display="flex" alignItems="center" gap={2} position="relative" zIndex={1}>
@@ -156,45 +166,115 @@ const BlogView = () => {
           </Box>
         </Box>
 
-        <Stack spacing={3}>
+        <Stack spacing={1.5}>
           <Card
             sx={{
               backgroundColor: "white",
               boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
               border: "1px solid #e0e0e0",
+              borderLeft: "6px solid #B85C38",
             }}
           >
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
-                Content
-              </Typography>
-              <Typography variant="body1" sx={{ color: "text.secondary", whiteSpace: "pre-wrap" }}>
-                {blog.content || "No content provided."}
-              </Typography>
-            </CardContent>
-          </Card>
-
-          <Card
-            sx={{
-              backgroundColor: "white",
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-              border: "1px solid #e0e0e0",
-            }}
-          >
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 800 }}>
                 Meta
               </Typography>
-              <Typography variant="body2">Slug: {blog.slug}</Typography>
-              <Typography variant="body2">Category: {blog.category || "—"}</Typography>
-              <Typography variant="body2">Status: {blog.status}</Typography>
-              <Typography variant="body2">
-                Featured: {blog.featured ? "Yes" : "No"}
-              </Typography>
-              <Typography variant="body2">Priority: {blog.priority ?? 0}</Typography>
-              <Typography variant="body2">Views: {blog.views ?? 0}</Typography>
-              <Typography variant="body2">Likes: {blog.likes ?? 0}</Typography>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: 1.5 }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
+                <Chip
+                  label={`Status: ${blog.status || "—"}`}
+                  color={blog.status === "published" ? "success" : "warning"}
+                  size="small"
+                  sx={{ fontWeight: 600 }}
+                />
+                <Chip
+                  icon={<Star sx={{ color: blog.featured ? "#B85C38" : "inherit" }} />}
+                  label={blog.featured ? "Featured" : "Not Featured"}
+                  variant={blog.featured ? "filled" : "outlined"}
+                  size="small"
+                  sx={{ fontWeight: 600 }}
+                />
+                <Chip label={`Priority: ${blog.priority ?? 0}`} size="small" />
+                <Chip label={`Slug: ${blog.slug || "—"}`} variant="outlined" size="small" />
+                <Chip label={`Category: ${blog.category || "—"}`} variant="outlined" size="small" />
+              </Box>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    Publish Date
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    {formatDate(blog.publishDate || blog.createdAt)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    Read Time
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600, display: "flex", alignItems: "center", gap: 0.75 }}>
+                    <AccessTime fontSize="small" />
+                    {blog.readTime ? `${blog.readTime} min` : "—"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    Status
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    {blog.status || "—"}
+                  </Typography>
+                </Grid>
+              </Grid>
+
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
+                  gap: 1.5,
+                  mt: 2,
+                  p: 1.5,
+                  backgroundColor: "#faf6f2",
+                  borderRadius: 2,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Visibility fontSize="small" sx={{ color: "#B85C38" }} />
+                  <Box>
+                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                      Views
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                      {blog.views ?? 0}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <ThumbUp fontSize="small" sx={{ color: "#B85C38" }} />
+                  <Box>
+                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                      Likes
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                      {blog.likes ?? 0}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Star fontSize="small" sx={{ color: "#B85C38" }} />
+                  <Box>
+                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                      Priority
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                      {blog.priority ?? 0}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Divider sx={{ my: 2 }} />
+
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: 1 }}>
                 <Avatar
                   src={buildImageUrl(blog.authorImage)}
                   alt={blog.authorName || "Author"}
@@ -225,16 +305,62 @@ const BlogView = () => {
               backgroundColor: "white",
               boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
               border: "1px solid #e0e0e0",
+              borderLeft: "6px solid #6B4E3D",
+            }}
+          >
+            <CardContent>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                <Article sx={{ color: "#6B4E3D" }} />
+                <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                  Content
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  backgroundColor: "#faf6f2",
+                  border: "1px dashed #e0d6c8",
+                }}
+              >
+                <Typography variant="body1" sx={{ color: "text.secondary", whiteSpace: "pre-wrap" }}>
+                  {blog.content || "No content provided."}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+
+          <Card
+            sx={{
+              backgroundColor: "white",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+              border: "1px solid #e0e0e0",
+              borderLeft: "6px solid #6B4E3D",
             }}
           >
             <CardContent>
               <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
                 Tags
               </Typography>
+              <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
+                Categorize and discoverability
+              </Typography>
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                 {Array.isArray(blog.tags) && blog.tags.length ? (
                   blog.tags.map((tag, idx) => (
-                    <Chip key={idx} label={tag} size="small" />
+                    <Chip
+                      key={idx}
+                      label={tag}
+                      size="small"
+                      color="primary"
+                      variant={idx % 2 === 0 ? "filled" : "outlined"}
+                      sx={{
+                        fontWeight: 600,
+                        backgroundColor: idx % 2 === 0 ? "#f3e7dd" : "transparent",
+                        color: "#6B4E3D",
+                        borderColor: "#d8c7b6",
+                      }}
+                    />
                   ))
                 ) : (
                   <Typography variant="body2" color="text.secondary">
@@ -251,27 +377,57 @@ const BlogView = () => {
                 backgroundColor: "white",
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
                 border: "1px solid #e0e0e0",
+                borderLeft: "6px solid #6B4E3D",
               }}
             >
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
+                <Typography variant="h6" sx={{ mb: 1, fontWeight: 800 }}>
                   Extras
                 </Typography>
-                {blog.excerpt && (
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    <strong>Excerpt:</strong> {blog.excerpt}
-                  </Typography>
-                )}
-                {blog.ctaText && (
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    <strong>CTA:</strong> {blog.ctaText}
-                  </Typography>
-                )}
-                {blog.ctaUrl && (
-                  <Typography variant="body2">
-                    <strong>CTA URL:</strong> {blog.ctaUrl}
-                  </Typography>
-                )}
+                <Stack spacing={1.5}>
+                  {blog.excerpt && (
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 1.5,
+                        backgroundColor: "#faf6f2",
+                        border: "1px dashed #e0d6c8",
+                      }}
+                    >
+                      <Typography variant="overline" sx={{ color: "text.secondary" }}>
+                        Excerpt
+                      </Typography>
+                      <Typography variant="body2">{blog.excerpt}</Typography>
+                    </Box>
+                  )}
+                  {blog.ctaText && (
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 1.5,
+                        backgroundColor: "#f5efe9",
+                        border: "1px solid #e0d6c8",
+                      }}
+                    >
+                      <Typography variant="overline" sx={{ color: "text.secondary" }}>
+                        CTA
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                        {blog.ctaText}
+                      </Typography>
+                    </Box>
+                  )}
+                  {blog.ctaUrl && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography variant="overline" sx={{ color: "text.secondary" }}>
+                        CTA URL
+                      </Typography>
+                      <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
+                        {blog.ctaUrl}
+                      </Typography>
+                    </Box>
+                  )}
+                </Stack>
               </CardContent>
             </Card>
           )}
@@ -282,11 +438,15 @@ const BlogView = () => {
                 backgroundColor: "white",
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
                 border: "1px solid #e0e0e0",
+                borderLeft: "6px solid #6B4E3D",
               }}
             >
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
+                <Typography variant="h6" sx={{ mb: 1, fontWeight: 800 }}>
                   Featured Image
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+                  Hero visual shown on listing and detail pages
                 </Typography>
                 <Box
                   component="img"
@@ -294,10 +454,11 @@ const BlogView = () => {
                   alt={blog.title}
                   sx={{
                     width: "100%",
-                    maxHeight: 420,
+                    maxHeight: 440,
                     objectFit: "cover",
-                    borderRadius: 2,
+                    borderRadius: 2.5,
                     border: "1px solid #eee",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
                   }}
                 />
               </CardContent>
