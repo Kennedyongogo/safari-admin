@@ -204,9 +204,9 @@ const Navbar = (props) => {
           path: "/issues",
         },
         {
-          text: "Testimonies",
+          text: "Reviews",
           icon: <RateReview />,
-          path: "/testimonies",
+          path: "/reviews",
         },
         {
           text: "Public Members",

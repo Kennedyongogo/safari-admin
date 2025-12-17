@@ -51,7 +51,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import Swal from "sweetalert2";
 
-const Testimony = () => {
+const Review = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const [testimonies, setTestimonies] = useState([]);
@@ -87,7 +87,7 @@ const Testimony = () => {
         limit: rowsPerPage.toString(),
       });
 
-      const response = await fetch(`/api/testimonies?${queryParams}`, {
+      const response = await fetch(`/api/reviews?${queryParams}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -139,7 +139,7 @@ const Testimony = () => {
   };
 
   const getRatingStars = (rating) => {
-    return '⭐'.repeat(rating);
+    return "⭐".repeat(rating);
   };
 
   const formatDate = (dateString) => {
@@ -182,14 +182,17 @@ const Testimony = () => {
         return;
       }
 
-      const response = await fetch(`/api/testimonies/${selectedTestimony.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(editForm),
-      });
+      const response = await fetch(
+        `/api/reviews/${selectedTestimony.id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: editForm.status }),
+        }
+      );
 
       const result = await response.json();
 
@@ -271,7 +274,7 @@ const Testimony = () => {
           return;
         }
 
-        const response = await fetch(`/api/testimonies/${testimony.id}`, {
+        const response = await fetch(`/api/reviews/${testimony.id}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -336,7 +339,8 @@ const Testimony = () => {
   return (
     <Box
       sx={{
-        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+        background:
+          "linear-gradient(135deg, rgba(245, 241, 232, 0.95) 0%, rgba(255, 255, 255, 0.98) 50%, rgba(232, 224, 209, 0.95) 100%)",
         minHeight: "100vh",
       }}
     >
@@ -345,7 +349,7 @@ const Testimony = () => {
         sx={{
           borderRadius: 0,
           overflow: "hidden",
-          background: "rgba(255, 255, 255, 0.95)",
+          background: "rgba(255, 255, 255, 0.98)",
           backdropFilter: "blur(10px)",
           border: "none",
           boxShadow: "none",
@@ -355,7 +359,7 @@ const Testimony = () => {
         {/* Header Section */}
         <Box
           sx={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
             p: 3,
             color: "white",
             position: "relative",
@@ -405,10 +409,10 @@ const Testimony = () => {
                   fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" },
                 }}
               >
-                Testimonies Management
+                Reviews Management
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                Manage and moderate user testimonies
+                Manage and moderate user reviews
               </Typography>
             </Box>
           </Box>
@@ -441,12 +445,12 @@ const Testimony = () => {
               },
             }}
           >
-            <Table sx={{ minWidth: 800 }}>
+            <Table sx={{ minWidth: 650 }}>
               <TableHead>
                 <TableRow
                   sx={{
                     background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
                     "& .MuiTableCell-head": {
                       color: "white",
                       fontWeight: 700,
@@ -455,26 +459,27 @@ const Testimony = () => {
                       letterSpacing: "0.5px",
                       border: "none",
                       whiteSpace: "nowrap",
+                      textAlign: "center",
                     },
                   }}
                 >
-                  <TableCell>No</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Rating</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell align="center">No</TableCell>
+                  <TableCell align="center">Name</TableCell>
+                  <TableCell align="center">Rating</TableCell>
+                  <TableCell align="center">Status</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                      <CircularProgress sx={{ color: "#667eea" }} />
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                      <CircularProgress sx={{ color: "#B85C38" }} />
                     </TableCell>
                   </TableRow>
                 ) : error ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                       <Alert severity="error" sx={{ mb: 2 }}>
                         {error}
                       </Alert>
@@ -483,7 +488,11 @@ const Testimony = () => {
                         onClick={fetchTestimonies}
                         sx={{
                           background:
-                            "linear-gradient(45deg, #667eea, #764ba2)",
+                            "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
+                          "&:hover": {
+                            background:
+                              "linear-gradient(135deg, #8B4225 0%, #3D2817 100%)",
+                          },
                         }}
                       >
                         Retry
@@ -494,7 +503,7 @@ const Testimony = () => {
                   <TableRow>
                     <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                       <Typography variant="h6" color="text.secondary">
-                        No testimonies found.
+                        No reviews found.
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -518,10 +527,13 @@ const Testimony = () => {
                         },
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: "#667eea" }}>
+                      <TableCell
+                        sx={{ fontWeight: 600, color: "#667eea" }}
+                        align="center"
+                      >
                         {page * rowsPerPage + idx + 1}
                       </TableCell>
-                      <TableCell>
+                      <TableCell align="center">
                         <Typography
                           variant="body2"
                           fontWeight="600"
@@ -530,7 +542,7 @@ const Testimony = () => {
                           {testimony.name}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell align="center">
                         <Typography
                           variant="body2"
                           fontWeight="600"
@@ -539,7 +551,7 @@ const Testimony = () => {
                           {getRatingStars(testimony.rating)}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell align="center">
                         <Chip
                           label={getStatusText(testimony.status)}
                           color={getStatusColor(testimony.status)}
@@ -551,9 +563,9 @@ const Testimony = () => {
                           }}
                         />
                       </TableCell>
-                      <TableCell>
-                        <Box display="flex" gap={0.5}>
-                          <Tooltip title="View Testimony Details" arrow>
+                      <TableCell align="center">
+                        <Box display="flex" gap={0.5} justifyContent="center">
+                          <Tooltip title="View Review Details" arrow>
                             <IconButton
                               size="small"
                               onClick={() => handleViewTestimony(testimony)}
@@ -571,7 +583,7 @@ const Testimony = () => {
                               <ViewIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Edit Testimony" arrow>
+                          <Tooltip title="Edit Review" arrow>
                             <IconButton
                               size="small"
                               onClick={() => handleEditTestimony(testimony)}
@@ -589,7 +601,7 @@ const Testimony = () => {
                               <EditIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Delete Testimony" arrow>
+                          <Tooltip title="Delete Review" arrow>
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteTestimony(testimony)}
@@ -665,7 +677,7 @@ const Testimony = () => {
         >
           <DialogTitle
             sx={{
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
               color: "white",
               fontWeight: "bold",
               display: "flex",
@@ -711,10 +723,10 @@ const Testimony = () => {
                   textShadow: "0 2px 4px rgba(0,0,0,0.3)",
                 }}
               >
-                Testimony Details
+                Review Details
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-                View testimony information
+                View review information
               </Typography>
             </Box>
           </DialogTitle>
@@ -727,7 +739,9 @@ const Testimony = () => {
                   {selectedTestimony.name}
                 </Typography>
 
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+                >
                   <Typography variant="h6" sx={{ fontSize: "1.5rem" }}>
                     {getRatingStars(selectedTestimony.rating)}
                   </Typography>
@@ -735,6 +749,30 @@ const Testimony = () => {
                     Rating: {selectedTestimony.rating}/5
                   </Typography>
                 </Box>
+
+                <Stack spacing={1.2} sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2">
+                    <strong>Email:</strong> {selectedTestimony.email || "-"}
+                  </Typography>
+                  <Typography variant="subtitle2">
+                    <strong>Location:</strong>{" "}
+                    {selectedTestimony.location || "-"}
+                  </Typography>
+                  <Typography variant="subtitle2">
+                    <strong>Recommend:</strong>{" "}
+                    {selectedTestimony.recommend ? "Yes" : "No"}
+                  </Typography>
+                  <Typography variant="subtitle2">
+                    <strong>Status:</strong>{" "}
+                    {getStatusText(selectedTestimony.status)}
+                  </Typography>
+                  <Typography variant="subtitle2">
+                    <strong>Created:</strong>{" "}
+                    {selectedTestimony.createdAt
+                      ? formatDate(selectedTestimony.createdAt)
+                      : "-"}
+                  </Typography>
+                </Stack>
 
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle2" gutterBottom>
@@ -746,7 +784,7 @@ const Testimony = () => {
                     {formatDate(selectedTestimony.createdAt)}
                   </Typography>
                   <Typography variant="subtitle2" gutterBottom>
-                    <strong>Description:</strong>
+                    <strong>Comment:</strong>
                   </Typography>
                   <Typography
                     variant="body2"
@@ -758,7 +796,7 @@ const Testimony = () => {
                       border: "1px solid rgba(102, 126, 234, 0.1)",
                     }}
                   >
-                    {selectedTestimony.description}
+                    {selectedTestimony.comment}
                   </Typography>
                 </Box>
               </Box>
@@ -820,7 +858,7 @@ const Testimony = () => {
         >
           <DialogTitle
             sx={{
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
               color: "white",
               fontWeight: "bold",
               display: "flex",
@@ -866,10 +904,10 @@ const Testimony = () => {
                   textShadow: "0 2px 4px rgba(0,0,0,0.3)",
                 }}
               >
-                Manage Testimony Status
+                Manage Review Status
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-                Approve or reject testimonial for public display
+                Approve or reject review for public display
               </Typography>
             </Box>
           </DialogTitle>
@@ -877,21 +915,57 @@ const Testimony = () => {
             sx={{ p: 3, pt: 3, maxHeight: "70vh", overflowY: "auto" }}
           >
             <Stack spacing={3} sx={{ mt: 1 }}>
-              {/* Display Testimony Details (Read-only) */}
-              <Box sx={{ p: 2, backgroundColor: "rgba(102, 126, 234, 0.05)", borderRadius: 2, border: "1px solid rgba(102, 126, 234, 0.1)" }}>
+              {/* Display Review Details (Read-only) */}
+              <Box
+                sx={{
+                  p: 2,
+                  backgroundColor: "rgba(102, 126, 234, 0.05)",
+                  borderRadius: 2,
+                  border: "1px solid rgba(102, 126, 234, 0.1)",
+                }}
+              >
                 <Typography variant="h6" gutterBottom>
                   {selectedTestimony?.name}
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+                >
                   <Typography variant="h6" sx={{ fontSize: "1.5rem" }}>
-                    {selectedTestimony && getRatingStars(selectedTestimony.rating)}
+                    {selectedTestimony &&
+                      getRatingStars(selectedTestimony.rating)}
                   </Typography>
                   <Typography variant="h6">
                     Rating: {selectedTestimony?.rating}/5
                   </Typography>
                 </Box>
-                <Typography variant="body2" sx={{ color: "#666", fontStyle: "italic" }}>
-                  "{selectedTestimony?.description}"
+                <Stack spacing={1}>
+                  <Typography variant="body2">
+                    <strong>Email:</strong> {selectedTestimony?.email || "-"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Location:</strong>{" "}
+                    {selectedTestimony?.location || "-"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Recommend:</strong>{" "}
+                    {selectedTestimony?.recommend ? "Yes" : "No"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Status:</strong>{" "}
+                    {getStatusText(selectedTestimony?.status)}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Created:</strong>{" "}
+                    {selectedTestimony?.createdAt
+                      ? formatDate(selectedTestimony.createdAt)
+                      : "-"}
+                  </Typography>
+                </Stack>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#666", fontStyle: "italic" }}
+                >
+                  "{selectedTestimony?.comment}"
                 </Typography>
               </Box>
 
@@ -912,8 +986,12 @@ const Testimony = () => {
                 </Select>
               </FormControl>
 
-              <Typography variant="body2" sx={{ color: "#666", fontStyle: "italic", textAlign: "center" }}>
-                Note: Only the status can be modified. The testimonial content is preserved as submitted by the user.
+              <Typography
+                variant="body2"
+                sx={{ color: "#666", fontStyle: "italic", textAlign: "center" }}
+              >
+                Note: Only the status can be modified. The testimonial content
+                is preserved as submitted by the user.
               </Typography>
             </Stack>
           </DialogContent>
@@ -970,4 +1048,4 @@ const Testimony = () => {
   );
 };
 
-export default Testimony;
+export default Review;

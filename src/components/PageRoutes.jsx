@@ -17,7 +17,7 @@ import PostView from "./Posts/PostView";
 import PostCreate from "./Posts/PostCreate";
 import PostEdit from "./Posts/PostEdit";
 import Issues from "./Issues/Issues";
-import Testimony from "./Testimony/Testimony";
+import Review from "./Review/Review";
 import CharityMap from "../CharityMap";
 import Documents from "./Documents/Documents";
 import UsersTable from "./Users/UsersTable";
@@ -84,7 +84,8 @@ function PageRoutes() {
             <Route path="posts/:id" element={<PostView />} />
             <Route path="posts/:id/edit" element={<PostEdit />} />
             <Route path="issues" element={<Issues />} />
-            <Route path="testimonies" element={<Testimony />} />
+            <Route path="testimonies" element={<Navigate to="/reviews" replace />} />
+            <Route path="reviews" element={<Review />} />
             <Route path="map" element={<CharityMap />} />
             <Route path="documents" element={<Documents />} />
             <Route path="public-members" element={<PublicMembers />} />

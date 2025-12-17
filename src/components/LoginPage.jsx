@@ -41,7 +41,14 @@ import {
 } from "@mui/icons-material";
 import Swal from "sweetalert2";
 
-const images = ["/foundation1.jpg", "/foundation2.jpg", "/foundation3.jpg"];
+// Logo and rotating background images (served from public/images)
+const logoSrc =
+  "/images/WhatsApp_Image_2025-12-14_at_10.56.47_AM-removebg-preview%20(1).png";
+const images = [
+  "/images/lion-5751867_1280.jpg",
+  "/images/elephants-4275741_1280.jpg",
+  "/images/rhinoceros-1837164_1280.jpg",
+];
 
 export default function LoginPage(props) {
   const theme = useTheme();
@@ -293,6 +300,8 @@ export default function LoginPage(props) {
           backgroundRepeat: "no-repeat",
           transition: "opacity 1s ease-in-out",
           filter: "none",
+          pointerEvents: "none",
+          zIndex: 0,
         }}
       />
       
@@ -307,6 +316,8 @@ export default function LoginPage(props) {
           borderRadius: "50%",
           background: "linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
           animation: "float 6s ease-in-out infinite",
+          pointerEvents: "none",
+          zIndex: 0,
           "@keyframes float": {
             "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
             "50%": { transform: "translateY(-20px) rotate(180deg)" }
@@ -323,6 +334,8 @@ export default function LoginPage(props) {
           borderRadius: "20px",
           background: "linear-gradient(45deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
           animation: "pulse 4s ease-in-out infinite",
+          pointerEvents: "none",
+          zIndex: 0,
           "@keyframes pulse": {
             "0%, 100%": { transform: "scale(1)" },
             "50%": { transform: "scale(1.1)" }
@@ -341,6 +354,7 @@ export default function LoginPage(props) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          zIndex: 1,
         }}
       >
         <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
@@ -357,7 +371,7 @@ export default function LoginPage(props) {
                   alignItems={{ xs: "center", md: "flex-start" }}
                 >
                   <Slide direction="up" in timeout={1200}>
-                    <Stack spacing={4} sx={{ textAlign: { xs: "center", md: "left" } }}>
+                    <Stack spacing={0} sx={{ textAlign: { xs: "center", md: "left" }, gap: 0 }}>
                       {/* Logo with enhanced styling */}
                       <Box
                         sx={{
@@ -379,10 +393,10 @@ export default function LoginPage(props) {
                       >
                         <Box
                           component="img"
-                          src="/foundation-logo.png"
-                          alt="Mwalimu Hope Foundation"
+                          src={logoSrc}
+                          alt="Akira Safaris Endless Discovery"
                           sx={{
-                            height: { xs: 80, sm: 100, md: 120, lg: 140 },
+                            height: { xs: 160, sm: 200, md: 240, lg: 280 },
                             width: "auto",
                             filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.4)) brightness(1.1)",
                             transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -395,7 +409,7 @@ export default function LoginPage(props) {
                       </Box>
 
                       {/* Enhanced title with subtitle */}
-                      <Stack spacing={2}>
+                      <Stack spacing={0} sx={{ gap: 0 }}>
                         <Typography
                           variant="h1"
                           sx={{
@@ -418,10 +432,10 @@ export default function LoginPage(props) {
                             WebkitTextFillColor: "transparent",
                             textShadow: "0 0 30px rgba(255,255,255,0.3)",
                             lineHeight: 1.2,
-                            mb: 1,
+                            mb: 0,
                           }}
                         >
-                          Mwalimu Hope Foundation
+                          Akira Safari
                         </Typography>
                         
                         <Typography
@@ -437,7 +451,7 @@ export default function LoginPage(props) {
                             lineHeight: 1.4,
                           }}
                         >
-                          Empowering Minds, Restoring Hope
+                          Discover the Wild Heart of Africa
                         </Typography>
 
                       </Stack>
@@ -529,7 +543,7 @@ export default function LoginPage(props) {
                       fullWidth
                       margin="normal"
                       variant="outlined"
-                      placeholder="admin@mwalimuhope.org"
+                      placeholder="admin@akirasafari.com"
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -721,14 +735,14 @@ export default function LoginPage(props) {
                         mt: { xs: 3, sm: 4 },
                         py: { xs: 1.5, sm: 2 },
                         borderRadius: { xs: 3, sm: 4 },
-                        background: `
+                    background: `
                           linear-gradient(135deg, 
-                            rgba(76, 175, 80, 0.9) 0%, 
-                            rgba(56, 142, 60, 0.9) 50%, 
-                            rgba(46, 125, 50, 0.9) 100%)
+                            rgba(184, 92, 56, 0.95) 0%, 
+                            rgba(139, 66, 37, 0.95) 50%, 
+                            rgba(107, 78, 61, 0.95) 100%)
                         `,
-                        boxShadow: `
-                          0 8px 32px rgba(76, 175, 80, 0.3),
+                    boxShadow: `
+                          0 8px 32px rgba(184, 92, 56, 0.35),
                           0 0 0 1px rgba(255, 255, 255, 0.1),
                           inset 0 1px 0 rgba(255, 255, 255, 0.2)
                         `,
@@ -752,12 +766,12 @@ export default function LoginPage(props) {
                         "&:hover": {
                           background: `
                             linear-gradient(135deg, 
-                              rgba(76, 175, 80, 1) 0%, 
-                              rgba(56, 142, 60, 1) 50%, 
-                              rgba(46, 125, 50, 1) 100%)
+                              rgba(139, 66, 37, 1) 0%, 
+                              rgba(184, 92, 56, 1) 50%, 
+                              rgba(107, 78, 61, 1) 100%)
                           `,
                           boxShadow: `
-                            0 12px 48px rgba(76, 175, 80, 0.4),
+                            0 12px 48px rgba(184, 92, 56, 0.45),
                             0 0 0 1px rgba(255, 255, 255, 0.2),
                             inset 0 1px 0 rgba(255, 255, 255, 0.3)
                           `,
@@ -788,70 +802,6 @@ export default function LoginPage(props) {
             </Grid>
           </Grid>
           
-          {/* Developed by Card */}
-          <Box sx={{ display: "flex", justifyContent: "center", mt: { xs: 2, sm: 2.5, md: 3 } }}>
-            <Fade in timeout={2000}>
-              <Card
-                sx={{
-                  width: { xs: "auto", sm: "30%" },
-                  minWidth: "fit-content",
-                  background: "linear-gradient(135deg, rgba(76, 175, 80, 0.9) 0%, rgba(56, 142, 60, 0.9) 50%, rgba(46, 125, 50, 0.9) 100%)",
-                  backdropFilter: "blur(10px)",
-                  WebkitBackdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  borderRadius: "12px",
-                  boxShadow: "0 8px 32px rgba(76, 175, 80, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
-                  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                  "&:hover": {
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 12px 48px rgba(76, 175, 80, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)",
-                    borderColor: "rgba(255, 255, 255, 0.25)",
-                    background: "linear-gradient(135deg, rgba(76, 175, 80, 1) 0%, rgba(56, 142, 60, 1) 50%, rgba(46, 125, 50, 1) 100%)",
-                  },
-                }}
-              >
-                <CardContent sx={{ p: { xs: 0.75, sm: 1 }, "&:last-child": { pb: { xs: 0.75, sm: 1 } } }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: { xs: 0.5, md: 1 },
-                      textAlign: "center",
-                      flexWrap: "nowrap",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: "white",
-                        fontWeight: 600,
-                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                        whiteSpace: "nowrap",
-                        display: "inline",
-                      }}
-                    >
-                      Developed by
-                    </Typography>
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: "white",
-                        fontWeight: 600,
-                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                        whiteSpace: "nowrap",
-                        display: "inline",
-                      }}
-                    >
-                      Carlvyne Technologies Ltd
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Fade>
-          </Box>
         </Container>
       </Box>
 
@@ -915,7 +865,7 @@ export default function LoginPage(props) {
               label="Email Address"
               fullWidth
               margin="normal"
-              placeholder="admin@mwalimuhope.org"
+              placeholder="admin@akirasafari.com"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
