@@ -16,6 +16,10 @@ import Blogs from "./Blogs/Blogs";
 import BlogCreate from "./Blogs/BlogCreate";
 import BlogView from "./Blogs/BlogView";
 import BlogEdit from "./Blogs/BlogEdit";
+import Camps from "./Camps&Lodges/Camps";
+import CampCreate from "./Camps&Lodges/CampCreate";
+import CampView from "./Camps&Lodges/CampView";
+import CampEdit from "./Camps&Lodges/CampEdit";
 import Issues from "./Issues/Issues";
 import Review from "./Review/Review";
 import CharityMap from "../CharityMap";
@@ -83,6 +87,10 @@ function PageRoutes() {
             <Route path="blogs/create" element={<BlogCreate />} />
             <Route path="blogs/:id" element={<BlogView />} />
             <Route path="blogs/:id/edit" element={<BlogEdit />} />
+            <Route path="camp-lodges" element={<Camps />} />
+            <Route path="camp-lodges/create" element={<CampCreate />} />
+            <Route path="camp-lodges/:id" element={<CampView />} />
+            <Route path="camp-lodges/:id/edit" element={<CampEdit />} />
             <Route path="issues" element={<Issues />} />
             <Route path="testimonies" element={<Navigate to="/reviews" replace />} />
             <Route path="reviews" element={<Review />} />

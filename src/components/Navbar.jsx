@@ -165,6 +165,11 @@ const Navbar = (props) => {
       path: "/blogs",
     },
     {
+      text: "Camps & Lodges",
+      icon: <Map />,
+      path: "/camp-lodges",
+    },
+    {
       text: "Reports",
       icon: <Assessment />,
       path: "/reports",

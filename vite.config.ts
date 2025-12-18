@@ -11,11 +11,11 @@ export default defineConfig({
       output: {
         manualChunks: {
           // Separate date picker into its own chunk
-          'date-pickers': ['@mui/x-date-pickers'],
+          "date-pickers": ["@mui/x-date-pickers"],
           // Separate MUI components
-          'mui-core': ['@mui/material', '@mui/icons-material'],
+          "mui-core": ["@mui/material", "@mui/icons-material"],
           // Separate animation library
-          'framer-motion': ['framer-motion'],
+          "framer-motion": ["framer-motion"],
         },
       },
     },

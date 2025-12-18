@@ -61,6 +61,14 @@ import Swal from "sweetalert2";
 
 const UsersTable = () => {
   const theme = useTheme();
+  const palette = {
+    primary: "#B85C38",
+    primaryDark: "#8B4225",
+    accent: "#6B4E3D",
+    lightBg: "#F5F1E8",
+    border: "rgba(107, 78, 61, 0.2)",
+    text: "#3D2817",
+  };
 
   // Helper to build URL for uploaded assets using Vite proxy
   const buildImageUrl = (imageUrl) => {
@@ -485,8 +493,9 @@ const UsersTable = () => {
   return (
     <Box
       sx={{
-        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+        background: `linear-gradient(135deg, ${palette.lightBg} 0%, #FFFFFF 60%, rgba(232, 224, 209, 0.9) 100%)`,
         minHeight: "100vh",
+        m: 1.5,
       }}
     >
       <Paper
@@ -504,9 +513,9 @@ const UsersTable = () => {
         {/* Header Section */}
         <Box
           sx={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background: `linear-gradient(135deg, ${palette.primary} 0%, ${palette.primaryDark} 100%)`,
             p: 3,
-            color: "white",
+            color: "#FFFFFF",
             position: "relative",
             overflow: "hidden",
           }}
@@ -518,7 +527,7 @@ const UsersTable = () => {
               right: -50,
               width: 200,
               height: 200,
-              background: "rgba(255, 255, 255, 0.1)",
+              background: "rgba(255, 255, 255, 0.08)",
               borderRadius: "50%",
               zIndex: 0,
             }}
@@ -530,7 +539,7 @@ const UsersTable = () => {
               left: -30,
               width: 150,
               height: 150,
-              background: "rgba(255, 255, 255, 0.05)",
+              background: "rgba(255, 255, 255, 0.06)",
               borderRadius: "50%",
               zIndex: 0,
             }}
@@ -586,19 +595,19 @@ const UsersTable = () => {
                   setOpenCreateDialog(true);
                 }}
                 sx={{
-                  background: "linear-gradient(45deg, #FF6B6B, #4ECDC4)",
+                  background: `linear-gradient(45deg, ${palette.primary} 30%, ${palette.primaryDark} 90%)`,
                   borderRadius: 3,
                   px: { xs: 2, sm: 4 },
                   py: 1.5,
                   fontSize: { xs: "0.875rem", sm: "1rem" },
                   fontWeight: 600,
                   textTransform: "none",
-                  boxShadow: "0 8px 25px rgba(255, 107, 107, 0.3)",
+                  boxShadow: "0 8px 25px rgba(184, 92, 56, 0.3)",
                   width: { xs: "100%", sm: "auto" },
                   "&:hover": {
-                    background: "linear-gradient(45deg, #FF5252, #26A69A)",
+                    background: `linear-gradient(45deg, ${palette.primaryDark} 30%, ${palette.primary} 90%)`,
                     transform: "translateY(-2px)",
-                    boxShadow: "0 12px 35px rgba(255, 107, 107, 0.4)",
+                    boxShadow: "0 12px 35px rgba(184, 92, 56, 0.35)",
                   },
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 }}
@@ -623,14 +632,14 @@ const UsersTable = () => {
                   fontWeight: 600,
                   fontSize: "1rem",
                   minHeight: 48,
-                  color: "#667eea",
+                  color: palette.accent,
                   "&.Mui-selected": {
-                    color: "#667eea",
+                    color: palette.primary,
                     fontWeight: 700,
                   },
                 },
                 "& .MuiTabs-indicator": {
-                  backgroundColor: "#667eea",
+                  backgroundColor: palette.primary,
                   height: 3,
                   borderRadius: "2px 2px 0 0",
                 },
@@ -647,20 +656,20 @@ const UsersTable = () => {
             sx={{
               borderRadius: 3,
               overflowX: "auto",
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
-              border: "1px solid rgba(102, 126, 234, 0.1)",
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              border: `1px solid ${palette.border}`,
               "&::-webkit-scrollbar": {
                 height: 8,
               },
               "&::-webkit-scrollbar-track": {
-                backgroundColor: "rgba(102, 126, 234, 0.1)",
+                backgroundColor: "rgba(184, 92, 56, 0.08)",
                 borderRadius: 4,
               },
               "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "rgba(102, 126, 234, 0.3)",
+                backgroundColor: "rgba(184, 92, 56, 0.35)",
                 borderRadius: 4,
                 "&:hover": {
-                  backgroundColor: "rgba(102, 126, 234, 0.5)",
+                  backgroundColor: "rgba(184, 92, 56, 0.45)",
                 },
               },
             }}
@@ -669,8 +678,7 @@ const UsersTable = () => {
               <TableHead>
                 <TableRow
                   sx={{
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background: `linear-gradient(135deg, ${palette.primary} 0%, ${palette.primaryDark} 100%)`,
                     "& .MuiTableCell-head": {
                       color: "white",
                       fontWeight: 700,
@@ -695,7 +703,7 @@ const UsersTable = () => {
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                      <CircularProgress sx={{ color: "#667eea" }} />
+                        <CircularProgress sx={{ color: palette.primary }} />
                     </TableCell>
                   </TableRow>
                 ) : error ? (
@@ -720,10 +728,10 @@ const UsersTable = () => {
                       key={user.id}
                       sx={{
                         "&:nth-of-type(even)": {
-                          backgroundColor: "rgba(102, 126, 234, 0.02)",
+                          backgroundColor: "rgba(184, 92, 56, 0.04)",
                         },
                         "&:hover": {
-                          backgroundColor: "rgba(102, 126, 234, 0.08)",
+                          backgroundColor: "rgba(184, 92, 56, 0.12)",
                           transform: { xs: "none", sm: "scale(1.01)" },
                         },
                         transition: "all 0.2s ease",
@@ -734,7 +742,7 @@ const UsersTable = () => {
                         },
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: "#667eea" }}>
+                      <TableCell sx={{ fontWeight: 600, color: palette.primary }}>
                         {page * rowsPerPage + idx + 1}
                       </TableCell>
                       <TableCell>
@@ -789,10 +797,10 @@ const UsersTable = () => {
                               size="small"
                               onClick={() => handleViewUser(user)}
                               sx={{
-                                color: "#27ae60",
-                                backgroundColor: "rgba(39, 174, 96, 0.1)",
+                                color: palette.accent,
+                                backgroundColor: "rgba(107, 78, 61, 0.12)",
                                 "&:hover": {
-                                  backgroundColor: "rgba(39, 174, 96, 0.2)",
+                                  backgroundColor: "rgba(107, 78, 61, 0.2)",
                                   transform: "scale(1.1)",
                                 },
                                 transition: "all 0.2s ease",
@@ -807,10 +815,10 @@ const UsersTable = () => {
                                   size="small"
                                   onClick={() => handleEditUser(user)}
                                   sx={{
-                                    color: "#3498db",
-                                    backgroundColor: "rgba(52, 152, 219, 0.1)",
+                                  color: palette.primary,
+                                  backgroundColor: "rgba(184, 92, 56, 0.12)",
                                     "&:hover": {
-                                  backgroundColor: "rgba(52, 152, 219, 0.2)",
+                                    backgroundColor: "rgba(184, 92, 56, 0.2)",
                                       transform: "scale(1.1)",
                                     },
                                     transition: "all 0.2s ease",
@@ -855,15 +863,15 @@ const UsersTable = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
             rowsPerPageOptions={[5, 10, 25, 50]}
             sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
-              borderTop: "1px solid rgba(102, 126, 234, 0.1)",
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              borderTop: `1px solid ${palette.border}`,
               "& .MuiTablePagination-toolbar": {
-                color: "#667eea",
+                color: palette.accent,
                 fontWeight: 600,
               },
               "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
                 {
-                  color: "#2c3e50",
+                  color: palette.text,
                   fontWeight: 600,
                 },
             }}
@@ -904,9 +912,9 @@ const UsersTable = () => {
               borderRadius: 4,
               boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
               maxHeight: "85vh",
-              background: "rgba(255, 255, 255, 0.95)",
+              background: "rgba(255, 255, 255, 0.97)",
               backdropFilter: "blur(10px)",
-              border: "1px solid rgba(102, 126, 234, 0.2)",
+              border: `1px solid ${palette.border}`,
               overflow: "hidden",
             },
             "& .MuiBackdrop-root": {
@@ -916,7 +924,7 @@ const UsersTable = () => {
         >
           <DialogTitle
             sx={{
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: `linear-gradient(135deg, ${palette.primary} 0%, ${palette.primaryDark} 100%)`,
               color: "white",
               fontWeight: "bold",
               display: "flex",
@@ -971,8 +979,7 @@ const UsersTable = () => {
               <Box>
                 <Box
                   sx={{
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background: `linear-gradient(135deg, ${palette.primary} 0%, ${palette.primaryDark} 100%)`,
                     borderRadius: 3,
                     p: 3,
                     mb: 4,
@@ -1035,9 +1042,9 @@ const UsersTable = () => {
                     <Box
                       sx={{
                         p: 2,
-                        backgroundColor: "rgba(102, 126, 234, 0.1)",
+                            backgroundColor: "rgba(184, 92, 56, 0.1)",
                         borderRadius: 2,
-                        border: "2px solid rgba(102, 126, 234, 0.3)",
+                            border: `2px solid ${palette.border}`,
                         cursor: "pointer",
                         transition: "transform 0.2s ease-in-out",
                         display: "inline-block",
@@ -1061,8 +1068,8 @@ const UsersTable = () => {
                           height: 150,
                           objectFit: "cover",
                           borderRadius: "50%",
-                          border: "4px solid #667eea",
-                          boxShadow: "0 8px 25px rgba(102, 126, 234, 0.3)",
+                          border: `4px solid ${palette.primary}`,
+                          boxShadow: "0 8px 25px rgba(184, 92, 56, 0.28)",
                         }}
                         onError={(e) => {
                           e.target.style.display = "none";
@@ -1078,22 +1085,22 @@ const UsersTable = () => {
                           flexDirection: "column",
                           alignItems: "center",
                           justifyContent: "center",
-                          backgroundColor: "rgba(102, 126, 234, 0.1)",
+                          backgroundColor: "rgba(184, 92, 56, 0.12)",
                           borderRadius: "50%",
-                          border: "4px solid #667eea",
+                          border: `4px solid ${palette.primary}`,
                         }}
                       >
                         <PersonIcon
                           sx={{
                             fontSize: 48,
-                            color: "#667eea",
+                            color: palette.primary,
                             mb: 1,
                           }}
                         />
                         <Typography
                           variant="caption"
                           sx={{
-                            color: "#667eea",
+                            color: palette.primary,
                             display: "block",
                             wordBreak: "break-word",
                             textAlign: "center",
@@ -1121,7 +1128,7 @@ const UsersTable = () => {
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={2}>
-                      <PersonIcon sx={{ fontSize: 24, color: "#667eea" }} />
+                      <PersonIcon sx={{ fontSize: 24, color: palette.primary }} />
                       <Box>
                         <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
                           ROLE
@@ -1146,7 +1153,7 @@ const UsersTable = () => {
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={2}>
-                      <PhoneIcon sx={{ fontSize: 24, color: "#667eea" }} />
+                      <PhoneIcon sx={{ fontSize: 24, color: palette.primary }} />
                       <Box>
                         <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
                           PHONE
@@ -1171,7 +1178,7 @@ const UsersTable = () => {
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={2}>
-                      <CheckCircle sx={{ fontSize: 24, color: "#667eea" }} />
+                      <CheckCircle sx={{ fontSize: 24, color: palette.primary }} />
                       <Box>
                         <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
                           STATUS
@@ -1196,7 +1203,7 @@ const UsersTable = () => {
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={2}>
-                      <Schedule sx={{ fontSize: 24, color: "#667eea" }} />
+                      <Schedule sx={{ fontSize: 24, color: palette.primary }} />
                       <Box>
                         <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
                           LAST LOGIN
@@ -1436,7 +1443,7 @@ const UsersTable = () => {
               <Box
                 component="form"
                 noValidate
-                sx={{ maxHeight: "45vh", overflowY: "auto" }}
+                sx={{ maxHeight: "45vh", overflowY: "auto", pb: 2 }}
               >
                 <Stack spacing={1.5} sx={{ mt: 1 }}>
                       <TextField
@@ -1512,11 +1519,11 @@ const UsersTable = () => {
                         startIcon={<PersonIcon />}
                         sx={{
                           mb: 2,
-                          borderColor: "#667eea",
-                          color: "#667eea",
+                          borderColor: palette.primary,
+                          color: palette.primary,
                           "&:hover": {
-                            borderColor: "#5a6fd8",
-                            backgroundColor: "rgba(102, 126, 234, 0.1)",
+                          borderColor: palette.primaryDark,
+                            backgroundColor: "rgba(184, 92, 56, 0.1)",
                           },
                         }}
                       >
@@ -1651,13 +1658,14 @@ const UsersTable = () => {
                     variant="outlined"
                     size="small"
                     placeholder="https://facebook.com/..."
+                    sx={{ mb: 1.5 }}
                   />
                 </Stack>
               </Box>
             )}
           </DialogContent>
           <DialogActions
-            sx={{ p: 3, gap: 2, backgroundColor: "rgba(102, 126, 234, 0.05)" }}
+            sx={{ p: 3, gap: 2, backgroundColor: "rgba(184, 92, 56, 0.05)" }}
           >
             <Button
               onClick={() => {
@@ -1686,15 +1694,15 @@ const UsersTable = () => {
               }}
               variant="outlined"
               sx={{
-                borderColor: "#667eea",
-                color: "#667eea",
+                borderColor: palette.primary,
+                color: palette.primary,
                 fontWeight: 600,
                 borderRadius: 2,
                 px: 3,
                 py: 1,
                 "&:hover": {
-                  borderColor: "#5a6fd8",
-                  backgroundColor: "rgba(102, 126, 234, 0.1)",
+                  borderColor: palette.primaryDark,
+                  backgroundColor: "rgba(184, 92, 56, 0.08)",
                 },
               }}
             >
@@ -1713,21 +1721,21 @@ const UsersTable = () => {
                 }
                 sx={{
                   background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    `linear-gradient(135deg, ${palette.primary} 0%, ${palette.primaryDark} 100%)`,
                   borderRadius: 2,
                   px: 4,
                   py: 1,
                   fontWeight: 600,
                   textTransform: "none",
-                  boxShadow: "0 4px 15px rgba(102, 126, 234, 0.3)",
+                  boxShadow: "0 4px 15px rgba(184, 92, 56, 0.3)",
                   "&:hover": {
                     background:
-                      "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+                      `linear-gradient(135deg, ${palette.primaryDark} 0%, ${palette.primary} 100%)`,
                     transform: "translateY(-1px)",
-                    boxShadow: "0 6px 20px rgba(102, 126, 234, 0.4)",
+                    boxShadow: "0 6px 20px rgba(184, 92, 56, 0.35)",
                   },
                   "&:disabled": {
-                    background: "rgba(102, 126, 234, 0.3)",
+                    background: "rgba(184, 92, 56, 0.25)",
                     color: "rgba(255, 255, 255, 0.6)",
                   },
                   transition: "all 0.3s ease",
