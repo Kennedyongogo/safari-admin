@@ -28,6 +28,10 @@ import UsersTable from "./Users/UsersTable";
 import Analytics from "./Analytics/Analytics";
 import Audit from "./Audit/Audit";
 import PublicMembers from "./PublicMembers/PublicMembers";
+import Tour from "./Tour/Tour";
+import TourCreate from "./Tour/TourCreate";
+import TourView from "./Tour/TourView";
+import TourEdit from "./Tour/TourEdit";
 import { lazy, Suspense } from "react";
 
 // Lazy load the Reports component to avoid loading date picker dependencies on every page
@@ -91,6 +95,10 @@ function PageRoutes() {
             <Route path="camp-lodges/create" element={<CampCreate />} />
             <Route path="camp-lodges/:id" element={<CampView />} />
             <Route path="camp-lodges/:id/edit" element={<CampEdit />} />
+            <Route path="tours" element={<Tour />} />
+            <Route path="tours/create" element={<TourCreate />} />
+            <Route path="tours/:id" element={<TourView />} />
+            <Route path="tours/:id/edit" element={<TourEdit />} />
             <Route path="issues" element={<Issues />} />
             <Route path="testimonies" element={<Navigate to="/reviews" replace />} />
             <Route path="reviews" element={<Review />} />
