@@ -232,12 +232,9 @@ const Tour = () => {
                   }}
                 >
                   <TableCell>NO</TableCell>
-                  <TableCell>Package Title</TableCell>
+                  <TableCell>Title</TableCell>
                   <TableCell>Type</TableCell>
-                  <TableCell>Duration</TableCell>
                   <TableCell>Price</TableCell>
-                  <TableCell>Stages</TableCell>
-                  <TableCell>Status</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -250,7 +247,7 @@ const Tour = () => {
                   </TableRow>
                 ) : packages.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                       <Typography color="text.secondary">No packages found.</Typography>
                     </TableCell>
                   </TableRow>
@@ -260,12 +257,9 @@ const Tour = () => {
                       <TableCell sx={{ fontWeight: 600 }}>
                         {page * rowsPerPage + idx + 1}
                       </TableCell>
-                      <TableCell sx={{ maxWidth: 220 }}>
+                      <TableCell sx={{ maxWidth: 300 }}>
                         <Typography variant="body2" fontWeight={700} color="#2c3e50">
                           {blog.title}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {blog.description?.slice(0, 80) || ""}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -277,29 +271,12 @@ const Tour = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" color="text.secondary">
-                          {blog.duration || "—"}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
                         <Typography variant="body2" fontWeight={600} color="#27ae60">
                           {blog.price || "—"}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
                           {blog.pricePerPerson}
                         </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" color="text.secondary">
-                          {blog.routeStages?.length || 0} stages
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={blog.isActive ? "Active" : "Inactive"}
-                          color={blog.isActive ? "success" : "default"}
-                          size="small"
-                        />
                       </TableCell>
                       <TableCell align="right">
                         <Tooltip title="View package">

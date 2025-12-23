@@ -19,6 +19,8 @@ import {
   Alert,
   IconButton,
   Chip,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -28,6 +30,9 @@ import {
   Article,
   Image as ImageIcon,
   Add,
+  CheckCircle,
+  RadioButtonUnchecked,
+  Delete,
 } from "@mui/icons-material";
 import Swal from "sweetalert2";
 import LocationMapPicker from "./LocationMapPicker";
@@ -121,21 +126,61 @@ const ChipArrayField = ({ label, value, onChange, placeholder }) => {
 };
 
 // Route Stage Form Component
-const RouteStageForm = ({ packageId, editingStage, onSave, onCancel }) => {
-  const [stageForm, setStageForm] = useState({
-    stage: editingStage ? editingStage.stage : (Math.max(...[0, ...routeStages.map(s => s.stage)]) + 1),
-    name: editingStage ? editingStage.name : "",
-    description: editingStage ? editingStage.description : "",
-    longitude: editingStage ? editingStage.longitude || "" : "",
-    latitude: editingStage ? editingStage.latitude || "" : "",
-    duration: editingStage ? editingStage.duration : "",
-    activities: editingStage ? (editingStage.activities || []) : [],
-    accommodation: editingStage ? editingStage.accommodation || "" : "",
-    meals: editingStage ? editingStage.meals || "" : "",
-    transportation: editingStage ? editingStage.transportation || "" : "",
-    highlights: editingStage ? (editingStage.highlights || []) : [],
-    tips: editingStage ? editingStage.tips || "" : "",
-    wildlife: editingStage ? (editingStage.wildlife || []) : [],
+const RouteStageForm = ({ packageId, editingStage, routeStages, onSave, onCancel }) => {
+  // Helper function to build proper image URLs
+  const buildStageImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    // Don't display blob URLs as they are temporary and invalid when retrieved from database
+    if (imagePath.startsWith("blob:")) return null;
+    if (imagePath.startsWith("http")) return imagePath; // Full URLs
+    if (imagePath.startsWith("/")) return imagePath; // Absolute paths
+    return `/${imagePath}`; // Relative paths
+  };
+
+  // Upload images to server and get permanent URLs
+  const uploadStageImages = async (files) => {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('stage_images', file);
+    });
+
+    const token = localStorage.getItem("token");
+    const response = await fetch("/api/uploads/stage-images", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.message || "Failed to upload images");
+    }
+
+    return result.data.urls; // Return array of permanent URLs
+  };
+
+  const [stageForm, setStageForm] = useState(() => {
+    const initialImages = editingStage ? (editingStage.images || [])
+      .map(img => buildStageImageUrl(img))
+      .filter(img => img !== null) : []; // Filter out null/invalid URLs
+    return {
+      stage: editingStage ? editingStage.stage : (Math.max(...[0, ...routeStages.map(s => s.stage)]) + 1),
+      name: editingStage ? editingStage.name : "",
+      description: editingStage ? editingStage.description : "",
+      longitude: editingStage ? editingStage.longitude || "" : "",
+      latitude: editingStage ? editingStage.latitude || "" : "",
+      duration: editingStage ? editingStage.duration : "",
+      activities: editingStage ? (editingStage.activities || []) : [],
+      accommodation: editingStage ? editingStage.accommodation || "" : "",
+      meals: editingStage ? editingStage.meals || "" : "",
+      transportation: editingStage ? editingStage.transportation || "" : "",
+      highlights: editingStage ? (editingStage.highlights || []) : [],
+      tips: editingStage ? editingStage.tips || "" : "",
+      wildlife: editingStage ? (editingStage.wildlife || []) : [],
+      images: initialImages,
+    };
   });
   const [saving, setSaving] = useState(false);
 
@@ -155,13 +200,14 @@ const RouteStageForm = ({ packageId, editingStage, onSave, onCancel }) => {
         duration: stageForm.duration.trim(),
         activities: stageForm.activities,
         highlights: stageForm.highlights,
+        images: stageForm.images,
         ...(stageForm.longitude && { longitude: parseFloat(stageForm.longitude) }),
         ...(stageForm.latitude && { latitude: parseFloat(stageForm.latitude) }),
         ...(stageForm.accommodation && { accommodation: stageForm.accommodation.trim() }),
         ...(stageForm.meals && { meals: stageForm.meals.trim() }),
         ...(stageForm.transportation && { transportation: stageForm.transportation.trim() }),
         ...(stageForm.tips && { tips: stageForm.tips.trim() }),
-        ...(stageForm.wildlife && { wildlife: stageForm.wildlife.trim() }),
+        ...(stageForm.wildlife && stageForm.wildlife.length > 0 && { wildlife: stageForm.wildlife }),
       };
 
       const url = editingStage
@@ -190,6 +236,8 @@ const RouteStageForm = ({ packageId, editingStage, onSave, onCancel }) => {
         if (packageData.success) {
           // Update the parent component's routeStages state
           onSave(result.data);
+        } else {
+          throw new Error("Failed to refresh package data");
         }
       } else {
         throw new Error(result.message || `Failed to ${editingStage ? 'update' : 'create'} route stage`);
@@ -261,6 +309,111 @@ const RouteStageForm = ({ packageId, editingStage, onSave, onCancel }) => {
             handleStageInputChange("longitude", lng);
           }}
         />
+
+        {/* Stage Images Gallery */}
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#6B4E3D" }}>
+            Stage Images Gallery
+          </Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+            Upload multiple images showcasing what visitors can expect at this stage
+          </Typography>
+
+          <Box sx={{ mb: 2 }}>
+            <input
+              accept="image/*"
+              style={{ display: 'none' }}
+              id="stage-images-upload"
+              multiple
+              type="file"
+              onChange={async (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) {
+                  try {
+                    const permanentUrls = await uploadStageImages(files);
+                    handleStageInputChange("images", [...(stageForm.images || []), ...permanentUrls]);
+                  } catch (error) {
+                    console.error("Failed to upload images:", error);
+                    Swal.fire({
+                      icon: "error",
+                      title: "Upload Failed",
+                      text: error.message || "Failed to upload images",
+                    });
+                  }
+                }
+                e.target.value = null; // Reset input
+              }}
+            />
+            <label htmlFor="stage-images-upload">
+              <Button
+                variant="outlined"
+                component="span"
+                startIcon={<CloudUpload />}
+                sx={{
+                  borderColor: "#6B4E3D",
+                  color: "#6B4E3D",
+                  "&:hover": {
+                    borderColor: "#B85C38",
+                    backgroundColor: "rgba(184, 92, 56, 0.04)",
+                  },
+                }}
+              >
+                Upload Images
+              </Button>
+            </label>
+          </Box>
+
+          {/* Display uploaded images */}
+          {stageForm.images && stageForm.images.filter(img => img !== null).length > 0 && (
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
+              {stageForm.images.map((imageUrl, index) =>
+                imageUrl !== null && (
+                  <Box
+                    key={index}
+                    sx={{
+                      position: "relative",
+                      width: 120,
+                      height: 120,
+                      borderRadius: 2,
+                      overflow: "hidden",
+                      border: "2px solid #e0e0e0",
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={imageUrl}
+                      alt={`Stage image ${index + 1}`}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        const newImages = stageForm.images.filter((_, i) => i !== index);
+                        handleStageInputChange("images", newImages);
+                      }}
+                      sx={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        backgroundColor: "rgba(0, 0, 0, 0.6)",
+                        color: "white",
+                        "&:hover": {
+                          backgroundColor: "rgba(0, 0, 0, 0.8)",
+                        },
+                      }}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </Box>
+                )
+              )}
+            </Box>
+          )}
+        </Box>
 
         <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
           <TextField
@@ -350,7 +503,18 @@ const RouteStageForm = ({ packageId, editingStage, onSave, onCancel }) => {
           </Button>
           <Button
             variant="contained"
-            onClick={handleStageSave}
+            onClick={async () => {
+              try {
+                await handleStageSave();
+              } catch (error) {
+                console.error("Failed to save stage:", error);
+                Swal.fire({
+                  icon: "error",
+                  title: "Failed to Save Stage",
+                  text: error.message || "An error occurred while saving the stage.",
+                });
+              }
+            }}
             disabled={!isStageFormValid() || saving}
             sx={{
               background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
@@ -374,12 +538,15 @@ const TourEdit = () => {
   const [featuredFile, setFeaturedFile] = useState(null);
   const [featuredPreview, setFeaturedPreview] = useState(null);
 
+  // Tab management
+  const [activeTab, setActiveTab] = useState(0);
+
   const [packageForm, setPackageForm] = useState({
     title: "",
     description: "",
     duration: "",
     price: "",
-    pricePerPerson: "per person",
+    pricePerPerson: "",
     groupSize: "",
     type: "All-inclusive",
     rating: 0,
@@ -391,6 +558,10 @@ const TourEdit = () => {
   const [routeStages, setRouteStages] = useState([]);
   const [editingStage, setEditingStage] = useState(null);
   const [showStageForm, setShowStageForm] = useState(false);
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
 
   const buildImageUrl = (path) => {
     if (!path) return null;
@@ -420,7 +591,7 @@ const TourEdit = () => {
         description: pkg.description || "",
         duration: pkg.duration || "",
         price: pkg.price || "",
-        pricePerPerson: pkg.pricePerPerson || "per person",
+        pricePerPerson: pkg.pricePerPerson || "",
         groupSize: pkg.groupSize || "",
         type: pkg.type || "All-inclusive",
         rating: pkg.rating || 0,
@@ -558,7 +729,9 @@ const TourEdit = () => {
         timer: 1400,
         showConfirmButton: false,
       });
-      // Stay on the edit page to continue managing route stages
+
+      // Navigate to view the updated package
+      navigate(`/tours/${id}`);
     } catch (err) {
       setError(err.message || "Failed to update package");
       Swal.fire("Error", err.message || "Failed to update package", "error");
@@ -598,60 +771,10 @@ const TourEdit = () => {
         minHeight: "100vh",
         background:
           "linear-gradient(135deg, rgba(245, 241, 232, 0.95) 0%, rgba(255, 255, 255, 0.98) 50%, rgba(232, 224, 209, 0.95) 100%)",
-        p: { xs: 0.5, sm: 0.5, md: 0.5 },
+        py: 4,
       }}
     >
-      <Container maxWidth="lg" sx={{ px: 0.5 }}>
-        <Box
-          sx={{
-            background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
-            p: 3,
-            color: "white",
-            borderRadius: 2,
-            position: "relative",
-            overflow: "hidden",
-            mb: 4,
-          }}
-        >
-          <Box display="flex" alignItems="center" gap={2} position="relative" zIndex={1}>
-            <IconButton
-              onClick={() => navigate("/tours")}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.2)",
-                color: "white",
-                "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.3)" },
-              }}
-            >
-              <ArrowBack />
-            </IconButton>
-            <Article sx={{ fontSize: 40 }} />
-            <Box>
-              <Typography variant="h4" sx={{ fontWeight: 800, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
-                Edit Safari Package
-              </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                {packageForm.title}
-              </Typography>
-            </Box>
-            <Box ml="auto" display="flex" gap={1}>
-              <Button
-                variant="contained"
-                startIcon={<Save />}
-                onClick={handleSave}
-                disabled={!isFormValid() || saving}
-                sx={{
-                  background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
-                  color: "white",
-                  "&:hover": { background: "linear-gradient(135deg, #8B4225 0%, #6B4E3D 100%)" },
-                  "&:disabled": { backgroundColor: "rgba(255,255,255,0.15)" },
-                }}
-              >
-                {saving ? "Saving..." : "Save Package"}
-              </Button>
-            </Box>
-          </Box>
-        </Box>
-
+      <Container maxWidth="lg">
         <Card
           sx={{
             backgroundColor: "white",
@@ -659,193 +782,324 @@ const TourEdit = () => {
             border: "1px solid #e0e0e0",
           }}
         >
-          <CardContent>
-            <Stack spacing={3}>
-              <TextField
-                fullWidth
-                label="Package Title"
-                value={packageForm.title}
-                onChange={(e) => handleInputChange("title", e.target.value)}
-                required
+          <CardContent sx={{ p: 0 }}>
+            {/* Header Section */}
+            <Box
+              sx={{
+                background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
+                p: 3,
+                color: "white",
+                position: "relative",
+                overflow: "hidden",
+                borderRadius: "8px 8px 0 0",
+              }}
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: -50,
+                  right: -50,
+                  width: 200,
+                  height: 200,
+                  background: "rgba(255, 255, 255, 0.1)",
+                  borderRadius: "50%",
+                }}
               />
-              <TextField
-                fullWidth
-                label="Description"
-                multiline
-                rows={4}
-                value={packageForm.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                required
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: -30,
+                  left: -30,
+                  width: 150,
+                  height: 150,
+                  background: "rgba(255, 255, 255, 0.05)",
+                  borderRadius: "50%",
+                }}
               />
-              <TextField
-                fullWidth
-                label="Duration"
-                value={packageForm.duration}
-                onChange={(e) => handleInputChange("duration", e.target.value)}
-                placeholder="e.g., 8 Days / 7 Nights"
-                required
-              />
-              <TextField
-                fullWidth
-                label="Group Size"
-                value={packageForm.groupSize}
-                onChange={(e) => handleInputChange("groupSize", e.target.value)}
-                placeholder="e.g., 2-6 People"
-                required
-              />
-              <TextField
-                fullWidth
-                label="Price"
-                value={packageForm.price}
-                onChange={(e) => handleInputChange("price", e.target.value)}
-                placeholder="e.g., $2,500"
-                required
-              />
-              <FormControl fullWidth>
-                <InputLabel>Package Type</InputLabel>
-                <Select
-                  value={packageForm.type}
-                  label="Package Type"
-                  onChange={(e) => handleInputChange("type", e.target.value)}
+              <Box display="flex" alignItems="center" gap={2} position="relative" zIndex={1}>
+                <IconButton
+                  onClick={() => navigate("/tours")}
+                  sx={{
+                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                    color: "white",
+                    "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.3)" },
+                  }}
                 >
-                  <MenuItem value="All-inclusive">All-inclusive</MenuItem>
-                  <MenuItem value="Full board">Full board</MenuItem>
-                  <MenuItem value="Half board">Half board</MenuItem>
-                  <MenuItem value="Bed & breakfast">Bed & breakfast</MenuItem>
-                </Select>
-              </FormControl>
-              <ChipArrayField
-                label="Highlights"
-                value={packageForm.highlights}
-                onChange={(value) => handleInputChange("highlights", value)}
-                placeholder="Add a highlight (e.g., Big Five Safari)"
-              />
-              <ChipArrayField
-                label="What's Included"
-                value={packageForm.included}
-                onChange={(value) => handleInputChange("included", value)}
-                placeholder="Add an included item (e.g., Accommodation)"
-              />
-              <TextField
-                fullWidth
-                label="Rating"
-                type="number"
-                value={packageForm.rating}
-                onChange={(e) => handleInputChange("rating", parseFloat(e.target.value) || 0)}
-                inputProps={{ min: 0, max: 5, step: 0.1 }}
-                helperText="Rating out of 5.0"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={packageForm.isActive}
-                    onChange={(e) => handleInputChange("isActive", e.target.checked)}
-                  />
-                }
-                label="Active (available for booking)"
-              />
-              <Box>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  Package Image
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-                  Main hero image for the package (recommended: 1200x800px)
-                </Typography>
-                <Box mb={2}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    style={{ display: "none" }}
-                    id="package-image-upload"
-                  />
-                  <label htmlFor="package-image-upload">
-                    <Button
-                      variant="outlined"
-                      component="span"
-                      startIcon={<CloudUpload />}
-                      sx={{
-                        color: "#667eea",
-                        borderColor: "#667eea",
-                        "&:hover": {
-                          borderColor: "#667eea",
-                          backgroundColor: "rgba(102, 126, 234, 0.1)",
-                        },
-                        mb: 2,
-                      }}
-                    >
-                      Upload Package Image
-                    </Button>
-                  </label>
+                  <ArrowBack />
+                </IconButton>
+                <Article sx={{ fontSize: 40 }} />
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 800, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
+                    Edit Safari Package
+                  </Typography>
+                  <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                    {packageForm.title}
+                  </Typography>
                 </Box>
-
-                {featuredPreview ? (
-                  <Box
+                <Box ml="auto" display="flex" gap={1}>
+                  <Button
+                    variant="contained"
+                    startIcon={<Save />}
+                    onClick={handleSave}
+                    disabled={!isFormValid() || saving}
                     sx={{
-                      p: 2,
-                      backgroundColor: "#f8f9fa",
-                      borderRadius: 2,
-                      border: "1px solid #e0e0e0",
-                      position: "relative",
-                      maxWidth: 400,
+                      background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
+                      color: "white",
+                      "&:hover": { background: "linear-gradient(135deg, #8B4225 0%, #6B4E3D 100%)" },
+                      "&:disabled": { backgroundColor: "rgba(255,255,255,0.15)" },
                     }}
                   >
-                    <IconButton
-                      onClick={removeFeaturedFile}
-                      sx={{
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        color: "white",
-                        "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.7)" },
-                        zIndex: 2,
-                      }}
-                      size="small"
-                    >
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                    <img
-                      src={featuredPreview}
-                      alt="Package"
-                      style={{
-                        width: "100%",
-                        height: "200px",
-                        objectFit: "cover",
-                        borderRadius: "8px",
-                        marginBottom: "8px",
-                      }}
-                    />
-                    <Typography variant="caption" sx={{ color: "#333" }}>
-                      {featuredFile?.name || "Current package image"}
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Box
-                    sx={{
-                      border: "2px dashed #ccc",
-                      borderRadius: 2,
-                      p: 3,
-                      textAlign: "center",
-                      bgcolor: "#f9f9f9",
-                      maxWidth: 400,
-                    }}
-                  >
-                    <ImageIcon sx={{ fontSize: 48, opacity: 0.3 }} />
-                    <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
-                      No image selected. Click "Upload Package Image" to add one.
-                    </Typography>
-                  </Box>
-                )}
+                    {saving ? "Saving..." : "Save Package"}
+                  </Button>
+                </Box>
               </Box>
-              {/* Route Stages Management Section */}
-              <Box sx={{ mt: 4, p: 3, bgcolor: "#f8f6f2", borderRadius: 2, border: "1px solid #e0d6c8" }}>
-                <Typography variant="h6" sx={{ mb: 2, color: "#6B4E3D", fontWeight: 700 }}>
-                  Itinerary Management
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary", mb: 3 }}>
-                  Manage the day-by-day stages of your safari package itinerary.
-                </Typography>
+            </Box>
+
+            {/* Content Section */}
+            <Box sx={{ p: 3 }}>
+              {/* Tabs */}
+              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs
+                  value={activeTab}
+                  onChange={handleTabChange}
+                  aria-label="tour edit tabs"
+                  sx={{
+                    '& .MuiTab-root': {
+                      minHeight: 48,
+                      textTransform: 'none',
+                      fontWeight: 600,
+                    }
+                  }}
+                >
+                  <Tab
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Article sx={{ fontSize: 18 }} />
+                        Package Details
+                      </Box>
+                    }
+                  />
+                  <Tab
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Add sx={{ fontSize: 18 }} />
+                        Route Stages
+                        {routeStages.length > 0 && (
+                          <Chip
+                            label={routeStages.length}
+                            size="small"
+                            sx={{ height: 18, fontSize: '0.7rem', minWidth: 18 }}
+                          />
+                        )}
+                      </Box>
+                    }
+                  />
+                </Tabs>
+              </Box>
+
+              {/* Tab Content */}
+              {activeTab === 0 && (
+                <Stack spacing={3}>
+                  <Typography variant="h6" sx={{ color: "#6B4E3D", fontWeight: 600 }}>
+                    Package Information
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    label="Package Title"
+                    value={packageForm.title}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    label="Description"
+                    multiline
+                    rows={4}
+                    value={packageForm.description}
+                    onChange={(e) => handleInputChange("description", e.target.value)}
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    label="Duration"
+                    value={packageForm.duration}
+                    onChange={(e) => handleInputChange("duration", e.target.value)}
+                    placeholder="e.g., 8 Days / 7 Nights"
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    label="Group Size"
+                    value={packageForm.groupSize}
+                    onChange={(e) => handleInputChange("groupSize", e.target.value)}
+                    placeholder="e.g., 2-6 People"
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    label="Price"
+                    value={packageForm.price}
+                    onChange={(e) => handleInputChange("price", e.target.value)}
+                    placeholder="e.g., $2,500"
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    label="Price Description"
+                    value={packageForm.pricePerPerson}
+                    onChange={(e) => handleInputChange("pricePerPerson", e.target.value)}
+                    placeholder="e.g., per person, per couple, per 10 people"
+                    helperText="How the price should be displayed"
+                  />
+                  <FormControl fullWidth>
+                    <InputLabel>Package Type</InputLabel>
+                    <Select
+                      value={packageForm.type}
+                      label="Package Type"
+                      onChange={(e) => handleInputChange("type", e.target.value)}
+                    >
+                      <MenuItem value="All-inclusive">All-inclusive</MenuItem>
+                      <MenuItem value="Full board">Full board</MenuItem>
+                      <MenuItem value="Half board">Half board</MenuItem>
+                      <MenuItem value="Bed & breakfast">Bed & breakfast</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <ChipArrayField
+                    label="Highlights"
+                    value={packageForm.highlights}
+                    onChange={(value) => handleInputChange("highlights", value)}
+                    placeholder="Add a highlight (e.g., Big Five Safari)"
+                  />
+                  <ChipArrayField
+                    label="What's Included"
+                    value={packageForm.included}
+                    onChange={(value) => handleInputChange("included", value)}
+                    placeholder="Add an included item (e.g., Accommodation)"
+                  />
+                  <TextField
+                    fullWidth
+                    label="Rating"
+                    type="number"
+                    value={packageForm.rating}
+                    onChange={(e) => handleInputChange("rating", parseFloat(e.target.value) || 0)}
+                    inputProps={{ min: 0, max: 5, step: 0.1 }}
+                    helperText="Rating out of 5.0"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={packageForm.isActive}
+                        onChange={(e) => handleInputChange("isActive", e.target.checked)}
+                      />
+                    }
+                    label="Active (available for booking)"
+                  />
+                  <Box>
+                    <Typography variant="h6" sx={{ mb: 1 }}>
+                      Package Image
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+                      Main hero image for the package (recommended: 1200x800px)
+                    </Typography>
+                    <Box mb={2}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        style={{ display: "none" }}
+                        id="package-image-upload"
+                      />
+                      <label htmlFor="package-image-upload">
+                        <Button
+                          variant="outlined"
+                          component="span"
+                          startIcon={<CloudUpload />}
+                          sx={{
+                            color: "#667eea",
+                            borderColor: "#667eea",
+                            "&:hover": {
+                              borderColor: "#667eea",
+                              backgroundColor: "rgba(102, 126, 234, 0.1)",
+                            },
+                            mb: 2,
+                          }}
+                        >
+                          Upload Package Image
+                        </Button>
+                      </label>
+                    </Box>
+
+                    {featuredPreview ? (
+                      <Box
+                        sx={{
+                          p: 2,
+                          backgroundColor: "#f8f9fa",
+                          borderRadius: 2,
+                          border: "1px solid #e0e0e0",
+                          position: "relative",
+                          maxWidth: 400,
+                        }}
+                      >
+                        <IconButton
+                          onClick={removeFeaturedFile}
+                          sx={{
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            color: "white",
+                            "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.7)" },
+                            zIndex: 2,
+                          }}
+                          size="small"
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                        <img
+                          src={featuredPreview}
+                          alt="Package"
+                          style={{
+                            width: "100%",
+                            height: "200px",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                            marginBottom: "8px",
+                          }}
+                        />
+                        <Typography variant="caption" sx={{ color: "#333" }}>
+                          {featuredFile?.name || "Current package image"}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          border: "2px dashed #ccc",
+                          borderRadius: 2,
+                          p: 3,
+                          textAlign: "center",
+                          bgcolor: "#f9f9f9",
+                          maxWidth: 400,
+                        }}
+                      >
+                        <ImageIcon sx={{ fontSize: 48, opacity: 0.3 }} />
+                        <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
+                          No image selected. Click "Upload Package Image" to add one.
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </Stack>
+              )}
+
+              {/* Route Stages Tab */}
+              {activeTab === 1 && (
+                <Box>
+                  <Typography variant="h6" sx={{ mb: 2, color: "#6B4E3D", fontWeight: 600 }}>
+                    Itinerary Management
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary", mb: 3 }}>
+                    Manage the day-by-day stages of your safari package itinerary.
+                  </Typography>
 
                 {/* Route Stages List */}
                 <Box sx={{ mb: 3 }}>
@@ -948,6 +1202,7 @@ const TourEdit = () => {
                   <RouteStageForm
                     packageId={id}
                     editingStage={editingStage}
+                    routeStages={routeStages}
                     onSave={(stage) => {
                       if (editingStage) {
                         // Update existing stage
@@ -958,6 +1213,13 @@ const TourEdit = () => {
                         // Add new stage
                         setRouteStages(prev => [...prev, stage].sort((a, b) => a.stage - b.stage));
                       }
+                      Swal.fire({
+                        icon: "success",
+                        title: editingStage ? "Stage Updated!" : "Stage Added!",
+                        text: editingStage ? "The route stage has been updated successfully." : "The route stage has been added to your package.",
+                        timer: 2000,
+                        showConfirmButton: false,
+                      });
                       setShowStageForm(false);
                       setEditingStage(null);
                     }}
@@ -967,8 +1229,9 @@ const TourEdit = () => {
                     }}
                   />
                 )}
-              </Box>
-            </Stack>
+                </Box>
+              )}
+            </Box>
           </CardContent>
         </Card>
       </Container>

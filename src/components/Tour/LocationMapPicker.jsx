@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import { Box, TextField, Autocomplete, CircularProgress, Typography, Paper, IconButton } from "@mui/material";
 import { Map as MapIcon, SatelliteAlt, Terrain, Search } from "@mui/icons-material";
@@ -47,57 +47,201 @@ const LocationMapPicker = ({
   const [loading, setLoading] = useState(false);
   const [mapView, setMapView] = useState("osm"); // "osm", "satellite", "terrain"
 
-  // Search for locations using Nominatim (OpenStreetMap geocoding)
-  const searchLocations = useCallback(async (query) => {
+  // Cache for search results to avoid duplicate API calls
+  const searchCacheRef = useRef(new Map());
+
+  // Advanced search function that tries multiple strategies
+  const performSearch = useCallback(async (query, searchParams, controller) => {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?${searchParams}`,
+      {
+        headers: {
+          'User-Agent': 'Safari-Admin/1.0 (contact@akirasafari.com)'
+        },
+        signal: controller.signal
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`API responded with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  }, []);
+
+  // Search for locations using Nominatim (OpenStreetMap geocoding) with improved parameters
+  const searchLocations = useCallback(async (query, retryCount = 0) => {
     if (!query || query.length < 2) {
       setSearchOptions([]);
       return;
     }
 
+    // Check cache first
+    const cacheKey = query.toLowerCase().trim();
+    if (searchCacheRef.current.has(cacheKey)) {
+      setSearchOptions(searchCacheRef.current.get(cacheKey));
+      return;
+    }
+
     setLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`,
-        {
-          headers: {
-            'User-Agent': 'Safari-Admin/1.0'
-          }
+      let allResults = [];
+
+      // Strategy 1: Standard search
+      const standardParams = new URLSearchParams({
+        q: query,
+        format: 'json',
+        limit: '6',
+        addressdetails: '1',
+        extratags: '1',
+        namedetails: '1',
+        dedupe: '1',
+      });
+
+      try {
+        const standardResults = await performSearch(query, standardParams, controller);
+        allResults = [...allResults, ...standardResults];
+      } catch (error) {
+        // Standard search failed - continue with other strategies
+      }
+
+      // Strategy 2: Search with country bias (Kenya, Tanzania for safari context)
+      if (query.toLowerCase().includes('safari') || query.toLowerCase().includes('kenya') ||
+          query.toLowerCase().includes('tanzania') || query.toLowerCase().includes('africa')) {
+        const countryParams = new URLSearchParams({
+          q: query,
+          format: 'json',
+          limit: '4',
+          addressdetails: '1',
+          extratags: '1',
+          countrycodes: 'KE,TZ,UG', // Kenya, Tanzania, Uganda
+        });
+
+        try {
+          const countryResults = await performSearch(query, countryParams, controller);
+          allResults = [...allResults, ...countryResults];
+        } catch (error) {
+          // Country-biased search failed - continue
         }
+      }
+
+      // Strategy 3: Search for landmarks/parks if query suggests it
+      if (query.toLowerCase().includes('national park') || query.toLowerCase().includes('reserve') ||
+          query.toLowerCase().includes('mountain') || query.toLowerCase().includes('lake') ||
+          query.toLowerCase().includes('river')) {
+        const landmarkParams = new URLSearchParams({
+          q: query,
+          format: 'json',
+          limit: '4',
+          addressdetails: '1',
+          extratags: '1',
+          featuretype: 'landuse,natural',
+        });
+
+        try {
+          const landmarkResults = await performSearch(query, landmarkParams, controller);
+          allResults = [...allResults, ...landmarkResults];
+        } catch (error) {
+          // Landmark search failed - continue
+        }
+      }
+
+      clearTimeout(timeoutId);
+
+      // Remove duplicates based on coordinates
+      const uniqueResults = allResults.filter((item, index, self) =>
+        index === self.findIndex(other =>
+          Math.abs(parseFloat(item.lat) - parseFloat(other.lat)) < 0.001 &&
+          Math.abs(parseFloat(item.lon) - parseFloat(other.lon)) < 0.001
+        )
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        const options = data.map(item => ({
-          label: item.display_name,
-          value: item.display_name,
-          lat: parseFloat(item.lat),
-          lon: parseFloat(item.lon),
-          type: item.type,
-          importance: item.importance
-        }));
-        setSearchOptions(options);
-      }
+      // Filter and sort results for better relevance
+      const filteredData = uniqueResults
+        .filter(item => {
+          // Filter out very low importance results, but be more lenient
+          return item.importance > 0.05 ||
+                 ['city', 'town', 'village', 'national_park', 'park', 'nature_reserve'].includes(item.type) ||
+                 item.category === 'natural' || item.category === 'landuse';
+        })
+        .sort((a, b) => {
+          // Sort by importance (higher is better), then by type preference
+          const typeOrder = {
+            city: 5, town: 4, village: 3,
+            national_park: 6, park: 6, nature_reserve: 6,
+            mountain: 6, lake: 6, river: 6
+          };
+          const aTypeScore = typeOrder[a.type] || (a.category === 'natural' ? 6 : 0);
+          const bTypeScore = typeOrder[b.type] || (b.category === 'natural' ? 6 : 0);
+
+          if (aTypeScore !== bTypeScore) return bTypeScore - aTypeScore;
+          return b.importance - a.importance;
+        })
+        .slice(0, 8); // Take top 8 results
+
+      const options = filteredData.map(item => ({
+        label: item.display_name,
+        value: item.display_name,
+        lat: parseFloat(item.lat),
+        lon: parseFloat(item.lon),
+        type: item.type,
+        importance: item.importance,
+        category: item.category,
+        address: item.address,
+      }));
+
+      // Cache the results
+      searchCacheRef.current.set(cacheKey, options);
+      setSearchOptions(options);
+
     } catch (error) {
-      console.error("Error searching locations:", error);
+      clearTimeout(timeoutId);
+
+      if (error.name === 'AbortError') {
+        // Search request timed out - silently handle
+      } else {
+        console.error("Error searching locations:", error);
+      }
+
+      // Retry once on failure (if not aborted and retry not attempted)
+      if (retryCount === 0 && error.name !== 'AbortError') {
+        setTimeout(() => searchLocations(query, 1), 1000);
+        return;
+      }
+
       setSearchOptions([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [performSearch]);
+
+  // Debounce ref for search
+  const searchTimeoutRef = useRef(null);
 
   // Handle search input change
-  const handleSearchInputChange = (event, newInputValue, reason) => {
+  const handleSearchInputChange = useCallback((event, newInputValue, reason) => {
     setSearchQuery(newInputValue);
 
-    // Debounce search requests
-    if (reason === 'input') {
-      const timeoutId = setTimeout(() => {
-        searchLocations(newInputValue);
-      }, 300);
-
-      return () => clearTimeout(timeoutId);
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
-  };
+
+    // Debounce search requests
+    if (reason === 'input' && newInputValue.trim()) {
+      searchTimeoutRef.current = setTimeout(() => {
+        searchLocations(newInputValue.trim());
+        searchTimeoutRef.current = null;
+      }, 300);
+    } else if (!newInputValue.trim()) {
+      setSearchOptions([]);
+      setLoading(false);
+    }
+  }, [searchLocations]);
 
   // Handle search selection
   const handleSearchSelect = (event, value) => {
@@ -129,6 +273,15 @@ const LocationMapPicker = ({
       }
     }
   }, [latitude, longitude]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
 
   // Handle map click
@@ -169,7 +322,7 @@ const LocationMapPicker = ({
             <TextField
               {...params}
               label="Search Worldwide Locations"
-              placeholder="Search for cities, countries, landmarks, etc..."
+              placeholder="Try: Nairobi, Kenya • Maasai Mara • Mount Kilimanjaro • Safari lodges..."
               InputProps={{
                 ...params.InputProps,
                 startAdornment: (
@@ -187,17 +340,39 @@ const LocationMapPicker = ({
                   backgroundColor: "transparent",
                 },
               }}
+              helperText="Search for cities, landmarks, national parks, lodges, or any location worldwide"
             />
           )}
           renderOption={(props, option) => (
-            <Box component="li" {...props} key={option.value} sx={{ py: 1 }}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {option.label.split(',')[0]}
+            <Box component="li" {...props} key={option.value} sx={{ py: 1.5 }}>
+              <Box sx={{ width: '100%' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, flex: 1, mr: 1 }}>
+                    {option.label.split(',')[0] || option.label}
+                  </Typography>
+                  <Typography variant="caption" sx={{
+                    color: 'primary.main',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: 1,
+                    fontSize: '0.7rem',
+                    textTransform: 'capitalize'
+                  }}>
+                    {option.type || 'location'}
+                  </Typography>
+                </Box>
+                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', lineHeight: 1.3 }}>
+                  {option.address?.country || option.address?.state ?
+                    `${option.address?.state ? option.address.state + ', ' : ''}${option.address?.country || ''}`
+                    : option.label.split(',').slice(1, 3).join(',').trim()
+                  }
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {option.label}
-                </Typography>
+                {option.importance && (
+                  <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.65rem' }}>
+                    Coordinates: {option.lat.toFixed(4)}, {option.lon.toFixed(4)}
+                  </Typography>
+                )}
               </Box>
             </Box>
           )}

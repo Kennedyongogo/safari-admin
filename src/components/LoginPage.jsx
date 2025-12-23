@@ -377,13 +377,14 @@ export default function LoginPage(props) {
                         sx={{
                           position: "relative",
                           display: "inline-block",
+                          mb: -2, // Reduce the space below the logo
                           "&::before": {
                             content: '""',
                             position: "absolute",
                             top: -10,
                             left: -10,
                             right: -10,
-                            bottom: -10,
+                            bottom: 0, // Changed from -10 to 0 to not extend below the image
                             background: "linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
                             borderRadius: "20px",
                             filter: "blur(10px)",
@@ -409,7 +410,7 @@ export default function LoginPage(props) {
                       </Box>
 
                       {/* Enhanced title with subtitle */}
-                      <Stack spacing={0} sx={{ gap: 0 }}>
+                      <Stack spacing={0} sx={{ gap: 0, mt: -1 }}>
                         <Typography
                           variant="h1"
                           sx={{
