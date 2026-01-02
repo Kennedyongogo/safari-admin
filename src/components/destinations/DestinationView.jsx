@@ -197,7 +197,7 @@ const DestinationView = () => {
                     Created
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {formatDate(lodge.createdAt)}
+                    {formatDate(destination.createdAt)}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -205,7 +205,7 @@ const DestinationView = () => {
                     Updated
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {formatDate(lodge.updatedAt)}
+                    {formatDate(destination.updatedAt)}
                   </Typography>
                 </Grid>
               </Grid>
@@ -240,7 +240,7 @@ const DestinationView = () => {
                 }}
               >
                 <Typography variant="body1" sx={{ color: "text.secondary", whiteSpace: "pre-wrap" }}>
-                  {lodge.description || "No description provided."}
+                  {destination.description || "No description provided."}
                 </Typography>
               </Box>
             </CardContent>
@@ -301,11 +301,11 @@ const DestinationView = () => {
                           </Typography>
                           {Array.isArray(attraction.images) && attraction.images.length > 0 && (
                             <Box sx={{ mt: 2 }}>
-                              <Typography variant="caption" sx={{ color: "text.secondary", mb: 1, display: "block" }}>
-                                Images ({attraction.images.length})
-                              </Typography>
+                            <Typography variant="caption" sx={{ color: "text.secondary", mb: 1, display: "block" }}>
+                              All Images ({attraction.images.length})
+                            </Typography>
                               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                                {attraction.images.slice(0, 3).map((image, imgIdx) => (
+                                {attraction.images.map((image, imgIdx) => (
                                   <Box
                                     key={imgIdx}
                                     component="img"
@@ -320,24 +320,6 @@ const DestinationView = () => {
                                     }}
                                   />
                                 ))}
-                                {attraction.images.length > 3 && (
-                                  <Box
-                                    sx={{
-                                      width: 80,
-                                      height: 60,
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      backgroundColor: "#f5f5f5",
-                                      borderRadius: 1,
-                                      border: "1px solid #e0e0e0",
-                                    }}
-                                  >
-                                    <Typography variant="caption" color="text.secondary">
-                                      +{attraction.images.length - 3}
-                                    </Typography>
-                                  </Box>
-                                )}
                               </Box>
                             </Box>
                           )}

@@ -24,6 +24,10 @@ import Destinations from "./destinations/Destinations";
 import DestinationCreate from "./destinations/DestinationCreate";
 import DestinationView from "./destinations/DestinationView";
 import DestinationEdit from "./destinations/DestinationEdit";
+import Form from "./Form/Form";
+import FormCreate from "./Form/FormCreate";
+import FormView from "./Form/FormView";
+import FormEdit from "./Form/FormEdit";
 import Issues from "./Issues/Issues";
 import Review from "./Review/Review";
 import CharityMap from "../CharityMap";
@@ -99,6 +103,10 @@ function PageRoutes() {
             <Route path="camp-lodges/create" element={<CampCreate />} />
             <Route path="camp-lodges/:id" element={<CampView />} />
             <Route path="camp-lodges/:id/edit" element={<CampEdit />} />
+            <Route path="forms" element={<Form />} />
+            <Route path="forms/create" element={<FormCreate />} />
+            <Route path="forms/:id" element={<FormView />} />
+            <Route path="forms/:id/edit" element={<FormEdit />} />
             <Route path="destinations" element={<Destinations />} />
             <Route path="destinations/create" element={<DestinationCreate />} />
             <Route path="destinations/:id" element={<DestinationView />} />

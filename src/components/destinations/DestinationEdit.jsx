@@ -185,6 +185,7 @@ const DestinationEdit = () => {
         wildlife_types: Array.isArray(d.wildlife_types) ? d.wildlife_types : [],
         featured_species: Array.isArray(d.featured_species) ? d.featured_species : [],
         key_highlights: Array.isArray(d.key_highlights) ? d.key_highlights : [],
+        attractions: Array.isArray(d.attractions) ? d.attractions : [],
         category_tags: Array.isArray(d.category_tags) ? d.category_tags : [],
         best_visit_months: Array.isArray(d.best_visit_months) ? d.best_visit_months : [],
         is_active: d.is_active ?? true,
@@ -258,10 +259,21 @@ const DestinationEdit = () => {
       if (destinationForm.duration_min) formData.append("duration_min", destinationForm.duration_min);
       if (destinationForm.duration_max) formData.append("duration_max", destinationForm.duration_max);
       if (destinationForm.duration_display) formData.append("duration_display", destinationForm.duration_display);
+      // Handle attractions separately - preserve existing images and handle new uploads
+      const attractionsForJson = destinationForm.attractions.map((attraction, index) => ({
+        name: attraction.name,
+        description: attraction.description,
+        // Keep existing string images (from database) and filter out File objects (new uploads)
+        images: (attraction.images || []).filter(img => typeof img === 'string'),
+        // Add index to help backend map uploaded files to attractions
+        index: index
+      }));
+
       // Add array fields as JSON
       formData.append("wildlife_types", JSON.stringify(destinationForm.wildlife_types));
       formData.append("featured_species", JSON.stringify(destinationForm.featured_species));
       formData.append("key_highlights", JSON.stringify(destinationForm.key_highlights));
+      formData.append("attractions", JSON.stringify(attractionsForJson));
       formData.append("category_tags", JSON.stringify(destinationForm.category_tags));
       formData.append("best_visit_months", JSON.stringify(destinationForm.best_visit_months));
 
@@ -274,6 +286,14 @@ const DestinationEdit = () => {
 
       // Add new gallery files
       galleryFiles.forEach((file) => formData.append("gallery_images", file));
+
+      // Add attraction images with proper mapping - group by attraction index
+      destinationForm.attractions.forEach((attraction, attractionIndex) => {
+        const newImages = (attraction.images || []).filter(img => img instanceof File);
+        newImages.forEach((file) => {
+          formData.append(`attraction_images_${attractionIndex}`, file);
+        });
+      });
 
       const res = await fetch(`/api/destinations/${id}`, {
         method: "PUT",

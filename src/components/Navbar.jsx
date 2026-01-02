@@ -180,6 +180,11 @@ const Navbar = (props) => {
       path: "/tours",
     },
     {
+      text: "Forms",
+      icon: <Description />,
+      path: "/forms",
+    },
+    {
       text: "Reports",
       icon: <Assessment />,
       path: "/reports",

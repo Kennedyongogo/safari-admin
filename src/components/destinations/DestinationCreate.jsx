@@ -199,10 +199,27 @@ const DestinationCreate = () => {
       // Add array fields as JSON
       const formData = new FormData();
 
+      // Handle attractions separately (remove File objects before stringifying)
+      const attractionsForJson = payload.attractions.map(attraction => ({
+        name: attraction.name,
+        description: attraction.description,
+        images: [] // Images will be added by backend after upload
+      }));
+
       // Add all payload fields to FormData
       Object.entries(payload).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach((v) => formData.append(key, v));
+        if (key === 'attractions') {
+          // Attractions is an array of objects - stringify it
+          formData.append(key, JSON.stringify(attractionsForJson));
+        } else if (Array.isArray(value)) {
+          // Check if array contains objects or simple strings
+          if (value.length > 0 && typeof value[0] === 'object') {
+            // For other arrays of objects, stringify the entire array
+            formData.append(key, JSON.stringify(value));
+          } else {
+            // For arrays of strings, append each value separately
+            value.forEach((v) => formData.append(key, v));
+          }
         } else {
           formData.append(key, value);
         }
@@ -214,6 +231,13 @@ const DestinationCreate = () => {
         // Add additional gallery images (skip first one as it's the hero)
         galleryFiles.slice(1).forEach((file) => formData.append("gallery_images", file));
       }
+
+      // Add attraction images
+      const allAttractionImages = payload.attractions.flatMap(attraction =>
+        attraction.images || []
+      ).filter(img => img instanceof File);
+
+      allAttractionImages.forEach((file) => formData.append("attraction_images", file));
 
       const response = await fetch("/api/destinations", {
         method: "POST",
