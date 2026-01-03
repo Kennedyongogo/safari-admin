@@ -43,13 +43,8 @@ const GalleryView = () => {
     const normalized = path.replace(/\\/g, "/");
     if (normalized.startsWith("http")) return normalized;
 
-    // For debugging video issues, construct full API URL
-    if (galleryItem?.type === "video") {
-      const apiUrl = `http://localhost:4000/${normalized.startsWith("/") ? normalized.slice(1) : normalized}`;
-      console.log("Video URL constructed:", apiUrl);
-      return apiUrl;
-    }
-
+    // Use relative URLs that work in both local and deployed environments
+    // Vite proxy (local) and nginx (deployed) both handle /uploads/* routing
     if (normalized.startsWith("/")) return normalized;
     return `/${normalized}`;
   };
@@ -58,8 +53,6 @@ const GalleryView = () => {
   const getVideoUrl = (filePath) => {
     if (!filePath) return null;
 
-    const baseUrl = buildImageUrl(filePath);
-
     // For the specific broken video, try the corrected path
     if (filePath.includes("134898_760686085_medium-1767446598786-306006330.mp4")) {
       const correctedPath = filePath.replace("1767446598786-306006330", "1767446750214-590507885");
@@ -67,7 +60,7 @@ const GalleryView = () => {
       return buildImageUrl(correctedPath);
     }
 
-    return baseUrl;
+    return buildImageUrl(filePath);
   };
 
   useEffect(() => {

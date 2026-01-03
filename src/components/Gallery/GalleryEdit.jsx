@@ -79,22 +79,14 @@ const GalleryEdit = () => {
   const getVideoUrl = (filePath) => {
     if (!filePath) return null;
 
-    const normalized = filePath.replace(/\\/g, "/");
-
     // For the specific broken video, try the corrected path
-    if (normalized.includes("134898_760686085_medium-1767446598786-306006330.mp4")) {
-      const correctedPath = normalized.replace("1767446598786-306006330", "1767446750214-590507885");
+    if (filePath.includes("134898_760686085_medium-1767446598786-306006330.mp4")) {
+      const correctedPath = filePath.replace("1767446598786-306006330", "1767446750214-590507885");
       console.log("Trying corrected video path:", correctedPath);
-      // Construct full API URL for video
-      const apiUrl = `http://localhost:4000/${correctedPath.startsWith("/") ? correctedPath.slice(1) : correctedPath}`;
-      console.log("Video URL constructed:", apiUrl);
-      return apiUrl;
+      return buildImageUrl(correctedPath);
     }
 
-    // Construct full API URL for other videos
-    const apiUrl = `http://localhost:4000/${normalized.startsWith("/") ? normalized.slice(1) : normalized}`;
-    console.log("Video URL constructed:", apiUrl);
-    return apiUrl;
+    return buildImageUrl(filePath);
   };
 
   useEffect(() => {
