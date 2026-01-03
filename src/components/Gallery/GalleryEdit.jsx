@@ -210,7 +210,6 @@ const GalleryEdit = () => {
       formData.append("isActive", galleryForm.isActive.toString());
       formData.append("isFeatured", galleryForm.isFeatured.toString());
       formData.append("priority", galleryForm.priority.toString());
-      formData.append("altText", galleryForm.altText);
 
       // Add type - use mediaType if a new file is selected, otherwise use existing type
       const itemType = mediaType || galleryForm.type;
