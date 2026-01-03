@@ -40,12 +40,14 @@ const GalleryView = () => {
 
   const buildImageUrl = (path) => {
     if (!path) return null;
+    // Normalize Windows backslashes to forward slashes
     const normalized = path.replace(/\\/g, "/");
-    if (normalized.startsWith("http")) return normalized;
-
-    // Use relative URLs that work in both local and deployed environments
-    // Vite proxy (local) and nginx (deployed) both handle /uploads/* routing
+    // If already a full URL, return as-is
+    if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
+    // If already starts with /, return as-is
     if (normalized.startsWith("/")) return normalized;
+    // Otherwise, prepend / to make it an absolute path from root
+    // This works with both Vite proxy (local) and nginx proxy (production)
     return `/${normalized}`;
   };
 
