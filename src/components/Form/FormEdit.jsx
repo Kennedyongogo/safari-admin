@@ -66,7 +66,16 @@ const FormEdit = () => {
       const fieldsData = await fieldsRes.json();
 
       if (fieldsRes.ok && fieldsData.success) {
-        const fields = fieldsData.data || [];
+        const fields = (fieldsData.data || []).map(field => {
+          // Extract sub_fields from validation_rules for compound fields
+          if (field.field_type === 'compound' && field.validation_rules?.sub_fields) {
+            return {
+              ...field,
+              sub_fields: field.validation_rules.sub_fields
+            };
+          }
+          return field;
+        });
         setFormFields(fields);
       }
 
@@ -167,6 +176,7 @@ const FormEdit = () => {
       display_order: field.display_order,
       grid_size: field.grid_size,
       conditional_logic: field.conditional_logic,
+      sub_fields: field.sub_fields, // For compound fields
     };
 
     const response = await fetch("/api/form-fields", {
@@ -206,6 +216,7 @@ const FormEdit = () => {
       css_classes: field.css_classes,
       grid_size: field.grid_size,
       conditional_logic: field.conditional_logic,
+      sub_fields: field.sub_fields, // For compound fields
     };
 
     console.log('fieldPayload being sent:', fieldPayload);

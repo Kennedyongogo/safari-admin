@@ -31,6 +31,7 @@ import {
   Favorite,
   Article,
   Event,
+  Image,
 } from "@mui/icons-material";
 import { Money } from "@phosphor-icons/react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -178,6 +179,11 @@ const Navbar = (props) => {
       text: "Itineraries",
       icon: <Schedule />,
       path: "/tours",
+    },
+    {
+      text: "Gallery",
+      icon: <Image />,
+      path: "/gallery",
     },
     {
       text: "Forms",

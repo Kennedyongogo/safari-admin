@@ -23,6 +23,7 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
   Visibility as ViewIcon,
+  Assignment as SubmissionsIcon,
 } from "@mui/icons-material";
 import Swal from "sweetalert2";
 
@@ -287,6 +288,15 @@ const Form = () => {
                             sx={{ color: "#27ae60" }}
                           >
                             <ViewIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="View Submissions">
+                          <IconButton
+                            size="small"
+                            onClick={() => navigate(`/forms/${form.id}/submissions`)}
+                            sx={{ color: "#9b59b6" }}
+                          >
+                            <SubmissionsIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Edit">

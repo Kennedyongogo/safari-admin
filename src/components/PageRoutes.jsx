@@ -28,6 +28,7 @@ import Form from "./Form/Form";
 import FormCreate from "./Form/FormCreate";
 import FormView from "./Form/FormView";
 import FormEdit from "./Form/FormEdit";
+import FormSubmission from "./Form/FormSubmissions";
 import Issues from "./Issues/Issues";
 import Review from "./Review/Review";
 import CharityMap from "../CharityMap";
@@ -40,6 +41,10 @@ import Tour from "./Tour/Tour";
 import TourCreate from "./Tour/TourCreate";
 import TourView from "./Tour/TourView";
 import TourEdit from "./Tour/TourEdit";
+import GalleryList from "./Gallery/GalleryList";
+import GalleryView from "./Gallery/GalleryView";
+import GalleryCreate from "./Gallery/GalleryCreate";
+import GalleryEdit from "./Gallery/GalleryEdit";
 import { lazy, Suspense } from "react";
 
 // Lazy load the Reports component to avoid loading date picker dependencies on every page
@@ -107,6 +112,7 @@ function PageRoutes() {
             <Route path="forms/create" element={<FormCreate />} />
             <Route path="forms/:id" element={<FormView />} />
             <Route path="forms/:id/edit" element={<FormEdit />} />
+            <Route path="forms/:form_id/submissions" element={<FormSubmission />} />
             <Route path="destinations" element={<Destinations />} />
             <Route path="destinations/create" element={<DestinationCreate />} />
             <Route path="destinations/:id" element={<DestinationView />} />
@@ -115,6 +121,10 @@ function PageRoutes() {
             <Route path="tours/create" element={<TourCreate />} />
             <Route path="tours/:id" element={<TourView />} />
             <Route path="tours/:id/edit" element={<TourEdit />} />
+            <Route path="gallery" element={<GalleryList />} />
+            <Route path="gallery/create" element={<GalleryCreate />} />
+            <Route path="gallery/:id" element={<GalleryView />} />
+            <Route path="gallery/:id/edit" element={<GalleryEdit />} />
             <Route path="issues" element={<Issues />} />
             <Route path="testimonies" element={<Navigate to="/reviews" replace />} />
             <Route path="reviews" element={<Review />} />

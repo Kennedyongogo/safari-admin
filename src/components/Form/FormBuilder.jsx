@@ -39,6 +39,7 @@ import {
   RadioButtonChecked as RadioIcon,
   CheckBox as CheckboxIcon,
   CheckBoxOutlined as CheckboxGroupIcon,
+  Group as GroupIcon,
 } from "@mui/icons-material";
 
 const FIELD_TYPES = [
@@ -52,6 +53,7 @@ const FIELD_TYPES = [
   { value: "radio", label: "Radio Buttons", icon: <RadioIcon /> },
   { value: "checkbox", label: "Single Checkbox", icon: <CheckboxIcon /> },
   { value: "checkbox_group", label: "Multiple Checkboxes", icon: <CheckboxGroupIcon /> },
+  { value: "compound", label: "Compound Question", icon: <GroupIcon /> },
 ];
 
 const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
@@ -72,6 +74,7 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
     validation_rules: {},
     grid_size: { xs: 12, sm: 6 },
     options: [],
+    sub_fields: [], // For compound fields
   });
 
   const handleAddField = () => {
@@ -86,6 +89,7 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
       validation_rules: {},
       grid_size: { xs: 12, sm: 6 },
       options: [],
+      sub_fields: [],
     });
     setFieldDialog({ open: true, editingIndex: null, field: null });
   };
@@ -149,9 +153,13 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
     }
 
     if (fieldDialog.editingIndex !== null) {
-      newFields[fieldDialog.editingIndex] = { ...fieldData, display_order: fieldDialog.editingIndex };
+      // Keep the manually set display_order for editing
+      newFields[fieldDialog.editingIndex] = { ...fieldData };
     } else {
-      fieldData.display_order = newFields.length;
+      // Only set default display_order if not manually set
+      if (fieldData.display_order === undefined || fieldData.display_order === null) {
+        fieldData.display_order = newFields.length;
+      }
       newFields.push(fieldData);
     }
 
@@ -354,6 +362,40 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
     setCurrentField({ ...currentField, options: newOptions });
   };
 
+  // Compound field functions
+  const handleAddSubField = () => {
+    const newSubFields = [...(currentField.sub_fields || [])];
+    newSubFields.push({
+      type: "text",
+      label: "",
+      field_name: "",
+      placeholder: "",
+      is_required: false,
+    });
+    setCurrentField({ ...currentField, sub_fields: newSubFields });
+  };
+
+  const handleUpdateSubField = (index, field, value) => {
+    const newSubFields = [...(currentField.sub_fields || [])];
+    newSubFields[index] = { ...newSubFields[index], [field]: value };
+
+    // Auto-generate field_name from label if empty
+    if (field === "label" && (!newSubFields[index].field_name || newSubFields[index].field_name === "")) {
+      newSubFields[index].field_name = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_|_$/g, "");
+    }
+
+    setCurrentField({ ...currentField, sub_fields: newSubFields });
+  };
+
+  const handleRemoveSubField = (index) => {
+    const newSubFields = (currentField.sub_fields || []).filter((_, i) => i !== index);
+    setCurrentField({ ...currentField, sub_fields: newSubFields });
+  };
+
   // Helper function to get options from a dependent field
   const getDependentFieldOptions = (fieldName) => {
     const dependentField = fields.find(field => field.field_name === fieldName);
@@ -466,6 +508,52 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
                 label={option.option_label}
               />
             ))}
+          </Box>
+        );
+      case "compound":
+        return (
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+              {field.label} {field.is_required && "*"}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: 'block' }}>
+              {field.help_text || "Multiple fields in one question"}
+            </Typography>
+            <Grid container spacing={2}>
+              {(field.sub_fields || []).map((subField, idx) => (
+                <Grid item xs={12} sm={6} key={idx}>
+                  {subField.type === 'textarea' ? (
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label={subField.label}
+                      multiline
+                      rows={2}
+                      placeholder={subField.placeholder}
+                      required={subField.is_required}
+                    />
+                  ) : subField.type === 'date' ? (
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label={subField.label}
+                      type="date"
+                      required={subField.is_required}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  ) : (
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label={subField.label}
+                      type={subField.type}
+                      placeholder={subField.placeholder}
+                      required={subField.is_required}
+                    />
+                  )}
+                </Grid>
+              ))}
+            </Grid>
           </Box>
         );
       default:
@@ -724,6 +812,105 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
                   sx={{ mt: 1 }}
                 >
                   Add Option
+                </Button>
+              </>
+            )}
+
+            {/* Sub-fields for compound fields */}
+            {currentField.field_type === "compound" && (
+              <>
+                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+                  Sub-Fields
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Add multiple input fields within this single question
+                </Typography>
+
+                {(currentField.sub_fields || []).map((subField, index) => (
+                  <Box key={index} sx={{ mb: 2, p: 2, border: "1px solid #e0e0e0", borderRadius: 1, backgroundColor: "#f9f9f9" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        Field {index + 1}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveSubField(index)}
+                        sx={{ color: "#e74c3c", p: 0.5 }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+
+                    <Grid container spacing={1}>
+                      <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel>Type</InputLabel>
+                          <Select
+                            value={subField.type || "text"}
+                            onChange={(e) => handleUpdateSubField(index, "type", e.target.value)}
+                            label="Type"
+                          >
+                            <MenuItem value="text">Text</MenuItem>
+                            <MenuItem value="email">Email</MenuItem>
+                            <MenuItem value="tel">Phone</MenuItem>
+                            <MenuItem value="number">Number</MenuItem>
+                            <MenuItem value="date">Date</MenuItem>
+                            <MenuItem value="textarea">Textarea</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Label"
+                          value={subField.label || ""}
+                          onChange={(e) => handleUpdateSubField(index, "label", e.target.value)}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Field Name"
+                          value={subField.field_name || ""}
+                          onChange={(e) => handleUpdateSubField(index, "field_name", e.target.value)}
+                          helperText="Unique identifier"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Placeholder (optional)"
+                          value={subField.placeholder || ""}
+                          onChange={(e) => handleUpdateSubField(index, "placeholder", e.target.value)}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={subField.is_required || false}
+                              onChange={(e) => handleUpdateSubField(index, "is_required", e.target.checked)}
+                              size="small"
+                            />
+                          }
+                          label="Required"
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
+                ))}
+
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddSubField}
+                  sx={{ mt: 1 }}
+                >
+                  Add Sub-Field
                 </Button>
               </>
             )}
