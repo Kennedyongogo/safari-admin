@@ -255,6 +255,9 @@ const DestinationEdit = () => {
       formData.append("description", destinationForm.description);
       formData.append("location", destinationForm.location);
 
+      // Add hero image (empty string if deleted, or existing path)
+      formData.append("hero_image", destinationForm.hero_image || "");
+
       // Add travel information
       if (destinationForm.duration_min) formData.append("duration_min", destinationForm.duration_min);
       if (destinationForm.duration_max) formData.append("duration_max", destinationForm.duration_max);
@@ -311,9 +314,11 @@ const DestinationEdit = () => {
         icon: "success",
         title: "Updated",
         text: "Destination updated successfully",
-        timer: 1400,
+        timer: 1500,
         showConfirmButton: false,
       });
+
+      // Navigate back to destinations list
       navigate("/destinations");
     } catch (err) {
       setError(err.message || "Failed to update destination");
