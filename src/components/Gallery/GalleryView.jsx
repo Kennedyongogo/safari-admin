@@ -41,7 +41,9 @@ const GalleryView = () => {
   const buildImageUrl = (path) => {
     if (!path) return null;
     // Normalize Windows backslashes to forward slashes
-    const normalized = path.replace(/\\/g, "/");
+    let normalized = path.replace(/\\/g, "/");
+    // Trim any whitespace
+    normalized = normalized.trim();
     // If already a full URL, return as-is
     if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
     // If already starts with /, return as-is

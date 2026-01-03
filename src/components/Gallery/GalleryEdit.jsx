@@ -70,7 +70,9 @@ const GalleryEdit = () => {
   const buildImageUrl = (path) => {
     if (!path) return null;
     // Normalize Windows backslashes to forward slashes
-    const normalized = path.replace(/\\/g, "/");
+    let normalized = path.replace(/\\/g, "/");
+    // Trim any whitespace
+    normalized = normalized.trim();
     // If already a full URL, return as-is
     if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
     // If already starts with /, return as-is
@@ -125,7 +127,13 @@ const GalleryEdit = () => {
         altText: item.altText || "",
       });
 
-      setMediaPreview(item.type === "video" ? getVideoUrl(item.filePath) : buildImageUrl(item.filePath));
+      const previewUrl = item.type === "video" ? getVideoUrl(item.filePath) : buildImageUrl(item.filePath);
+      console.log("GalleryEdit - Setting media preview:", {
+        filePath: item.filePath,
+        type: item.type,
+        previewUrl: previewUrl
+      });
+      setMediaPreview(previewUrl);
       setMediaType(item.type);
     } catch (err) {
       setError(err.message || "Failed to load gallery item");
@@ -386,8 +394,13 @@ const GalleryEdit = () => {
                               maxHeight: "100%",
                               objectFit: "contain",
                             }}
+                            onError={(e) => {
+                              console.error("Video preview failed to load:", e.target.src);
+                              console.error("Video error:", e.target.error);
+                              console.error("Media preview URL:", mediaPreview);
+                            }}
                           >
-                            <source src={mediaPreview} />
+                            <source src={mediaPreview} type="video/mp4" />
                             Your browser does not support the video tag.
                           </video>
                         ) : (
