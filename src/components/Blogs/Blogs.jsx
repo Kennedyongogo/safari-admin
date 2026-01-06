@@ -261,9 +261,6 @@ const Blogs = () => {
                         <Typography variant="body2" fontWeight={700} color="#2c3e50">
                           {blog.title}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {blog.excerpt?.slice(0, 80) || ""}
-                        </Typography>
                       </TableCell>
                       <TableCell>
                         <Chip
