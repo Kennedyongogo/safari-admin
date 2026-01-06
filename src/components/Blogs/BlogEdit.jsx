@@ -38,8 +38,12 @@ const BlogEdit = () => {
   const [error, setError] = useState(null);
   const [featuredFile, setFeaturedFile] = useState(null);
   const [featuredPreview, setFeaturedPreview] = useState(null);
+  const [originalFeaturedImage, setOriginalFeaturedImage] = useState(null);
+  const [deleteFeaturedImage, setDeleteFeaturedImage] = useState(false);
   const [authorFile, setAuthorFile] = useState(null);
   const [authorPreview, setAuthorPreview] = useState(null);
+  const [originalAuthorImage, setOriginalAuthorImage] = useState(null);
+  const [deleteAuthorImage, setDeleteAuthorImage] = useState(false);
 
   const [blogForm, setBlogForm] = useState({
     slug: "",
@@ -58,9 +62,10 @@ const BlogEdit = () => {
 
   const buildImageUrl = (path) => {
     if (!path) return null;
-    if (path.startsWith("http")) return path;
-    if (path.startsWith("/")) return path;
-    return `/${path}`;
+    const normalized = path.replace(/\\/g, "/");
+    if (normalized.startsWith("http")) return normalized;
+    if (normalized.startsWith("/")) return normalized;
+    return `/${normalized}`;
   };
 
   useEffect(() => {
@@ -95,8 +100,14 @@ const BlogEdit = () => {
         ctaText: b.ctaText || "",
         ctaUrl: b.ctaUrl || "",
       });
-      setFeaturedPreview(buildImageUrl(b.featuredImage));
-      setAuthorPreview(buildImageUrl(b.authorImage));
+      const featuredImgUrl = buildImageUrl(b.featuredImage);
+      const authorImgUrl = buildImageUrl(b.authorImage);
+      setFeaturedPreview(featuredImgUrl);
+      setOriginalFeaturedImage(featuredImgUrl);
+      setDeleteFeaturedImage(false);
+      setAuthorPreview(authorImgUrl);
+      setOriginalAuthorImage(authorImgUrl);
+      setDeleteAuthorImage(false);
     } catch (err) {
       setError(err.message || "Failed to load blog");
     } finally {
@@ -122,9 +133,11 @@ const BlogEdit = () => {
     const reader = new FileReader();
     if (type === "author") {
       setAuthorFile(file);
+      setDeleteAuthorImage(false);
       reader.onloadend = () => setAuthorPreview(reader.result);
     } else {
       setFeaturedFile(file);
+      setDeleteFeaturedImage(false);
       reader.onloadend = () => setFeaturedPreview(reader.result);
     }
     reader.readAsDataURL(file);
@@ -134,11 +147,13 @@ const BlogEdit = () => {
   const removeFeaturedFile = () => {
     setFeaturedFile(null);
     setFeaturedPreview(null);
+    setDeleteFeaturedImage(true);
   };
 
   const removeAuthorFile = () => {
     setAuthorFile(null);
     setAuthorPreview(null);
+    setDeleteAuthorImage(true);
   };
 
   const isFormValid = () =>
@@ -175,9 +190,13 @@ const BlogEdit = () => {
       }
       if (featuredFile) {
         formData.append("blog_image", featuredFile);
+      } else if (deleteFeaturedImage) {
+        formData.append("delete_featured_image", "true");
       }
       if (authorFile) {
         formData.append("author_image", authorFile);
+      } else if (deleteAuthorImage) {
+        formData.append("delete_author_image", "true");
       }
 
       const res = await fetch(`/api/blogs/${id}`, {
