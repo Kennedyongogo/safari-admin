@@ -83,7 +83,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "space-between",
   padding: theme.spacing(1, 0, 1, 1),
   backgroundColor: "#fff",
-  color: "#2596be",
+  color: "#B85C38",
   ...theme.mixins.toolbar,
 }));
 
@@ -91,8 +91,8 @@ const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-  boxShadow: "0 4px 20px rgba(102, 126, 234, 0.3)",
+  background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
+  boxShadow: "0 4px 20px rgba(107, 78, 61, 0.3)",
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -191,56 +191,36 @@ const Navbar = (props) => {
       path: "/forms",
     },
     {
-      text: "Reports",
-      icon: <Assessment />,
-      path: "/reports",
-    },
-    {
       text: "Users",
       icon: <PeopleAlt />,
       path: "/users",
     },
-    {
-      text: "Resources",
-      icon: <Folder />,
-      subItems: [
         {
-          text: "Documents",
+          text: "Resources",
           icon: <Folder />,
-          path: "/documents",
+          subItems: [
+            {
+              text: "Documents",
+              icon: <Folder />,
+              path: "/documents",
+            },
+            {
+              text: "Charity Map",
+              icon: <Map />,
+              path: "/map",
+            },
+            {
+              text: "Reviews",
+              icon: <RateReview />,
+              path: "/reviews",
+            },
+            {
+              text: "Public Members",
+              icon: <People />,
+              path: "/public-members",
+            },
+          ],
         },
-        {
-          text: "Mission Categories",
-          icon: <Favorite />,
-          path: "/mission-categories",
-        },
-        {
-          text: "Posts",
-          icon: <Article />,
-          path: "/posts",
-        },
-        {
-          text: "Charity Map",
-          icon: <Map />,
-          path: "/map",
-        },
-        {
-          text: "Issues",
-          icon: <Warning />,
-          path: "/issues",
-        },
-        {
-          text: "Reviews",
-          icon: <RateReview />,
-          path: "/reviews",
-        },
-        {
-          text: "Public Members",
-          icon: <People />,
-          path: "/public-members",
-        },
-      ],
-    },
     {
       text: "System",
       icon: <Settings />,

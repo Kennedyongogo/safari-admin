@@ -50,21 +50,6 @@ const PublicMembers = () => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberForm, setMemberForm] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-    date_of_birth: "",
-    gender: "",
-    national_id: "",
-    physical_address: "",
-    emergency_contact_name: "",
-    emergency_contact_phone: "",
-    membership_type: "Regular",
-    how_heard_about: "",
-    reason_for_joining: "",
-    areas_of_interest: "",
-    skills_contribution: "",
-    preferred_communication: "",
     status: "Pending",
   });
   const [activeTab, setActiveTab] = useState(0);
@@ -74,17 +59,15 @@ const PublicMembers = () => {
   const [tabCounts, setTabCounts] = useState({
     all: 0,
     Pending: 0,
-    Active: 0,
-    Inactive: 0,
+    Approved: 0,
     Rejected: 0,
   });
 
   // Status tabs configuration
   const statusTabs = [
-    { label: "All Members", value: "all", count: tabCounts.all },
+    { label: "All Applications", value: "all", count: tabCounts.all },
     { label: "Pending", value: "Pending", count: tabCounts.Pending },
-    { label: "Active", value: "Active", count: tabCounts.Active },
-    { label: "Inactive", value: "Inactive", count: tabCounts.Inactive },
+    { label: "Approved", value: "Approved", count: tabCounts.Approved },
     { label: "Rejected", value: "Rejected", count: tabCounts.Rejected },
   ];
 
@@ -134,10 +117,12 @@ const PublicMembers = () => {
         // Update tab counts after fetching members to reflect any new members
         fetchAllMembersForCounts();
       } else {
-        setError("Failed to fetch members: " + (data.message || "Unknown error"));
+        setError(
+          "Failed to fetch applications: " + (data.message || "Unknown error")
+        );
       }
     } catch (err) {
-      setError("Error fetching members: " + err.message);
+      setError("Error fetching applications: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -169,8 +154,7 @@ const PublicMembers = () => {
     const counts = {
       all: 0,
       Pending: 0,
-      Active: 0,
-      Inactive: 0,
+      Approved: 0,
       Rejected: 0,
     };
 
@@ -188,45 +172,12 @@ const PublicMembers = () => {
     switch (status) {
       case "Pending":
         return "warning";
-      case "Active":
+      case "Approved":
         return "success";
-      case "Inactive":
-        return "default";
       case "Rejected":
         return "error";
       default:
         return "default";
-    }
-  };
-
-  const getMembershipTypeColor = (type) => {
-    switch (type) {
-      case "Regular":
-        return "primary";
-      case "Lifetime":
-        return "success";
-      case "Student":
-        return "info";
-      case "Corporate":
-        return "secondary";
-      default:
-        return "default";
-    }
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return "N/A";
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return "N/A";
     }
   };
 
@@ -270,37 +221,7 @@ const PublicMembers = () => {
   const handleEditMember = (member) => {
     try {
       setSelectedMember(member);
-      
-      // Safely handle date_of_birth
-      let dateOfBirth = "";
-      if (member.date_of_birth) {
-        try {
-          const date = new Date(member.date_of_birth);
-          if (!isNaN(date.getTime())) {
-            dateOfBirth = date.toISOString().split("T")[0];
-          }
-        } catch (dateError) {
-          console.error("Error parsing date:", dateError);
-          dateOfBirth = "";
-        }
-      }
-      
       setMemberForm({
-        full_name: member.full_name || "",
-        email: member.email || "",
-        phone: member.phone || "",
-        date_of_birth: dateOfBirth,
-        gender: member.gender || "",
-        national_id: member.national_id || "",
-        physical_address: member.physical_address || "",
-        emergency_contact_name: member.emergency_contact_name || "",
-        emergency_contact_phone: member.emergency_contact_phone || "",
-        membership_type: member.membership_type || "Regular",
-        how_heard_about: member.how_heard_about || "",
-        reason_for_joining: member.reason_for_joining || "",
-        areas_of_interest: member.areas_of_interest || "",
-        skills_contribution: member.skills_contribution || "",
-        preferred_communication: member.preferred_communication || "",
         status: member.status || "Pending",
       });
       setOpenEditDialog(true);
@@ -333,59 +254,27 @@ const PublicMembers = () => {
         return;
       }
 
-      const memberData = {
-        full_name: memberForm.full_name,
-        email: memberForm.email,
-        phone: memberForm.phone,
-        date_of_birth: memberForm.date_of_birth || null,
-        gender: memberForm.gender || null,
-        national_id: memberForm.national_id || null,
-        physical_address: memberForm.physical_address || null,
-        emergency_contact_name: memberForm.emergency_contact_name || null,
-        emergency_contact_phone: memberForm.emergency_contact_phone || null,
-        membership_type: memberForm.membership_type,
-        how_heard_about: memberForm.how_heard_about || null,
-        reason_for_joining: memberForm.reason_for_joining || null,
-        areas_of_interest: memberForm.areas_of_interest || null,
-        skills_contribution: memberForm.skills_contribution || null,
-        preferred_communication: memberForm.preferred_communication || null,
-        status: memberForm.status,
-      };
-
-      const response = await fetch(`/api/members/${selectedMember.id}`, {
+      const response = await fetch(`/api/members/${selectedMember.id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(memberData),
+        body: JSON.stringify({ status: memberForm.status }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to update member");
+        throw new Error(
+          result.message || "Failed to update application status"
+        );
       }
 
       // Reset form and close dialog
       setOpenEditDialog(false);
       setSelectedMember(null);
       setMemberForm({
-        full_name: "",
-        email: "",
-        phone: "",
-        date_of_birth: "",
-        gender: "",
-        national_id: "",
-        physical_address: "",
-        emergency_contact_name: "",
-        emergency_contact_phone: "",
-        membership_type: "Regular",
-        how_heard_about: "",
-        reason_for_joining: "",
-        areas_of_interest: "",
-        skills_contribution: "",
-        preferred_communication: "",
         status: "Pending",
       });
 
@@ -395,8 +284,8 @@ const PublicMembers = () => {
 
       Swal.fire({
         icon: "success",
-        title: "Updated!",
-        text: "Member has been updated successfully.",
+        title: "Status Updated!",
+        text: `Application status has been updated to ${memberForm.status}.`,
         timer: 1500,
         showConfirmButton: false,
         customClass: {
@@ -410,11 +299,11 @@ const PublicMembers = () => {
         },
       });
     } catch (err) {
-      console.error("Error updating member:", err);
+      console.error("Error updating member status:", err);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to update member. Please try again.",
+        text: "Failed to update application status. Please try again.",
         customClass: {
           container: "swal-z-index-fix",
         },
@@ -462,7 +351,7 @@ const PublicMembers = () => {
       Swal.fire({
         icon: "success",
         title: "Status Updated!",
-        text: `Member status has been updated to ${newStatus}.`,
+        text: `Application status has been updated to ${newStatus}.`,
         timer: 1500,
         showConfirmButton: false,
         customClass: {
@@ -480,7 +369,7 @@ const PublicMembers = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to update member status. Please try again.",
+        text: "Failed to update application status. Please try again.",
         customClass: {
           container: "swal-z-index-fix",
         },
@@ -499,7 +388,7 @@ const PublicMembers = () => {
   const handleDeleteMember = async (member) => {
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: `Do you want to delete "${member.full_name}"?`,
+      text: `Do you want to delete the application from "${member.full_name}"?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -546,7 +435,7 @@ const PublicMembers = () => {
         Swal.fire({
           icon: "success",
           title: "Deleted!",
-          text: "Member has been deleted successfully.",
+          text: "Application has been deleted successfully.",
           timer: 1500,
           showConfirmButton: false,
           customClass: {
@@ -564,7 +453,7 @@ const PublicMembers = () => {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Failed to delete member. Please try again.",
+          text: "Failed to delete application. Please try again.",
           customClass: {
             container: "swal-z-index-fix",
           },
@@ -592,7 +481,8 @@ const PublicMembers = () => {
   return (
     <Box
       sx={{
-        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+        background:
+          "linear-gradient(135deg, rgba(245, 241, 232, 0.95) 0%, rgba(255, 255, 255, 0.98) 50%, rgba(232, 224, 209, 0.95) 100%)",
         minHeight: "100vh",
       }}
     >
@@ -611,7 +501,7 @@ const PublicMembers = () => {
         {/* Header Section */}
         <Box
           sx={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
             p: 3,
             color: "white",
             position: "relative",
@@ -661,10 +551,10 @@ const PublicMembers = () => {
                   fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" },
                 }}
               >
-                Public Members Management
+                Agent Applications Management
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                Manage members registered from the public portal
+                Manage agent applications from the public portal
               </Typography>
             </Box>
           </Box>
@@ -683,7 +573,7 @@ const PublicMembers = () => {
               scrollButtons="auto"
               sx={{
                 "& .MuiTabs-indicator": {
-                  backgroundColor: "#667eea",
+                  backgroundColor: "#B85C38",
                   height: 3,
                   borderRadius: "3px 3px 0 0",
                 },
@@ -694,11 +584,11 @@ const PublicMembers = () => {
                   minHeight: 48,
                   color: "#666",
                   "&.Mui-selected": {
-                    color: "#667eea",
+                    color: "#B85C38",
                   },
                   "&:hover": {
-                    color: "#667eea",
-                    backgroundColor: "rgba(102, 126, 234, 0.04)",
+                    color: "#B85C38",
+                    backgroundColor: "rgba(184, 92, 56, 0.04)",
                   },
                 },
               }}
@@ -714,7 +604,7 @@ const PublicMembers = () => {
                         size="small"
                         sx={{
                           backgroundColor:
-                            activeTab === index ? "#667eea" : "#e0e0e0",
+                            activeTab === index ? "#B85C38" : "#e0e0e0",
                           color: activeTab === index ? "white" : "#666",
                           fontWeight: 600,
                           fontSize: "0.75rem",
@@ -735,19 +625,19 @@ const PublicMembers = () => {
               borderRadius: 3,
               overflowX: "auto",
               backgroundColor: "rgba(255, 255, 255, 0.8)",
-              border: "1px solid rgba(102, 126, 234, 0.1)",
+              border: "1px solid rgba(184, 92, 56, 0.1)",
               "&::-webkit-scrollbar": {
                 height: 8,
               },
               "&::-webkit-scrollbar-track": {
-                backgroundColor: "rgba(102, 126, 234, 0.1)",
+                backgroundColor: "rgba(184, 92, 56, 0.1)",
                 borderRadius: 4,
               },
               "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "rgba(102, 126, 234, 0.3)",
+                backgroundColor: "rgba(184, 92, 56, 0.3)",
                 borderRadius: 4,
                 "&:hover": {
-                  backgroundColor: "rgba(102, 126, 234, 0.5)",
+                  backgroundColor: "rgba(184, 92, 56, 0.5)",
                 },
               },
             }}
@@ -757,7 +647,7 @@ const PublicMembers = () => {
                 <TableRow
                   sx={{
                     background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
                     "& .MuiTableCell-head": {
                       color: "white",
                       fontWeight: 700,
@@ -770,8 +660,9 @@ const PublicMembers = () => {
                   }}
                 >
                   <TableCell>No</TableCell>
-                  <TableCell>Member Name</TableCell>
+                  <TableCell>Applicant Name</TableCell>
                   <TableCell>Email</TableCell>
+                  <TableCell>Business Type</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
@@ -779,13 +670,13 @@ const PublicMembers = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                      <CircularProgress sx={{ color: "#667eea" }} />
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                      <CircularProgress sx={{ color: "#B85C38" }} />
                     </TableCell>
                   </TableRow>
                 ) : error ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                       <Typography color="error" variant="h6">
                         {error}
                       </Typography>
@@ -793,9 +684,9 @@ const PublicMembers = () => {
                   </TableRow>
                 ) : members.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                       <Typography variant="h6" color="text.secondary">
-                        No members found.
+                        No applications found.
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -805,10 +696,10 @@ const PublicMembers = () => {
                       key={member.id}
                       sx={{
                         "&:nth-of-type(even)": {
-                          backgroundColor: "rgba(102, 126, 234, 0.02)",
+                          backgroundColor: "rgba(184, 92, 56, 0.02)",
                         },
                         "&:hover": {
-                          backgroundColor: "rgba(102, 126, 234, 0.08)",
+                          backgroundColor: "rgba(184, 92, 56, 0.08)",
                           transform: { xs: "none", sm: "scale(1.01)" },
                         },
                         transition: "all 0.2s ease",
@@ -819,7 +710,7 @@ const PublicMembers = () => {
                         },
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: "#667eea" }}>
+                      <TableCell sx={{ fontWeight: 600, color: "#B85C38" }}>
                         {page * rowsPerPage + idx + 1}
                       </TableCell>
                       <TableCell>
@@ -833,13 +724,16 @@ const PublicMembers = () => {
                       </TableCell>
                       <TableCell>
                         <Box display="flex" alignItems="center" gap={1}>
-                          <EmailIcon
-                            sx={{ color: "#3498db", fontSize: 18 }}
-                          />
+                          <EmailIcon sx={{ color: "#3498db", fontSize: 18 }} />
                           <Typography variant="body2" sx={{ color: "#7f8c8d" }}>
                             {member.email}
                           </Typography>
                         </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ color: "#7f8c8d" }}>
+                          {member.business_type || "N/A"}
+                        </Typography>
                       </TableCell>
                       <TableCell>
                         <Chip
@@ -855,7 +749,7 @@ const PublicMembers = () => {
                       </TableCell>
                       <TableCell>
                         <Box display="flex" gap={0.5}>
-                          <Tooltip title="View Member Details" arrow>
+                          <Tooltip title="View Application Details" arrow>
                             <IconButton
                               size="small"
                               onClick={(e) => {
@@ -876,7 +770,7 @@ const PublicMembers = () => {
                               <ViewIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Edit Member" arrow>
+                          <Tooltip title="Edit Application" arrow>
                             <IconButton
                               size="small"
                               onClick={(e) => {
@@ -897,7 +791,7 @@ const PublicMembers = () => {
                               <EditIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Delete Member" arrow>
+                          <Tooltip title="Delete Application" arrow>
                             <IconButton
                               size="small"
                               onClick={(e) => {
@@ -936,9 +830,9 @@ const PublicMembers = () => {
             rowsPerPageOptions={[5, 10, 25, 50]}
             sx={{
               backgroundColor: "rgba(255, 255, 255, 0.8)",
-              borderTop: "1px solid rgba(102, 126, 234, 0.1)",
+              borderTop: "1px solid rgba(184, 92, 56, 0.1)",
               "& .MuiTablePagination-toolbar": {
-                color: "#667eea",
+                color: "#B85C38",
                 fontWeight: 600,
               },
               "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
@@ -967,7 +861,7 @@ const PublicMembers = () => {
               width: "50%",
               background: "rgba(255, 255, 255, 0.95)",
               backdropFilter: "blur(10px)",
-              border: "1px solid rgba(102, 126, 234, 0.2)",
+              border: "1px solid rgba(184, 92, 56, 0.2)",
               overflow: "hidden",
             },
             "& .MuiBackdrop-root": {
@@ -977,7 +871,7 @@ const PublicMembers = () => {
         >
           <DialogTitle
             sx={{
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
               color: "white",
               fontWeight: "bold",
               display: "flex",
@@ -991,21 +885,23 @@ const PublicMembers = () => {
             <PersonIcon sx={{ fontSize: 28 }} />
             <Box>
               <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                Member Details
+                Agent Application Details
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-                View complete member information
+                View complete application information
               </Typography>
             </Box>
           </DialogTitle>
-          <DialogContent sx={{ p: 3, pt: 3, maxHeight: "70vh", overflowY: "auto" }}>
+          <DialogContent
+            sx={{ p: 3, pt: 3, maxHeight: "70vh", overflowY: "auto" }}
+          >
             {selectedMember ? (
               <Box>
                 {/* Member Header Section */}
                 <Box
                   sx={{
                     background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
                     borderRadius: 3,
                     p: 3,
                     mb: 4,
@@ -1027,15 +923,7 @@ const PublicMembers = () => {
                   </Typography>
                   <Box display="flex" gap={2} flexWrap="wrap">
                     <Chip
-                      label={selectedMember.member_number || "N/A"}
-                      sx={{
-                        backgroundColor: "rgba(255, 255, 255, 0.2)",
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    />
-                    <Chip
-                      label={selectedMember.membership_type}
+                      label={selectedMember.business_type || "N/A"}
                       sx={{
                         backgroundColor: "rgba(255, 255, 255, 0.2)",
                         color: "white",
@@ -1053,14 +941,13 @@ const PublicMembers = () => {
                   </Box>
                 </Box>
 
-                {/* Member Details Cards */}
+                {/* Contact Information Cards */}
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                  {/* Contact Information */}
                   <Grid item xs={12} sm={6}>
                     <Card
                       sx={{
                         background:
-                          "linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)",
+                          "linear-gradient(135deg, #B85C38 0%, #8B4225 100%)",
                         color: "white",
                         borderRadius: 3,
                         p: 2,
@@ -1085,7 +972,7 @@ const PublicMembers = () => {
                     <Card
                       sx={{
                         background:
-                          "linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)",
+                          "linear-gradient(135deg, #6B4E3D 0%, #3D2817 100%)",
                         color: "white",
                         borderRadius: 3,
                         p: 2,
@@ -1107,127 +994,84 @@ const PublicMembers = () => {
                   </Grid>
                 </Grid>
 
-                {/* Additional Information */}
+                {/* Business Information */}
                 <Box
                   sx={{
                     background: "rgba(255, 255, 255, 0.8)",
                     borderRadius: 3,
                     p: 3,
                     mb: 3,
-                    border: "1px solid rgba(102, 126, 234, 0.1)",
+                    border: "1px solid rgba(184, 92, 56, 0.1)",
                   }}
                 >
                   <Typography
                     variant="h6"
                     sx={{
                       fontWeight: 700,
-                      color: "#667eea",
+                      color: "#B85C38",
                       mb: 2,
                     }}
                   >
-                    Additional Information
+                    Business Information
                   </Typography>
 
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="caption" color="text.secondary">
-                        Date of Birth
+                        Company Name
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {formatDate(selectedMember.date_of_birth)}
+                        {selectedMember.company_name || "N/A"}
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="caption" color="text.secondary">
-                        Gender
+                        Business Type
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.gender || "N/A"}
+                        {selectedMember.business_type || "N/A"}
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="caption" color="text.secondary">
-                        National ID
+                        Years of Experience
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.national_id || "N/A"}
+                        {selectedMember.years_of_experience
+                          ? `${selectedMember.years_of_experience} years`
+                          : "N/A"}
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
                       <Typography variant="caption" color="text.secondary">
-                        Physical Address
+                        Motivation
                       </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.physical_address || "N/A"}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="caption" color="text.secondary">
-                        Emergency Contact Name
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.emergency_contact_name || "N/A"}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="caption" color="text.secondary">
-                        Emergency Contact Phone
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.emergency_contact_phone || "N/A"}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="caption" color="text.secondary">
-                        Preferred Communication
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.preferred_communication || "N/A"}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="caption" color="text.secondary">
-                        How Heard About
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.how_heard_about || "N/A"}
+                      <Typography
+                        variant="body1"
+                        sx={{ fontWeight: 500, whiteSpace: "pre-wrap" }}
+                      >
+                        {selectedMember.motivation || "N/A"}
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
                       <Typography variant="caption" color="text.secondary">
-                        Reason for Joining
+                        Target Market
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.reason_for_joining || "N/A"}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="caption" color="text.secondary">
-                        Areas of Interest
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.areas_of_interest || "N/A"}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="caption" color="text.secondary">
-                        Skills Contribution
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {selectedMember.skills_contribution || "N/A"}
+                        {selectedMember.target_market || "N/A"}
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="caption" color="text.secondary">
-                        Registered On
+                        Application Submitted
                       </Typography>
                       <Typography variant="body2" sx={{ fontWeight: 500 }}>
                         {selectedMember.createdAt
                           ? (() => {
                               try {
                                 const date = new Date(selectedMember.createdAt);
-                                return !isNaN(date.getTime()) 
-                                  ? date.toLocaleString() 
+                                return !isNaN(date.getTime())
+                                  ? date.toLocaleString()
                                   : "N/A";
                               } catch (e) {
                                 return "N/A";
@@ -1242,13 +1086,13 @@ const PublicMembers = () => {
             ) : (
               <Box sx={{ textAlign: "center", py: 4 }}>
                 <Typography variant="body1" color="text.secondary">
-                  No member data available
+                  No application data available
                 </Typography>
               </Box>
             )}
           </DialogContent>
           <DialogActions
-            sx={{ p: 3, gap: 2, backgroundColor: "rgba(102, 126, 234, 0.05)" }}
+            sx={{ p: 3, gap: 2, backgroundColor: "rgba(184, 92, 56, 0.05)" }}
           >
             <Button
               onClick={() => {
@@ -1257,15 +1101,15 @@ const PublicMembers = () => {
               }}
               variant="outlined"
               sx={{
-                borderColor: "#667eea",
-                color: "#667eea",
+                borderColor: "#B85C38",
+                color: "#B85C38",
                 fontWeight: 600,
                 borderRadius: 2,
                 px: 3,
                 py: 1,
                 "&:hover": {
-                  borderColor: "#5a6fd8",
-                  backgroundColor: "rgba(102, 126, 234, 0.1)",
+                  borderColor: "#8B4225",
+                  backgroundColor: "rgba(184, 92, 56, 0.1)",
                 },
               }}
             >
@@ -1290,12 +1134,12 @@ const PublicMembers = () => {
                     },
                   }}
                 >
-                  Edit Member
+                  Edit Application
                 </Button>
                 {selectedMember.status === "Pending" && (
                   <Button
                     onClick={() => {
-                      handleUpdateStatus(selectedMember.id, "Active");
+                      handleUpdateStatus(selectedMember.id, "Approved");
                       setOpenViewDialog(false);
                       setSelectedMember(null);
                     }}
@@ -1326,21 +1170,6 @@ const PublicMembers = () => {
             setOpenEditDialog(false);
             setSelectedMember(null);
             setMemberForm({
-              full_name: "",
-              email: "",
-              phone: "",
-              date_of_birth: "",
-              gender: "",
-              national_id: "",
-              physical_address: "",
-              emergency_contact_name: "",
-              emergency_contact_phone: "",
-              membership_type: "Regular",
-              how_heard_about: "",
-              reason_for_joining: "",
-              areas_of_interest: "",
-              skills_contribution: "",
-              preferred_communication: "",
               status: "Pending",
             });
           }}
@@ -1354,7 +1183,7 @@ const PublicMembers = () => {
               width: "50%",
               background: "rgba(255, 255, 255, 0.95)",
               backdropFilter: "blur(10px)",
-              border: "1px solid rgba(102, 126, 234, 0.2)",
+              border: "1px solid rgba(184, 92, 56, 0.2)",
               overflow: "hidden",
             },
             "& .MuiBackdrop-root": {
@@ -1364,7 +1193,7 @@ const PublicMembers = () => {
         >
           <DialogTitle
             sx={{
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
               color: "white",
               fontWeight: "bold",
               display: "flex",
@@ -1376,319 +1205,123 @@ const PublicMembers = () => {
             <EditIcon sx={{ fontSize: 28 }} />
             <Box>
               <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                Edit Member
+                Manage Application Status
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-                Update member information
+                Approve or reject application for agent program
               </Typography>
             </Box>
           </DialogTitle>
-          <DialogContent sx={{ p: 3, pt: 3, maxHeight: "70vh", overflowY: "auto" }}>
-            <Box component="form" noValidate>
-              <Stack spacing={2} sx={{ mt: 1 }}>
-                <TextField
-                  fullWidth
-                  label="Full Name"
-                  value={memberForm.full_name}
-                  onChange={(e) =>
-                    setMemberForm({ ...memberForm, full_name: e.target.value })
-                  }
-                  required
-                  variant="outlined"
-                  size="small"
-                />
-
-                <Box
-                  display="flex"
-                  flexDirection={{ xs: "column", sm: "row" }}
-                  gap={2}
-                >
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    value={memberForm.email}
-                    onChange={(e) =>
-                      setMemberForm({ ...memberForm, email: e.target.value })
-                    }
-                    required
-                    variant="outlined"
-                    size="small"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Phone"
-                    value={memberForm.phone}
-                    onChange={(e) =>
-                      setMemberForm({ ...memberForm, phone: e.target.value })
-                    }
-                    required
-                    variant="outlined"
-                    size="small"
-                  />
-                </Box>
-
-                <Box
-                  display="flex"
-                  flexDirection={{ xs: "column", sm: "row" }}
-                  gap={2}
-                >
-                  <TextField
-                    fullWidth
-                    label="Date of Birth"
-                    type="date"
-                    value={memberForm.date_of_birth}
-                    onChange={(e) =>
-                      setMemberForm({
-                        ...memberForm,
-                        date_of_birth: e.target.value,
-                      })
-                    }
-                    InputLabelProps={{ shrink: true }}
-                    variant="outlined"
-                    size="small"
-                  />
-                  <FormControl fullWidth variant="outlined" size="small">
-                    <InputLabel>Gender</InputLabel>
-                    <Select
-                      value={memberForm.gender}
-                      onChange={(e) =>
-                        setMemberForm({ ...memberForm, gender: e.target.value })
-                      }
-                      label="Gender"
-                    >
-                      <MenuItem value="Male">Male</MenuItem>
-                      <MenuItem value="Female">Female</MenuItem>
-                      <MenuItem value="Other">Other</MenuItem>
-                      <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-
-                <TextField
-                  fullWidth
-                  label="National ID"
-                  value={memberForm.national_id}
-                  onChange={(e) =>
-                    setMemberForm({
-                      ...memberForm,
-                      national_id: e.target.value,
-                    })
-                  }
-                  variant="outlined"
-                  size="small"
-                />
-
-                <TextField
-                  fullWidth
-                  label="Physical Address"
-                  multiline
-                  rows={2}
-                  value={memberForm.physical_address}
-                  onChange={(e) =>
-                    setMemberForm({
-                      ...memberForm,
-                      physical_address: e.target.value,
-                    })
-                  }
-                  variant="outlined"
-                  size="small"
-                />
-
-                <Box
-                  display="flex"
-                  flexDirection={{ xs: "column", sm: "row" }}
-                  gap={2}
-                >
-                  <TextField
-                    fullWidth
-                    label="Emergency Contact Name"
-                    value={memberForm.emergency_contact_name}
-                    onChange={(e) =>
-                      setMemberForm({
-                        ...memberForm,
-                        emergency_contact_name: e.target.value,
-                      })
-                    }
-                    variant="outlined"
-                    size="small"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Emergency Contact Phone"
-                    value={memberForm.emergency_contact_phone}
-                    onChange={(e) =>
-                      setMemberForm({
-                        ...memberForm,
-                        emergency_contact_phone: e.target.value,
-                      })
-                    }
-                    variant="outlined"
-                    size="small"
-                  />
-                </Box>
-
-                <Box
-                  display="flex"
-                  flexDirection={{ xs: "column", sm: "row" }}
-                  gap={2}
-                >
-                  <FormControl fullWidth variant="outlined" size="small">
-                    <InputLabel>Membership Type</InputLabel>
-                    <Select
-                      value={memberForm.membership_type}
-                      onChange={(e) =>
-                        setMemberForm({
-                          ...memberForm,
-                          membership_type: e.target.value,
-                        })
-                      }
-                      label="Membership Type"
-                    >
-                      <MenuItem value="Regular">Regular</MenuItem>
-                      <MenuItem value="Lifetime">Lifetime</MenuItem>
-                      <MenuItem value="Student">Student</MenuItem>
-                      <MenuItem value="Corporate">Corporate</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth variant="outlined" size="small">
-                    <InputLabel>Status</InputLabel>
-                    <Select
-                      value={memberForm.status}
-                      onChange={(e) =>
-                        setMemberForm({ ...memberForm, status: e.target.value })
-                      }
-                      label="Status"
-                    >
-                      <MenuItem value="Pending">Pending</MenuItem>
-                      <MenuItem value="Active">Active</MenuItem>
-                      <MenuItem value="Inactive">Inactive</MenuItem>
-                      <MenuItem value="Rejected">Rejected</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-
-                <FormControl fullWidth variant="outlined" size="small">
-                  <InputLabel>Preferred Communication</InputLabel>
-                  <Select
-                    value={memberForm.preferred_communication}
-                    onChange={(e) =>
-                      setMemberForm({
-                        ...memberForm,
-                        preferred_communication: e.target.value,
-                      })
-                    }
-                    label="Preferred Communication"
+          <DialogContent
+            sx={{ p: 3, pt: 3, maxHeight: "70vh", overflowY: "auto" }}
+          >
+            <Stack spacing={3} sx={{ mt: 1 }}>
+              {/* Display Application Details (Read-only) */}
+              <Box
+                sx={{
+                  p: 2,
+                  backgroundColor: "rgba(184, 92, 56, 0.05)",
+                  borderRadius: 2,
+                  border: "1px solid rgba(184, 92, 56, 0.1)",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  {selectedMember?.full_name}
+                </Typography>
+                <Stack spacing={1}>
+                  <Typography variant="body2">
+                    <strong>Email:</strong> {selectedMember?.email || "-"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Phone:</strong> {selectedMember?.phone || "-"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Business Type:</strong>{" "}
+                    {selectedMember?.business_type || "-"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Company:</strong>{" "}
+                    {selectedMember?.company_name || "-"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Years of Experience:</strong>{" "}
+                    {selectedMember?.years_of_experience
+                      ? `${selectedMember.years_of_experience} years`
+                      : "-"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Target Market:</strong>{" "}
+                    {selectedMember?.target_market || "-"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Current Status:</strong>{" "}
+                    {selectedMember?.status || "-"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Submitted:</strong>{" "}
+                    {selectedMember?.createdAt
+                      ? new Date(selectedMember.createdAt).toLocaleString()
+                      : "-"}
+                  </Typography>
+                </Stack>
+                {selectedMember?.motivation && (
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#666", fontStyle: "italic", mt: 2 }}
                   >
-                    <MenuItem value="Email">Email</MenuItem>
-                    <MenuItem value="Phone">Phone</MenuItem>
-                    <MenuItem value="SMS">SMS</MenuItem>
-                    <MenuItem value="WhatsApp">WhatsApp</MenuItem>
-                    <MenuItem value="Postal Mail">Postal Mail</MenuItem>
-                  </Select>
-                </FormControl>
+                    "{selectedMember.motivation}"
+                  </Typography>
+                )}
+              </Box>
 
-                <TextField
-                  fullWidth
-                  label="How Heard About"
-                  value={memberForm.how_heard_about}
+              {/* Status Field (Only Editable Field) */}
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={memberForm.status}
                   onChange={(e) =>
-                    setMemberForm({
-                      ...memberForm,
-                      how_heard_about: e.target.value,
-                    })
+                    setMemberForm({ ...memberForm, status: e.target.value })
                   }
-                  variant="outlined"
-                  size="small"
-                />
+                  label="Status"
+                  required
+                >
+                  <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Approved">Approved</MenuItem>
+                  <MenuItem value="Rejected">Rejected</MenuItem>
+                </Select>
+              </FormControl>
 
-                <TextField
-                  fullWidth
-                  label="Reason for Joining"
-                  multiline
-                  rows={3}
-                  value={memberForm.reason_for_joining}
-                  onChange={(e) =>
-                    setMemberForm({
-                      ...memberForm,
-                      reason_for_joining: e.target.value,
-                    })
-                  }
-                  variant="outlined"
-                  size="small"
-                />
-
-                <TextField
-                  fullWidth
-                  label="Areas of Interest"
-                  multiline
-                  rows={3}
-                  value={memberForm.areas_of_interest}
-                  onChange={(e) =>
-                    setMemberForm({
-                      ...memberForm,
-                      areas_of_interest: e.target.value,
-                    })
-                  }
-                  variant="outlined"
-                  size="small"
-                />
-
-                <TextField
-                  fullWidth
-                  label="Skills Contribution"
-                  multiline
-                  rows={3}
-                  value={memberForm.skills_contribution}
-                  onChange={(e) =>
-                    setMemberForm({
-                      ...memberForm,
-                      skills_contribution: e.target.value,
-                    })
-                  }
-                  variant="outlined"
-                  size="small"
-                />
-              </Stack>
-            </Box>
+              <Typography
+                variant="body2"
+                sx={{ color: "#666", fontStyle: "italic", textAlign: "center" }}
+              >
+                Note: Only the status can be modified. The application content
+                is preserved as submitted by the applicant.
+              </Typography>
+            </Stack>
           </DialogContent>
           <DialogActions
-            sx={{ p: 3, gap: 2, backgroundColor: "rgba(102, 126, 234, 0.05)" }}
+            sx={{ p: 3, gap: 2, backgroundColor: "rgba(184, 92, 56, 0.05)" }}
           >
             <Button
               onClick={() => {
                 setOpenEditDialog(false);
                 setSelectedMember(null);
                 setMemberForm({
-                  full_name: "",
-                  email: "",
-                  phone: "",
-                  date_of_birth: "",
-                  gender: "",
-                  national_id: "",
-                  physical_address: "",
-                  emergency_contact_name: "",
-                  emergency_contact_phone: "",
-                  membership_type: "Regular",
-                  how_heard_about: "",
-                  reason_for_joining: "",
-                  areas_of_interest: "",
-                  skills_contribution: "",
-                  preferred_communication: "",
                   status: "Pending",
                 });
               }}
               variant="outlined"
               sx={{
-                borderColor: "#667eea",
-                color: "#667eea",
+                borderColor: "#B85C38",
+                color: "#B85C38",
                 fontWeight: 600,
                 borderRadius: 2,
                 px: 3,
                 py: 1,
                 "&:hover": {
-                  borderColor: "#5a6fd8",
-                  backgroundColor: "rgba(102, 126, 234, 0.1)",
+                  borderColor: "#8B4225",
+                  backgroundColor: "rgba(184, 92, 56, 0.1)",
                 },
               }}
             >
@@ -1699,17 +1332,18 @@ const PublicMembers = () => {
               variant="contained"
               disabled={loading}
               sx={{
-                backgroundColor: "#667eea",
+                background: "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
                 fontWeight: 600,
                 borderRadius: 2,
                 px: 3,
                 py: 1,
                 "&:hover": {
-                  backgroundColor: "#5a6fd8",
+                  background:
+                    "linear-gradient(135deg, #8B4225 0%, #3D2817 100%)",
                 },
               }}
             >
-              {loading ? <CircularProgress size={20} /> : "Update Member"}
+              {loading ? <CircularProgress size={20} /> : "Update Status"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -1719,4 +1353,3 @@ const PublicMembers = () => {
 };
 
 export default PublicMembers;
-

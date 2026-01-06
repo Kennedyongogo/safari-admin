@@ -68,20 +68,31 @@ import {
   AccountCircle as AccountCircleIcon,
   Add as AddIcon,
   CheckCircle as CheckCircleIcon,
+  Star as StarIcon,
+  Article as ArticleIcon,
+  Hotel as HotelIcon,
+  ShoppingBag as ShoppingBagIcon,
+  PhotoLibrary as PhotoLibraryIcon,
+  Assignment as AssignmentIcon,
+  RateReview as RateReviewIcon,
+  Visibility as VisibilityIcon,
+  Favorite as FavoriteIcon,
+  List as ListIcon,
+  Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 
-// Color palette for charts
+// Color palette for charts (brown/rust theme)
 const COLORS = [
-  "#667eea",
-  "#764ba2",
-  "#f093fb",
-  "#f5576c",
-  "#4facfe",
-  "#00f2fe",
-  "#43e97b",
-  "#38f9d7",
-  "#ffecd2",
-  "#fcb69f",
+  "#6B4E3D",
+  "#B85C38",
+  "#8B4225",
+  "#A0522D",
+  "#CD853F",
+  "#D2691E",
+  "#DEB887",
+  "#F4A460",
+  "#D2B48C",
+  "#BC8F8F",
 ];
 
 const Analytics = () => {
@@ -91,21 +102,23 @@ const Analytics = () => {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [analyticsData, setAnalyticsData] = useState({
     overview: {},
-    projects: {},
-    tasks: {},
-    budget: {},
-    issues: {},
-    equipment: {},
-    labor: {},
-    materials: {},
-    equipmentSummary: {},
-    performance: {},
-    recentActivity: {},
+    adminUsers: {},
     documents: {},
-    engineers: {},
+    auditTrail: {},
+    reviews: {},
+    blogs: {},
+    members: {},
+    lodges: {},
+    packages: {},
+    routeStages: {},
+    destinations: {},
+    gallery: {},
+    forms: {},
+    formFields: {},
+    fieldOptions: {},
+    formSubmissions: {},
+    trends: {},
   });
-  const [projectsByDate, setProjectsByDate] = useState([]);
-  const [tasksByDate, setTasksByDate] = useState([]);
   // Helper function to format date for display
   const formatDateForDisplay = (dateString) => {
     const date = new Date(dateString);
@@ -126,18 +139,23 @@ const Analytics = () => {
   });
 
   const [overviewHelpOpen, setOverviewHelpOpen] = useState(false);
-  const [projectsHelpOpen, setProjectsHelpOpen] = useState(false);
-  const [tasksLaborHelpOpen, setTasksLaborHelpOpen] = useState(false);
-  const [budgetResourcesHelpOpen, setBudgetResourcesHelpOpen] = useState(false);
-  const [performanceHelpOpen, setPerformanceHelpOpen] = useState(false);
-  const [equipmentMaterialsHelpOpen, setEquipmentMaterialsHelpOpen] =
-    useState(false);
-  const [inquiriesHelpOpen, setInquiriesHelpOpen] = useState(false);
+  const [reviewsHelpOpen, setReviewsHelpOpen] = useState(false);
+  const [blogsHelpOpen, setBlogsHelpOpen] = useState(false);
+  const [membersHelpOpen, setMembersHelpOpen] = useState(false);
+  const [lodgesHelpOpen, setLodgesHelpOpen] = useState(false);
+  const [destinationsHelpOpen, setDestinationsHelpOpen] = useState(false);
+  const [galleryHelpOpen, setGalleryHelpOpen] = useState(false);
+  const [formsHelpOpen, setFormsHelpOpen] = useState(false);
 
   const tabs = [
     { label: "Overview", icon: <AnalyticsIcon />, value: 0 },
-    { label: "Projects", icon: <MapIcon />, value: 1 },
-    { label: "Inquiries", icon: <BarChartIcon />, value: 2 },
+    { label: "Reviews", icon: <StarIcon />, value: 1 },
+    { label: "Blogs", icon: <ArticleIcon />, value: 2 },
+    { label: "Agent Partnership", icon: <PeopleIcon />, value: 3 },
+    { label: "Lodges & Packages", icon: <HotelIcon />, value: 4 },
+    { label: "Destinations & Routes", icon: <LocationIcon />, value: 5 },
+    { label: "Gallery", icon: <PhotoLibraryIcon />, value: 6 },
+    { label: "Forms", icon: <AssignmentIcon />, value: 7 },
   ];
 
   useEffect(() => {
@@ -197,14 +215,14 @@ const Analytics = () => {
         <Box display="flex" alignItems="center" gap={1}>
           <InfoIcon color="primary" />
           <Typography variant="h6" fontWeight="bold">
-            Mwalimu Hope Foundation - Overview Data Explanation
+            Akira Safaris - Overview Data Explanation
           </Typography>
         </Box>
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          This overview provides comprehensive insights about your foundation's activities, 
-          including inquiries, projects, documents, users, and system activity. Here's what each section means:
+          This overview provides comprehensive insights about Akira Safaris' activities, 
+          including reviews, blogs, agent partnerships, lodges, packages, destinations, gallery, forms, documents, users, and system activity. Here's what each section means:
         </Typography>
 
         {/* Key Metrics Cards */}
@@ -214,38 +232,11 @@ const Analytics = () => {
         <List dense>
           <ListItem>
             <ListItemIcon>
-              <BarChartIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText
-              primary="Total Inquiries"
-              secondary="The total number of inquiries received by the foundation"
-            />
-          </ListItem>
-          <ListItem>
-            <ListItemIcon>
-              <MapIcon color="secondary" />
-            </ListItemIcon>
-            <ListItemText
-              primary="Total Projects"
-              secondary="The total number of projects currently managed by the foundation"
-            />
-          </ListItem>
-          <ListItem>
-            <ListItemIcon>
-              <DescriptionIcon color="success" />
-            </ListItemIcon>
-            <ListItemText
-              primary="Total Documents"
-              secondary="The total number of documents stored in the system"
-            />
-          </ListItem>
-          <ListItem>
-            <ListItemIcon>
               <PeopleIcon color="warning" />
             </ListItemIcon>
             <ListItemText
               primary="Total Users"
-              secondary="The total number of users (admin and super-admin) in the system"
+              secondary="The total number of admin users in the system"
             />
           </ListItem>
           <ListItem>
@@ -259,29 +250,83 @@ const Analytics = () => {
           </ListItem>
           <ListItem>
             <ListItemIcon>
-              <TrendingUpIcon color="primary" />
+              <DescriptionIcon color="success" />
             </ListItemIcon>
             <ListItemText
-              primary="Recent Inquiries (30d)"
-              secondary="Number of new inquiries received in the last 30 days"
+              primary="Total Documents"
+              secondary="The total number of documents stored in the system"
             />
           </ListItem>
           <ListItem>
             <ListItemIcon>
-              <AddIcon color="secondary" />
+              <StarIcon color="warning" />
             </ListItemIcon>
             <ListItemText
-              primary="Recent Projects (30d)"
-              secondary="Number of new projects created in the last 30 days"
+              primary="Total Reviews"
+              secondary="The total number of customer reviews in the system"
             />
           </ListItem>
           <ListItem>
             <ListItemIcon>
-              <CheckCircleIcon color="success" />
+              <ArticleIcon color="primary" />
             </ListItemIcon>
             <ListItemText
-              primary="Completed Projects (30d)"
-              secondary="Number of projects completed in the last 30 days"
+              primary="Total Blogs"
+              secondary="The total number of blog posts published"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <PeopleIcon color="secondary" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Total Agent Partnerships"
+              secondary="The total number of agent partnership applications"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <HotelIcon color="error" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Total Lodges"
+              secondary="The total number of lodges in the system"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <ShoppingBagIcon color="info" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Total Packages"
+              secondary="The total number of tour packages available"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <LocationIcon color="success" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Total Destinations"
+              secondary="The total number of destinations offered"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <PhotoLibraryIcon color="secondary" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Total Gallery Items"
+              secondary="The total number of images and videos in the gallery"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <AssignmentIcon color="warning" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Total Forms"
+              secondary="The total number of forms created in the system"
             />
           </ListItem>
         </List>
@@ -293,20 +338,20 @@ const Analytics = () => {
         <List dense>
           <ListItem>
             <ListItemIcon>
-              <Chip label="Inquiry Metrics" color="primary" size="small" />
+              <Chip label="Review Metrics" color="warning" size="small" />
             </ListItemIcon>
             <ListItemText
-              primary="Inquiry Metrics"
-              secondary="Shows pending inquiries and recently resolved inquiries (30 days)"
+              primary="Review Metrics"
+              secondary="Shows average rating and recent reviews (30 days)"
             />
           </ListItem>
           <ListItem>
             <ListItemIcon>
-              <Chip label="Project Progress" color="success" size="small" />
+              <Chip label="Blog Metrics" color="primary" size="small" />
             </ListItemIcon>
             <ListItemText
-              primary="Project Progress"
-              secondary="Displays average project progress and number of projects in progress"
+              primary="Blog Metrics"
+              secondary="Displays total views, likes, and engagement metrics"
             />
           </ListItem>
           <ListItem>
@@ -327,11 +372,11 @@ const Analytics = () => {
         <List dense>
           <ListItem>
             <ListItemIcon>
-              <PieChartIcon color="primary" />
+              <BarChartIcon color="primary" />
             </ListItemIcon>
             <ListItemText
               primary="Documents by Type"
-              secondary="Pie chart showing distribution of documents by file type (Word, PDF, etc.)"
+              secondary="Bar chart showing distribution of documents by file type (Image, PDF, Word, Excel, PowerPoint, Text, Other)"
             />
           </ListItem>
           <ListItem>
@@ -340,7 +385,7 @@ const Analytics = () => {
             </ListItemIcon>
             <ListItemText
               primary="Users by Role"
-              secondary="Bar chart showing distribution of users by their roles (admin, super-admin)"
+              secondary="Bar chart showing distribution of users by their roles (super-admin, admin, regular user)"
             />
           </ListItem>
           <ListItem>
@@ -349,7 +394,7 @@ const Analytics = () => {
             </ListItemIcon>
             <ListItemText
               primary="Activity by Action (Last 7 Days)"
-              secondary="Bar chart showing system activity breakdown by action type (create, update, download)"
+              secondary="Bar chart showing system activity breakdown by action type (create, update, delete, login, status_change)"
             />
           </ListItem>
         </List>
@@ -361,55 +406,55 @@ const Analytics = () => {
         <List dense>
           <ListItem>
             <ListItemIcon>
-              <Chip label="New Inquiries" color="primary" size="small" />
+              <Chip label="New Reviews" color="warning" size="small" />
             </ListItemIcon>
             <ListItemText
-              primary="New Inquiries"
-              secondary="Number of new inquiries received in the last 30 days"
+              primary="New Reviews"
+              secondary="Number of new reviews received in the last 30 days"
             />
           </ListItem>
           <ListItem>
             <ListItemIcon>
-              <Chip label="Resolved Inquiries" color="success" size="small" />
+              <Chip label="New Blogs" color="primary" size="small" />
             </ListItemIcon>
             <ListItemText
-              primary="Resolved Inquiries"
-              secondary="Number of inquiries resolved in the last 30 days"
+              primary="New Blogs"
+              secondary="Number of new blog posts published in the last 30 days"
             />
           </ListItem>
           <ListItem>
             <ListItemIcon>
-              <Chip label="New Projects" color="warning" size="small" />
+              <Chip label="New Agent Applications" color="secondary" size="small" />
             </ListItemIcon>
             <ListItemText
-              primary="New Projects"
-              secondary="Number of new projects created in the last 30 days"
+              primary="New Agent Applications"
+              secondary="Number of new agent partnership applications in the last 30 days"
             />
           </ListItem>
           <ListItem>
             <ListItemIcon>
-              <Chip label="Completed Projects" color="success" size="small" />
+              <Chip label="New Gallery Items" color="info" size="small" />
             </ListItemIcon>
             <ListItemText
-              primary="Completed Projects"
-              secondary="Number of projects completed in the last 30 days"
+              primary="New Gallery Items"
+              secondary="Number of new images and videos added in the last 30 days"
             />
           </ListItem>
           <ListItem>
             <ListItemIcon>
-              <Chip label="New Documents" color="info" size="small" />
+              <Chip label="New Form Submissions" color="warning" size="small" />
             </ListItemIcon>
             <ListItemText
-              primary="New Documents"
-              secondary="Number of new documents uploaded in the last 30 days"
+              primary="New Form Submissions"
+              secondary="Number of new form submissions in the last 30 days"
             />
           </ListItem>
         </List>
 
         <Alert severity="info" sx={{ mt: 3 }}>
           <Typography variant="body2">
-            <strong>💡 Tip:</strong> These metrics help you understand your foundation's 
-            performance, track engagement, monitor project progress, and identify areas 
+            <strong>💡 Tip:</strong> These metrics help you understand Akira Safaris' 
+            performance, track engagement, monitor content creation, and identify areas 
             needing attention. Use the trends to spot patterns and make data-driven decisions.
           </Typography>
         </Alert>
@@ -418,6 +463,538 @@ const Analytics = () => {
         <Button onClick={() => setOverviewHelpOpen(false)} color="primary">
           Got it!
         </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  // Reviews Help Dialog Component
+  const ReviewsHelpDialog = () => (
+    <Dialog
+      open={reviewsHelpOpen}
+      onClose={() => setReviewsHelpOpen(false)}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        <Box display="flex" alignItems="center" gap={1}>
+          <StarIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            Akira Safaris - Reviews Analytics Explanation
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          The Reviews tab provides insights into customer reviews, ratings, and review status distribution.
+        </Typography>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📊 Review Metrics
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><StarIcon color="warning" /></ListItemIcon>
+            <ListItemText
+              primary="Total Reviews"
+              secondary="The total number of customer reviews in the system"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><CheckCircleIcon color="success" /></ListItemIcon>
+            <ListItemText
+              primary="Average Rating"
+              secondary="The average rating across all reviews (1-5 stars)"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><TrendingUpIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Recent (30d)"
+              secondary="Number of new reviews received in the last 30 days"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><CheckCircleIcon color="success" /></ListItemIcon>
+            <ListItemText
+              primary="Approved"
+              secondary="Number of reviews that have been approved and published"
+            />
+          </ListItem>
+        </List>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📈 Charts
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><PieChartIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Review Status Distribution"
+              secondary="Pie chart showing reviews by status (approved, pending, rejected)"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><BarChartIcon color="secondary" /></ListItemIcon>
+            <ListItemText
+              primary="Rating Distribution"
+              secondary="Bar chart showing number of reviews by rating (1-5 stars)"
+            />
+          </ListItem>
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setReviewsHelpOpen(false)} color="primary">Got it!</Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  // Blogs Help Dialog Component
+  const BlogsHelpDialog = () => (
+    <Dialog
+      open={blogsHelpOpen}
+      onClose={() => setBlogsHelpOpen(false)}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        <Box display="flex" alignItems="center" gap={1}>
+          <ArticleIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            Akira Safaris - Blogs Analytics Explanation
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          The Blogs tab provides insights into blog posts, categories, engagement metrics, and status distribution.
+        </Typography>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📊 Blog Metrics
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><ArticleIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Total Blogs"
+              secondary="The total number of blog posts in the system"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><StarIcon color="warning" /></ListItemIcon>
+            <ListItemText
+              primary="Featured"
+              secondary="Number of blog posts marked as featured"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><VisibilityIcon color="info" /></ListItemIcon>
+            <ListItemText
+              primary="Total Views"
+              secondary="Total number of views across all blog posts"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><FavoriteIcon color="error" /></ListItemIcon>
+            <ListItemText
+              primary="Total Likes"
+              secondary="Total number of likes across all blog posts"
+            />
+          </ListItem>
+        </List>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📈 Charts
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><PieChartIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Blog Status Distribution"
+              secondary="Pie chart showing blogs by status (published, draft, archived)"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><BarChartIcon color="secondary" /></ListItemIcon>
+            <ListItemText
+              primary="Blog Category Distribution"
+              secondary="Bar chart showing number of blogs by category"
+            />
+          </ListItem>
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setBlogsHelpOpen(false)} color="primary">Got it!</Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  // Agent Partnership Help Dialog Component
+  const AgentPartnershipHelpDialog = () => (
+    <Dialog
+      open={membersHelpOpen}
+      onClose={() => setMembersHelpOpen(false)}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        <Box display="flex" alignItems="center" gap={1}>
+          <PeopleIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            Akira Safaris - Agent Partnership Analytics Explanation
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          The Agent Partnership tab provides insights into agent partnership applications, status distribution, and business types.
+        </Typography>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📊 Application Metrics
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><PeopleIcon color="secondary" /></ListItemIcon>
+            <ListItemText
+              primary="Total Applications"
+              secondary="The total number of agent partnership applications received"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><ScheduleIcon color="warning" /></ListItemIcon>
+            <ListItemText
+              primary="Pending"
+              secondary="Number of applications awaiting review"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><TrendingUpIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Recent (30d)"
+              secondary="Number of new applications received in the last 30 days"
+            />
+          </ListItem>
+        </List>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📈 Charts
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><PieChartIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Application Status Distribution"
+              secondary="Pie chart showing applications by status (Pending, Approved, Rejected)"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><BarChartIcon color="secondary" /></ListItemIcon>
+            <ListItemText
+              primary="Business Type Distribution"
+              secondary="Bar chart showing number of applications by business type"
+            />
+          </ListItem>
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setMembersHelpOpen(false)} color="primary">Got it!</Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  // Lodges & Packages Help Dialog Component
+  const LodgesPackagesHelpDialog = () => (
+    <Dialog
+      open={lodgesHelpOpen}
+      onClose={() => setLodgesHelpOpen(false)}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        <Box display="flex" alignItems="center" gap={1}>
+          <HotelIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            Akira Safaris - Lodges & Packages Analytics Explanation
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          The Lodges & Packages tab provides insights into lodges, tour packages, destinations, and package types.
+        </Typography>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📊 Metrics
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><HotelIcon color="error" /></ListItemIcon>
+            <ListItemText
+              primary="Total Lodges"
+              secondary="The total number of lodges in the system"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><ShoppingBagIcon color="info" /></ListItemIcon>
+            <ListItemText
+              primary="Total Packages"
+              secondary="The total number of tour packages available"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><CheckCircleIcon color="success" /></ListItemIcon>
+            <ListItemText
+              primary="Active Packages"
+              secondary="Number of packages currently active and available for booking"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><StarIcon color="warning" /></ListItemIcon>
+            <ListItemText
+              primary="Average Rating"
+              secondary="Average rating across all packages"
+            />
+          </ListItem>
+        </List>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📈 Charts
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><BarChartIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Lodges by Destination"
+              secondary="Bar chart showing distribution of lodges by destination"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><PieChartIcon color="secondary" /></ListItemIcon>
+            <ListItemText
+              primary="Packages by Type"
+              secondary="Pie chart showing distribution of packages by type (All-inclusive, etc.)"
+            />
+          </ListItem>
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setLodgesHelpOpen(false)} color="primary">Got it!</Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  // Destinations & Routes Help Dialog Component
+  const DestinationsRoutesHelpDialog = () => (
+    <Dialog
+      open={destinationsHelpOpen}
+      onClose={() => setDestinationsHelpOpen(false)}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        <Box display="flex" alignItems="center" gap={1}>
+          <LocationIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            Akira Safaris - Destinations & Routes Analytics Explanation
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          The Destinations & Routes tab provides insights into destinations, locations, and route stages.
+        </Typography>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📊 Metrics
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><LocationIcon color="success" /></ListItemIcon>
+            <ListItemText
+              primary="Total Destinations"
+              secondary="The total number of destinations offered"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><CheckCircleIcon color="success" /></ListItemIcon>
+            <ListItemText
+              primary="Active Destinations"
+              secondary="Number of destinations currently active"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><MapIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Total Route Stages"
+              secondary="The total number of route stages in the system"
+            />
+          </ListItem>
+        </List>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📈 Charts
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><BarChartIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Destinations by Location"
+              secondary="Bar chart showing distribution of destinations by location (East Africa, etc.)"
+            />
+          </ListItem>
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setDestinationsHelpOpen(false)} color="primary">Got it!</Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  // Gallery Help Dialog Component
+  const GalleryHelpDialog = () => (
+    <Dialog
+      open={galleryHelpOpen}
+      onClose={() => setGalleryHelpOpen(false)}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        <Box display="flex" alignItems="center" gap={1}>
+          <PhotoLibraryIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            Akira Safaris - Gallery Analytics Explanation
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          The Gallery tab provides insights into gallery items, types (images/videos), categories, and featured items.
+        </Typography>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📊 Metrics
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><PhotoLibraryIcon color="secondary" /></ListItemIcon>
+            <ListItemText
+              primary="Total Items"
+              secondary="The total number of gallery items (images and videos)"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><CheckCircleIcon color="success" /></ListItemIcon>
+            <ListItemText
+              primary="Active Items"
+              secondary="Number of gallery items currently active and visible"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><StarIcon color="warning" /></ListItemIcon>
+            <ListItemText
+              primary="Featured"
+              secondary="Number of gallery items marked as featured"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><TrendingUpIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Recent (30d)"
+              secondary="Number of new gallery items added in the last 30 days"
+            />
+          </ListItem>
+        </List>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📈 Charts
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><PieChartIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Gallery Items by Type"
+              secondary="Pie chart showing distribution by type (image, video)"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><BarChartIcon color="secondary" /></ListItemIcon>
+            <ListItemText
+              primary="Gallery Items by Category"
+              secondary="Bar chart showing distribution by category"
+            />
+          </ListItem>
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setGalleryHelpOpen(false)} color="primary">Got it!</Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  // Forms Help Dialog Component
+  const FormsHelpDialog = () => (
+    <Dialog
+      open={formsHelpOpen}
+      onClose={() => setFormsHelpOpen(false)}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        <Box display="flex" alignItems="center" gap={1}>
+          <AssignmentIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            Akira Safaris - Forms Analytics Explanation
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          The Forms tab provides insights into forms, form fields, field options, and form submissions.
+        </Typography>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📊 Metrics
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><AssignmentIcon color="warning" /></ListItemIcon>
+            <ListItemText
+              primary="Total Forms"
+              secondary="The total number of forms created in the system"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><CheckCircleIcon color="success" /></ListItemIcon>
+            <ListItemText
+              primary="Active Forms"
+              secondary="Number of forms currently active and available"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><DescriptionIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Form Fields"
+              secondary="Total number of form fields across all forms"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><ListIcon color="secondary" /></ListItemIcon>
+            <ListItemText
+              primary="Field Options"
+              secondary="Total number of field options (for dropdowns, checkboxes, etc.)"
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon><CheckCircleIcon color="info" /></ListItemIcon>
+            <ListItemText
+              primary="Submissions"
+              secondary="Total number of form submissions received"
+            />
+          </ListItem>
+        </List>
+        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, mt: 3 }}>
+          📈 Charts
+        </Typography>
+        <List dense>
+          <ListItem>
+            <ListItemIcon><PieChartIcon color="primary" /></ListItemIcon>
+            <ListItemText
+              primary="Form Submission Status"
+              secondary="Pie chart showing submissions by status (pending, approved, rejected)"
+            />
+          </ListItem>
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setFormsHelpOpen(false)} color="primary">Got it!</Button>
       </DialogActions>
     </Dialog>
   );
@@ -434,7 +1011,7 @@ const Analytics = () => {
         <Box display="flex" alignItems="center" gap={1}>
           <MapIcon color="primary" />
           <Typography variant="h6" fontWeight="bold">
-            Mwalimu Hope Foundation - Projects Data Explanation
+            Akira Safaris - Projects Data Explanation
           </Typography>
         </Box>
       </DialogTitle>
@@ -713,7 +1290,7 @@ const Analytics = () => {
         <Box display="flex" alignItems="center" gap={1}>
           <BarChartIcon color="primary" />
           <Typography variant="h6" fontWeight="bold">
-            Mwalimu Hope Foundation - Inquiries Data Explanation
+            Akira Safaris - Inquiries Data Explanation
           </Typography>
         </Box>
       </DialogTitle>
@@ -1651,13 +2228,13 @@ const Analytics = () => {
       sx={{
         borderRadius: 3,
         backgroundColor: "rgba(255, 255, 255, 0.8)",
-        border: "1px solid rgba(102, 126, 234, 0.1)",
-        boxShadow: "0 4px 20px rgba(102, 126, 234, 0.08)",
+        border: "1px solid rgba(107, 78, 61, 0.1)",
+        boxShadow: "0 4px 20px rgba(107, 78, 61, 0.08)",
         transition: "all 0.3s ease",
         "&:hover": {
-          boxShadow: "0 8px 30px rgba(102, 126, 234, 0.15)",
+          boxShadow: "0 8px 30px rgba(184, 92, 56, 0.15)",
           transform: "translateY(-2px)",
-          borderColor: "rgba(102, 126, 234, 0.2)",
+          borderColor: "rgba(184, 92, 56, 0.2)",
         },
         height: "100%",
         display: "flex",
@@ -1681,12 +2258,12 @@ const Analytics = () => {
               {icon && (
                 <Avatar
                   sx={{
-                    backgroundColor: "rgba(102, 126, 234, 0.1)",
-                    color: "#667eea",
+                    backgroundColor: "rgba(184, 92, 56, 0.1)",
+                    color: "#B85C38",
                     mr: 2,
                     width: 40,
                     height: 40,
-                    border: "1px solid rgba(102, 126, 234, 0.2)",
+                    border: "1px solid rgba(184, 92, 56, 0.2)",
                   }}
                 >
                   {icon}
@@ -1721,30 +2298,6 @@ const Analytics = () => {
   const CardItem = (props) => {
     const getCardStyle = (title) => {
       switch (title) {
-        case "Total Inquiries":
-          return {
-            icon: <InfoIcon sx={{ fontSize: 40, color: "#1976d2" }} />,
-            bgColor: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
-            borderColor: "#1976d2",
-            textColor: "#1976d2",
-            iconBg: "rgba(25, 118, 210, 0.1)",
-          };
-        case "Total Projects":
-          return {
-            icon: <MapIcon sx={{ fontSize: 40, color: "#7b1fa2" }} />,
-            bgColor: "linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)",
-            borderColor: "#7b1fa2",
-            textColor: "#7b1fa2",
-            iconBg: "rgba(123, 31, 162, 0.1)",
-          };
-        case "Total Documents":
-          return {
-            icon: <AssessmentIcon sx={{ fontSize: 40, color: "#388e3c" }} />,
-            bgColor: "linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%)",
-            borderColor: "#388e3c",
-            textColor: "#388e3c",
-            iconBg: "rgba(56, 142, 60, 0.1)",
-          };
         case "Total Users":
           return {
             icon: <PeopleIcon sx={{ fontSize: 40, color: "#f57c00" }} />,
@@ -1761,29 +2314,77 @@ const Analytics = () => {
             textColor: "#2e7d32",
             iconBg: "rgba(46, 125, 50, 0.1)",
           };
-        case "Recent Inquiries (30d)":
+        case "Total Documents":
           return {
-            icon: <TrendingUp sx={{ fontSize: 40, color: "#0288d1" }} />,
-            bgColor: "linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%)",
-            borderColor: "#0288d1",
-            textColor: "#0288d1",
-            iconBg: "rgba(2, 136, 209, 0.1)",
+            icon: <AssessmentIcon sx={{ fontSize: 40, color: "#388e3c" }} />,
+            bgColor: "linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%)",
+            borderColor: "#388e3c",
+            textColor: "#388e3c",
+            iconBg: "rgba(56, 142, 60, 0.1)",
           };
-        case "Recent Projects (30d)":
+        case "Total Reviews":
           return {
-            icon: <TrendingUp sx={{ fontSize: 40, color: "#7b1fa2" }} />,
+            icon: <StarIcon sx={{ fontSize: 40, color: "#ff9800" }} />,
+            bgColor: "linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)",
+            borderColor: "#ff9800",
+            textColor: "#ff9800",
+            iconBg: "rgba(255, 152, 0, 0.1)",
+          };
+        case "Total Blogs":
+          return {
+            icon: <ArticleIcon sx={{ fontSize: 40, color: "#B85C38" }} />,
+            bgColor: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
+            borderColor: "#1976d2",
+            textColor: "#1976d2",
+            iconBg: "rgba(25, 118, 210, 0.1)",
+          };
+        case "Total Agent Partnerships":
+          return {
+            icon: <PeopleIcon sx={{ fontSize: 40, color: "#7b1fa2" }} />,
             bgColor: "linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)",
             borderColor: "#7b1fa2",
             textColor: "#7b1fa2",
             iconBg: "rgba(123, 31, 162, 0.1)",
           };
-        case "Completed Projects (30d)":
+        case "Total Lodges":
           return {
-            icon: <InsightsIcon sx={{ fontSize: 40, color: "#2e7d32" }} />,
+            icon: <HotelIcon sx={{ fontSize: 40, color: "#d32f2f" }} />,
+            bgColor: "linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%)",
+            borderColor: "#d32f2f",
+            textColor: "#d32f2f",
+            iconBg: "rgba(211, 47, 47, 0.1)",
+          };
+        case "Total Packages":
+          return {
+            icon: <ShoppingBagIcon sx={{ fontSize: 40, color: "#0288d1" }} />,
+            bgColor: "linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%)",
+            borderColor: "#0288d1",
+            textColor: "#0288d1",
+            iconBg: "rgba(2, 136, 209, 0.1)",
+          };
+        case "Total Destinations":
+          return {
+            icon: <LocationIcon sx={{ fontSize: 40, color: "#388e3c" }} />,
             bgColor: "linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%)",
-            borderColor: "#2e7d32",
-            textColor: "#2e7d32",
-            iconBg: "rgba(46, 125, 50, 0.1)",
+            borderColor: "#388e3c",
+            textColor: "#388e3c",
+            iconBg: "rgba(56, 142, 60, 0.1)",
+          };
+        case "Total Gallery Items":
+          return {
+            icon: <PhotoLibraryIcon sx={{ fontSize: 40, color: "#7b1fa2" }} />,
+            bgColor: "linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)",
+            borderColor: "#7b1fa2",
+            textColor: "#7b1fa2",
+            iconBg: "rgba(123, 31, 162, 0.1)",
+          };
+        case "Total Forms":
+          return {
+            icon: <AssignmentIcon sx={{ fontSize: 40, color: "#f57c00" }} />,
+            bgColor: "linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)",
+            borderColor: "#f57c00",
+            textColor: "#f57c00",
+            iconBg: "rgba(245, 124, 0, 0.1)",
           };
         default:
           return {
@@ -1912,9 +2513,9 @@ const Analytics = () => {
           onClick={() => setOverviewHelpOpen(true)}
           color="primary"
           sx={{
-            backgroundColor: "rgba(25, 118, 210, 0.1)",
+            backgroundColor: "rgba(184, 92, 56, 0.1)",
             "&:hover": {
-              backgroundColor: "rgba(25, 118, 210, 0.2)",
+              backgroundColor: "rgba(184, 92, 56, 0.2)",
             },
           }}
           title="Click to understand the data shown here"
@@ -1947,18 +2548,6 @@ const Analytics = () => {
           {/* Key Metrics Cards */}
           <Grid container spacing={3}>
             <CardItem
-              title="Total Inquiries"
-              value={analyticsData.overview?.totalInquiries || 0}
-            />
-            <CardItem
-              title="Total Projects"
-              value={analyticsData.overview?.totalProjects || 0}
-            />
-            <CardItem
-              title="Total Documents"
-              value={analyticsData.overview?.totalDocuments || 0}
-            />
-            <CardItem
               title="Total Users"
               value={analyticsData.overview?.totalUsers || 0}
             />
@@ -1967,16 +2556,40 @@ const Analytics = () => {
               value={analyticsData.overview?.activeUsers || 0}
             />
             <CardItem
-              title="Recent Inquiries (30d)"
-              value={analyticsData.trends?.last30Days?.inquiries || 0}
+              title="Total Documents"
+              value={analyticsData.overview?.totalDocuments || 0}
             />
             <CardItem
-              title="Recent Projects (30d)"
-              value={analyticsData.trends?.last30Days?.projects || 0}
+              title="Total Reviews"
+              value={analyticsData.overview?.totalReviews || 0}
             />
             <CardItem
-              title="Completed Projects (30d)"
-              value={analyticsData.trends?.last30Days?.completedProjects || 0}
+              title="Total Blogs"
+              value={analyticsData.overview?.totalBlogs || 0}
+            />
+            <CardItem
+              title="Total Agent Partnerships"
+              value={analyticsData.overview?.totalMembers || 0}
+            />
+            <CardItem
+              title="Total Lodges"
+              value={analyticsData.overview?.totalLodges || 0}
+            />
+            <CardItem
+              title="Total Packages"
+              value={analyticsData.overview?.totalPackages || 0}
+            />
+            <CardItem
+              title="Total Destinations"
+              value={analyticsData.overview?.totalDestinations || 0}
+            />
+            <CardItem
+              title="Total Gallery Items"
+              value={analyticsData.overview?.totalGalleryItems || 0}
+            />
+            <CardItem
+              title="Total Forms"
+              value={analyticsData.overview?.totalForms || 0}
             />
           </Grid>
 
@@ -2006,7 +2619,7 @@ const Analytics = () => {
                   }}
                 >
                   <Typography variant="h6" gutterBottom fontWeight="600">
-                    Inquiry Metrics
+                    Review Metrics
                   </Typography>
                   <Stack spacing={2} sx={{ flex: 1 }}>
                     <Box
@@ -2015,14 +2628,14 @@ const Analytics = () => {
                       alignItems="center"
                       p={2}
                       sx={{
-                        backgroundColor: "rgba(25, 118, 210, 0.05)",
+                        backgroundColor: "rgba(255, 152, 0, 0.05)",
                         borderRadius: 2,
-                        border: "1px solid rgba(25, 118, 210, 0.1)",
+                        border: "1px solid rgba(255, 152, 0, 0.1)",
                       }}
                     >
-                      <Typography fontWeight="500">Pending</Typography>
+                      <Typography fontWeight="500">Average Rating</Typography>
                       <Chip
-                        label={analyticsData.inquiries?.byStatus?.find(s => s.status === 'pending')?.count || 0}
+                        label={analyticsData.reviews?.averageRating || "0.00"}
                         color="warning"
                       />
                     </Box>
@@ -2032,16 +2645,16 @@ const Analytics = () => {
                       alignItems="center"
                       p={2}
                       sx={{
-                        backgroundColor: "rgba(156, 39, 176, 0.05)",
+                        backgroundColor: "rgba(76, 175, 80, 0.05)",
                         borderRadius: 2,
-                        border: "1px solid rgba(156, 39, 176, 0.1)",
+                        border: "1px solid rgba(76, 175, 80, 0.1)",
                       }}
                     >
                       <Typography fontWeight="500">
-                        Resolved (30d)
+                        Recent (30d)
                       </Typography>
                       <Chip
-                        label={analyticsData.inquiries?.recentResolved || 0}
+                        label={analyticsData.trends?.last30Days?.reviews || 0}
                         color="success"
                       />
                     </Box>
@@ -2074,7 +2687,7 @@ const Analytics = () => {
                   }}
                 >
                   <Typography variant="h6" gutterBottom fontWeight="600">
-                    Project Progress
+                    Blog Metrics
                   </Typography>
                   <Stack spacing={2} sx={{ flex: 1 }}>
                     <Box
@@ -2083,17 +2696,17 @@ const Analytics = () => {
                       alignItems="center"
                       p={2}
                       sx={{
-                        backgroundColor: "rgba(76, 175, 80, 0.05)",
+                        backgroundColor: "rgba(184, 92, 56, 0.05)",
                         borderRadius: 2,
-                        border: "1px solid rgba(76, 175, 80, 0.1)",
+                        border: "1px solid rgba(25, 118, 210, 0.1)",
                       }}
                     >
                       <Typography fontWeight="500">
-                        Average Progress
+                        Total Views
                       </Typography>
                       <Chip
-                        label={`${analyticsData.projects?.averageProgress || 0}%`}
-                        color="success"
+                        label={analyticsData.blogs?.totalViews || 0}
+                        color="primary"
                       />
                     </Box>
                     <Box
@@ -2107,9 +2720,9 @@ const Analytics = () => {
                         border: "1px solid rgba(0, 188, 212, 0.1)",
                       }}
                     >
-                      <Typography fontWeight="500">In Progress</Typography>
+                      <Typography fontWeight="500">Total Likes</Typography>
                       <Chip
-                        label={analyticsData.projects?.byStatus?.find(s => s.status === 'in_progress')?.count || 0}
+                        label={analyticsData.blogs?.totalLikes || 0}
                         color="info"
                       />
                     </Box>
@@ -2151,14 +2764,14 @@ const Analytics = () => {
                       alignItems="center"
                       p={2}
                       sx={{
-                        backgroundColor: "rgba(25, 118, 210, 0.05)",
+                        backgroundColor: "rgba(184, 92, 56, 0.05)",
                         borderRadius: 2,
                         border: "1px solid rgba(25, 118, 210, 0.1)",
                       }}
                     >
                       <Typography fontWeight="500">Last 7 Days</Typography>
                       <Chip
-                        label={analyticsData.activity?.last7Days || 0}
+                        label={analyticsData.auditTrail?.last7Days || 0}
                         color="primary"
                       />
                     </Box>
@@ -2195,33 +2808,20 @@ const Analytics = () => {
                 </Typography>
                 <ResponsiveContainer width="100%" height={300}>
                   {(analyticsData.documents?.byType || []).length > 0 ? (
-                    <PieChart>
-                      <Pie
-                        data={(analyticsData.documents?.byType || []).map(
-                          (item) => ({
-                            name: item.file_type.toUpperCase(),
-                            value: parseInt(item.count) || 0,
-                          })
-                        )}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius="80%"
-                        fill="#8884d8"
-                      >
-                        {(analyticsData.documents?.byType || []).map(
-                          (entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={COLORS[index % COLORS.length]}
-                            />
-                          )
-                        )}
-                      </Pie>
+                    <BarChart
+                      data={(analyticsData.documents?.byType || []).map(
+                        (item) => ({
+                          name: item.file_type.replace(/\b\w/g, l => l.toUpperCase()),
+                          count: parseInt(item.count) || 0,
+                        })
+                      )}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                      <YAxis />
                       <Tooltip formatter={(value) => [value, "Documents"]} />
-                      <Legend />
-                    </PieChart>
+                      <Bar dataKey="count" fill="#B85C38" />
+                    </BarChart>
                   ) : (
                     <Box
                       display="flex"
@@ -2245,11 +2845,11 @@ const Analytics = () => {
                   Users by Role
                 </Typography>
                 <ResponsiveContainer width="100%" height={300}>
-                  {(analyticsData.users?.byRole || []).length > 0 ? (
+                  {(analyticsData.adminUsers?.byRole || []).length > 0 ? (
                     <BarChart
-                      data={(analyticsData.users?.byRole || []).map(
+                      data={(analyticsData.adminUsers?.byRole || []).map(
                         (item) => ({
-                          name: item.role.replace('-', ' ').toUpperCase(),
+                          name: item.role.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
                           count: parseInt(item.count) || 0,
                         })
                       )}
@@ -2258,7 +2858,7 @@ const Analytics = () => {
                       <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
                       <YAxis />
                       <Tooltip formatter={(value) => [value, "Users"]} />
-                      <Bar dataKey="count" fill="#43e97b" />
+                      <Bar dataKey="count" fill="#B85C38" />
                     </BarChart>
                   ) : (
                     <Box
@@ -2283,11 +2883,11 @@ const Analytics = () => {
                   Activity by Action (Last 7 Days)
                 </Typography>
                 <ResponsiveContainer width="100%" height={300}>
-                  {(analyticsData.activity?.byAction || []).length > 0 ? (
+                  {(analyticsData.auditTrail?.byAction || []).length > 0 ? (
                     <BarChart
-                      data={(analyticsData.activity?.byAction || []).map(
+                      data={(analyticsData.auditTrail?.byAction || []).map(
                         (item) => ({
-                          name: item.action.toUpperCase(),
+                          name: item.action.replace('_', ' ').toUpperCase(),
                           count: parseInt(item.count) || 0,
                         })
                       )}
@@ -2367,7 +2967,7 @@ const Analytics = () => {
                         fontSize: '2.5rem'
                       }}
                     >
-                      {analyticsData.trends?.last30Days?.inquiries || 0}
+                      {analyticsData.trends?.last30Days?.reviews || 0}
                     </Typography>
                     <Typography 
                       variant="body2" 
@@ -2377,7 +2977,7 @@ const Analytics = () => {
                         fontSize: '0.875rem'
                       }}
                     >
-                      New Inquiries
+                      New Reviews
                     </Typography>
                   </Card>
                   
@@ -2387,7 +2987,7 @@ const Analytics = () => {
                       minWidth: 0,
                       p: 3,
                       textAlign: "center",
-                      background: 'linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%)',
+                      background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
                       border: 'none',
                       borderRadius: 3,
                       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -2402,12 +3002,12 @@ const Analytics = () => {
                       variant="h3" 
                       fontWeight="bold"
                       sx={{ 
-                        color: '#2e7d32',
+                        color: '#B85C38',
                         mb: 1,
                         fontSize: '2.5rem'
                       }}
                     >
-                      {analyticsData.trends?.last30Days?.resolvedInquiries || 0}
+                      {analyticsData.trends?.last30Days?.blogs || 0}
                     </Typography>
                     <Typography 
                       variant="body2" 
@@ -2417,7 +3017,7 @@ const Analytics = () => {
                         fontSize: '0.875rem'
                       }}
                     >
-                      Resolved Inquiries
+                      New Blogs
                     </Typography>
                   </Card>
                   
@@ -2427,7 +3027,7 @@ const Analytics = () => {
                       minWidth: 0,
                       p: 3,
                       textAlign: "center",
-                      background: 'linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%)',
+                      background: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)',
                       border: 'none',
                       borderRadius: 3,
                       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -2442,12 +3042,12 @@ const Analytics = () => {
                       variant="h3" 
                       fontWeight="bold"
                       sx={{ 
-                        color: '#f57c00',
+                        color: '#7b1fa2',
                         mb: 1,
                         fontSize: '2.5rem'
                       }}
                     >
-                      {analyticsData.trends?.last30Days?.projects || 0}
+                      {analyticsData.trends?.last30Days?.members || 0}
                     </Typography>
                     <Typography 
                       variant="body2" 
@@ -2457,7 +3057,7 @@ const Analytics = () => {
                         fontSize: '0.875rem'
                       }}
                     >
-                      New Projects
+                      New Agent Applications
                     </Typography>
                   </Card>
                   
@@ -2467,7 +3067,7 @@ const Analytics = () => {
                       minWidth: 0,
                       p: 3,
                       textAlign: "center",
-                      background: 'linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%)',
+                      background: 'linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%)',
                       border: 'none',
                       borderRadius: 3,
                       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -2482,12 +3082,12 @@ const Analytics = () => {
                       variant="h3" 
                       fontWeight="bold"
                       sx={{ 
-                        color: '#2e7d32',
+                        color: '#0288d1',
                         mb: 1,
                         fontSize: '2.5rem'
                       }}
                     >
-                      {analyticsData.trends?.last30Days?.completedProjects || 0}
+                      {analyticsData.trends?.last30Days?.galleryItems || 0}
                     </Typography>
                     <Typography 
                       variant="body2" 
@@ -2497,7 +3097,7 @@ const Analytics = () => {
                         fontSize: '0.875rem'
                       }}
                     >
-                      Completed Projects
+                      New Gallery Items
                     </Typography>
                   </Card>
                   
@@ -2527,7 +3127,7 @@ const Analytics = () => {
                         fontSize: '2.5rem'
                       }}
                     >
-                      {analyticsData.trends?.last30Days?.documents || 0}
+                      {analyticsData.trends?.last30Days?.submissions || 0}
                     </Typography>
                     <Typography 
                       variant="body2" 
@@ -2537,7 +3137,7 @@ const Analytics = () => {
                         fontSize: '0.875rem'
                       }}
                     >
-                      New Documents
+                      New Form Submissions
                     </Typography>
                   </Card>
                 </Box>
@@ -2596,9 +3196,9 @@ const Analytics = () => {
           onClick={() => setProjectsHelpOpen(true)}
           color="primary"
           sx={{
-            backgroundColor: "rgba(25, 118, 210, 0.1)",
+            backgroundColor: "rgba(184, 92, 56, 0.1)",
             "&:hover": {
-              backgroundColor: "rgba(25, 118, 210, 0.2)",
+              backgroundColor: "rgba(184, 92, 56, 0.2)",
             },
           }}
           title="Click to understand the data shown here"
@@ -2635,10 +3235,10 @@ const Analytics = () => {
                 sx={{
                   p: 3,
                   textAlign: "center",
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)',
                   color: 'white',
                   borderRadius: 3,
-                  boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
+                  boxShadow: '0 4px 20px rgba(107, 78, 61, 0.3)',
                 }}
               >
                 <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>
@@ -2911,7 +3511,7 @@ const Analytics = () => {
                       <Legend />
                       <Bar
                         dataKey="count"
-                        fill="#667eea"
+                        fill="#B85C38"
                         name="Total Projects"
                         radius={[4, 4, 0, 0]}
                       />
@@ -3044,9 +3644,9 @@ const Analytics = () => {
           onClick={() => setTasksLaborHelpOpen(true)}
           color="primary"
           sx={{
-            backgroundColor: "rgba(25, 118, 210, 0.1)",
+            backgroundColor: "rgba(184, 92, 56, 0.1)",
             "&:hover": {
-              backgroundColor: "rgba(25, 118, 210, 0.2)",
+              backgroundColor: "rgba(184, 92, 56, 0.2)",
             },
           }}
           title="Click to understand the data shown here"
@@ -3360,9 +3960,9 @@ const Analytics = () => {
           onClick={() => setBudgetResourcesHelpOpen(true)}
           color="primary"
           sx={{
-            backgroundColor: "rgba(25, 118, 210, 0.1)",
+            backgroundColor: "rgba(184, 92, 56, 0.1)",
             "&:hover": {
-              backgroundColor: "rgba(25, 118, 210, 0.2)",
+              backgroundColor: "rgba(184, 92, 56, 0.2)",
             },
           }}
           title="Click to understand the data shown here"
@@ -3560,9 +4160,9 @@ const Analytics = () => {
           onClick={() => setPerformanceHelpOpen(true)}
           color="primary"
           sx={{
-            backgroundColor: "rgba(25, 118, 210, 0.1)",
+            backgroundColor: "rgba(184, 92, 56, 0.1)",
             "&:hover": {
-              backgroundColor: "rgba(25, 118, 210, 0.2)",
+              backgroundColor: "rgba(184, 92, 56, 0.2)",
             },
           }}
           title="Click to understand the data shown here"
@@ -3777,9 +4377,9 @@ const Analytics = () => {
           onClick={() => setEquipmentMaterialsHelpOpen(true)}
           color="primary"
           sx={{
-            backgroundColor: "rgba(25, 118, 210, 0.1)",
+            backgroundColor: "rgba(184, 92, 56, 0.1)",
             "&:hover": {
-              backgroundColor: "rgba(25, 118, 210, 0.2)",
+              backgroundColor: "rgba(184, 92, 56, 0.2)",
             },
           }}
           title="Click to understand the data shown here"
@@ -4102,14 +4702,722 @@ const Analytics = () => {
     </Box>
   );
 
+  // Render function for Reviews tab
+  const renderReviews = () => (
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
+        <Box>
+          <Typography variant="h6" fontWeight="600" color="text.primary">Reviews Analytics</Typography>
+          <Typography variant="body2" color="text.secondary">Review status and rating distribution</Typography>
+        </Box>
+        <IconButton onClick={() => setReviewsHelpOpen(true)} color="primary" sx={{ backgroundColor: "rgba(184, 92, 56, 0.1)", "&:hover": { backgroundColor: "rgba(184, 92, 56, 0.2)" } }} title="Click to understand the data shown here">
+          <HelpIcon />
+        </IconButton>
+      </Box>
+      {loading && !dataLoaded && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">Loading reviews data...</Typography>
+          </Box>
+        </Box>
+      )}
+      {dataLoaded && (
+        <>
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(255, 152, 0, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.reviews?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Reviews</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #4caf50 0%, #388e3c 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(76, 175, 80, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.reviews?.averageRating || "0.00"}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Average Rating</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(33, 150, 243, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.trends?.last30Days?.reviews || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Recent (30d)</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(156, 39, 176, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.reviews?.byStatus?.find(s => s.status === 'approved')?.count || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Approved</Typography>
+              </Card>
+            </Grid>
+          </Grid>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Review Status Distribution</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.reviews?.byStatus || []).length > 0 ? (
+                    <PieChart>
+                      <Pie data={(analyticsData.reviews?.byStatus || []).map(item => ({ name: item.status, value: parseInt(item.count) || 0 }))} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="90%" innerRadius="50%" fill="#8884d8">
+                        {(analyticsData.reviews?.byStatus || []).map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [value, "Reviews"]} />
+                      <Legend />
+                    </PieChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No review data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Rating Distribution</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.reviews?.byRating || []).length > 0 ? (
+                    <BarChart data={(analyticsData.reviews?.byRating || []).map(item => ({ name: `${item.rating} Stars`, count: parseInt(item.count) || 0 }))}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [value, "Reviews"]} />
+                      <Bar dataKey="count" fill="#ff9800" />
+                    </BarChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No rating data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
+      {!dataLoaded && !loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>No review data available</Typography>
+            <Button variant="contained" onClick={fetchAnalyticsData} startIcon={<RefreshIcon />}>Load Data</Button>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+
+  // Render function for Blogs tab
+  const renderBlogs = () => (
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
+        <Box>
+          <Typography variant="h6" fontWeight="600" color="text.primary">Blogs Analytics</Typography>
+          <Typography variant="body2" color="text.secondary">Blog status, categories, and engagement metrics</Typography>
+        </Box>
+        <IconButton onClick={() => setBlogsHelpOpen(true)} color="primary" sx={{ backgroundColor: "rgba(184, 92, 56, 0.1)", "&:hover": { backgroundColor: "rgba(184, 92, 56, 0.2)" } }} title="Click to understand the data shown here">
+          <HelpIcon />
+        </IconButton>
+      </Box>
+      {loading && !dataLoaded && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">Loading blogs data...</Typography>
+          </Box>
+        </Box>
+      )}
+      {dataLoaded && (
+        <>
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(25, 118, 210, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.blogs?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Blogs</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #43a047 0%, #388e3c 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(67, 160, 71, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.blogs?.featured || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Featured</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #e91e63 0%, #c2185b 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(233, 30, 99, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.blogs?.totalViews || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Views</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #ff5722 0%, #e64a19 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(255, 87, 34, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.blogs?.totalLikes || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Likes</Typography>
+              </Card>
+            </Grid>
+          </Grid>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Blog Status Distribution</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.blogs?.byStatus || []).length > 0 ? (
+                    <PieChart>
+                      <Pie data={(analyticsData.blogs?.byStatus || []).map(item => ({ name: item.status, value: parseInt(item.count) || 0 }))} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="90%" innerRadius="50%" fill="#8884d8">
+                        {(analyticsData.blogs?.byStatus || []).map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [value, "Blogs"]} />
+                      <Legend />
+                    </PieChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No blog status data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Blog Category Distribution</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.blogs?.byCategory || []).length > 0 ? (
+                    <BarChart data={(analyticsData.blogs?.byCategory || []).map(item => ({ name: item.category, count: parseInt(item.count) || 0 }))}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [value, "Blogs"]} />
+                      <Bar dataKey="count" fill="#1976d2" />
+                    </BarChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No category data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
+      {!dataLoaded && !loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>No blog data available</Typography>
+            <Button variant="contained" onClick={fetchAnalyticsData} startIcon={<RefreshIcon />}>Load Data</Button>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+
+  // Render function for Agent Partnership tab
+  const renderMembers = () => (
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
+        <Box>
+          <Typography variant="h6" fontWeight="600" color="text.primary">Agent Partnership Analytics</Typography>
+          <Typography variant="body2" color="text.secondary">Agent partnership applications and business type distribution</Typography>
+        </Box>
+        <IconButton onClick={() => setMembersHelpOpen(true)} color="primary" sx={{ backgroundColor: "rgba(184, 92, 56, 0.1)", "&:hover": { backgroundColor: "rgba(184, 92, 56, 0.2)" } }} title="Click to understand the data shown here">
+          <HelpIcon />
+        </IconButton>
+      </Box>
+      {loading && !dataLoaded && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">Loading agent partnership data...</Typography>
+          </Box>
+        </Box>
+      )}
+      {dataLoaded && (
+        <>
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #7b1fa2 0%, #6a1b9a 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(123, 31, 162, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.members?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Applications</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #f57c00 0%, #e65100 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(245, 124, 0, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.members?.byStatus?.find(s => s.status === 'Pending')?.count || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Pending</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #43a047 0%, #388e3c 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(67, 160, 71, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.trends?.last30Days?.members || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Recent (30d)</Typography>
+              </Card>
+            </Grid>
+          </Grid>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Application Status Distribution</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.members?.byStatus || []).length > 0 ? (
+                    <PieChart>
+                      <Pie data={(analyticsData.members?.byStatus || []).map(item => ({ name: item.status, value: parseInt(item.count) || 0 }))} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="90%" innerRadius="50%" fill="#8884d8">
+                        {(analyticsData.members?.byStatus || []).map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [value, "Applications"]} />
+                      <Legend />
+                    </PieChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No application status data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Business Type Distribution</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.members?.byBusinessType || []).length > 0 ? (
+                    <BarChart data={(analyticsData.members?.byBusinessType || []).map(item => ({ name: item.business_type || 'N/A', count: parseInt(item.count) || 0 }))}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [value, "Applications"]} />
+                      <Bar dataKey="count" fill="#7b1fa2" />
+                    </BarChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No business type data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
+      {!dataLoaded && !loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>No agent partnership data available</Typography>
+            <Button variant="contained" onClick={fetchAnalyticsData} startIcon={<RefreshIcon />}>Load Data</Button>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+
+  // Render function for Lodges & Packages tab
+  const renderLodgesPackages = () => (
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
+        <Box>
+          <Typography variant="h6" fontWeight="600" color="text.primary">Lodges & Packages Analytics</Typography>
+          <Typography variant="body2" color="text.secondary">Lodge and package distribution and metrics</Typography>
+        </Box>
+        <IconButton onClick={() => setLodgesHelpOpen(true)} color="primary" sx={{ backgroundColor: "rgba(184, 92, 56, 0.1)", "&:hover": { backgroundColor: "rgba(184, 92, 56, 0.2)" } }} title="Click to understand the data shown here">
+          <HelpIcon />
+        </IconButton>
+      </Box>
+      {loading && !dataLoaded && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">Loading lodges & packages data...</Typography>
+          </Box>
+        </Box>
+      )}
+      {dataLoaded && (
+        <>
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(211, 47, 47, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.lodges?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Lodges</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #0288d1 0%, #0277bd 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(2, 136, 209, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.packages?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Packages</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #43a047 0%, #388e3c 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(67, 160, 71, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.packages?.active || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Active Packages</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(255, 152, 0, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.packages?.averageRating || "0.00"}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Avg Rating</Typography>
+              </Card>
+            </Grid>
+          </Grid>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Lodges by Destination</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.lodges?.byDestination || []).length > 0 ? (
+                    <BarChart data={(analyticsData.lodges?.byDestination || []).map(item => ({ name: item.destination || 'N/A', count: parseInt(item.count) || 0 }))}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [value, "Lodges"]} />
+                      <Bar dataKey="count" fill="#d32f2f" />
+                    </BarChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No destination data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Packages by Type</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.packages?.byType || []).length > 0 ? (
+                    <PieChart>
+                      <Pie data={(analyticsData.packages?.byType || []).map(item => ({ name: item.type || 'N/A', value: parseInt(item.count) || 0 }))} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="90%" innerRadius="50%" fill="#8884d8">
+                        {(analyticsData.packages?.byType || []).map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [value, "Packages"]} />
+                      <Legend />
+                    </PieChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No package type data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
+      {!dataLoaded && !loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>No lodges & packages data available</Typography>
+            <Button variant="contained" onClick={fetchAnalyticsData} startIcon={<RefreshIcon />}>Load Data</Button>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+
+  // Render function for Destinations & Routes tab
+  const renderDestinationsRoutes = () => (
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
+        <Box>
+          <Typography variant="h6" fontWeight="600" color="text.primary">Destinations & Routes Analytics</Typography>
+          <Typography variant="body2" color="text.secondary">Destination and route stage distribution</Typography>
+        </Box>
+        <IconButton onClick={() => setDestinationsHelpOpen(true)} color="primary" sx={{ backgroundColor: "rgba(184, 92, 56, 0.1)", "&:hover": { backgroundColor: "rgba(184, 92, 56, 0.2)" } }} title="Click to understand the data shown here">
+          <HelpIcon />
+        </IconButton>
+      </Box>
+      {loading && !dataLoaded && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">Loading destinations & routes data...</Typography>
+          </Box>
+        </Box>
+      )}
+      {dataLoaded && (
+        <>
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #388e3c 0%, #2e7d32 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(56, 142, 60, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.destinations?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Destinations</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #43a047 0%, #388e3c 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(67, 160, 71, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.destinations?.active || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Active Destinations</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #7b1fa2 0%, #6a1b9a 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(123, 31, 162, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.routeStages?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Route Stages</Typography>
+              </Card>
+            </Grid>
+          </Grid>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Destinations by Location</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.destinations?.byLocation || []).length > 0 ? (
+                    <BarChart data={(analyticsData.destinations?.byLocation || []).map(item => ({ name: item.location || 'N/A', count: parseInt(item.count) || 0 }))}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [value, "Destinations"]} />
+                      <Bar dataKey="count" fill="#388e3c" />
+                    </BarChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No location data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Route Stages Overview</Typography>
+                <Box sx={{ p: 3, height: 300, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                  <Typography variant="h3" fontWeight="bold" color="primary" sx={{ mb: 2 }}>{analyticsData.routeStages?.total || 0}</Typography>
+                  <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>Total Route Stages</Typography>
+                  <Typography variant="body2" color="text.secondary">{analyticsData.trends?.last30Days?.routeStages || 0} created in last 30 days</Typography>
+                </Box>
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
+      {!dataLoaded && !loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>No destinations & routes data available</Typography>
+            <Button variant="contained" onClick={fetchAnalyticsData} startIcon={<RefreshIcon />}>Load Data</Button>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+
+  // Render function for Gallery tab
+  const renderGallery = () => (
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
+        <Box>
+          <Typography variant="h6" fontWeight="600" color="text.primary">Gallery Analytics</Typography>
+          <Typography variant="body2" color="text.secondary">Gallery items by type and category</Typography>
+        </Box>
+        <IconButton onClick={() => setGalleryHelpOpen(true)} color="primary" sx={{ backgroundColor: "rgba(184, 92, 56, 0.1)", "&:hover": { backgroundColor: "rgba(184, 92, 56, 0.2)" } }} title="Click to understand the data shown here">
+          <HelpIcon />
+        </IconButton>
+      </Box>
+      {loading && !dataLoaded && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">Loading gallery data...</Typography>
+          </Box>
+        </Box>
+      )}
+      {dataLoaded && (
+        <>
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #7b1fa2 0%, #6a1b9a 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(123, 31, 162, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.gallery?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Items</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #43a047 0%, #388e3c 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(67, 160, 71, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.gallery?.active || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Active Items</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(255, 152, 0, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.gallery?.featured || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Featured</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #0288d1 0%, #0277bd 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(2, 136, 209, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.trends?.last30Days?.galleryItems || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Recent (30d)</Typography>
+              </Card>
+            </Grid>
+          </Grid>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Gallery Items by Type</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.gallery?.byType || []).length > 0 ? (
+                    <PieChart>
+                      <Pie data={(analyticsData.gallery?.byType || []).map(item => ({ name: item.type, value: parseInt(item.count) || 0 }))} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="90%" innerRadius="50%" fill="#8884d8">
+                        {(analyticsData.gallery?.byType || []).map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [value, "Items"]} />
+                      <Legend />
+                    </PieChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No type data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Gallery Items by Category</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.gallery?.byCategory || []).length > 0 ? (
+                    <BarChart data={(analyticsData.gallery?.byCategory || []).map(item => ({ name: item.category || 'N/A', count: parseInt(item.count) || 0 }))}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [value, "Items"]} />
+                      <Bar dataKey="count" fill="#7b1fa2" />
+                    </BarChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No category data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
+      {!dataLoaded && !loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>No gallery data available</Typography>
+            <Button variant="contained" onClick={fetchAnalyticsData} startIcon={<RefreshIcon />}>Load Data</Button>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+
+  // Render function for Forms tab
+  const renderForms = () => (
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
+        <Box>
+          <Typography variant="h6" fontWeight="600" color="text.primary">Forms Analytics</Typography>
+          <Typography variant="body2" color="text.secondary">Forms, fields, options, and submissions</Typography>
+        </Box>
+        <IconButton onClick={() => setFormsHelpOpen(true)} color="primary" sx={{ backgroundColor: "rgba(184, 92, 56, 0.1)", "&:hover": { backgroundColor: "rgba(184, 92, 56, 0.2)" } }} title="Click to understand the data shown here">
+          <HelpIcon />
+        </IconButton>
+      </Box>
+      {loading && !dataLoaded && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">Loading forms data...</Typography>
+          </Box>
+        </Box>
+      )}
+      {dataLoaded && (
+        <>
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #f57c00 0%, #e65100 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(245, 124, 0, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.forms?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Total Forms</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #43a047 0%, #388e3c 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(67, 160, 71, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.formFields?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Form Fields</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #0288d1 0%, #0277bd 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(2, 136, 209, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.fieldOptions?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Field Options</Typography>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card sx={{ p: 3, textAlign: "center", background: 'linear-gradient(135deg, #7b1fa2 0%, #6a1b9a 100%)', color: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(123, 31, 162, 0.3)' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>{analyticsData.formSubmissions?.total || 0}</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>Submissions</Typography>
+              </Card>
+            </Grid>
+          </Grid>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Form Submission Status</Typography>
+                <ResponsiveContainer width="100%" height={300}>
+                  {(analyticsData.formSubmissions?.byStatus || []).length > 0 ? (
+                    <PieChart>
+                      <Pie data={(analyticsData.formSubmissions?.byStatus || []).map(item => ({ name: item.status, value: parseInt(item.count) || 0 }))} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="90%" innerRadius="50%" fill="#8884d8">
+                        {(analyticsData.formSubmissions?.byStatus || []).map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [value, "Submissions"]} />
+                      <Legend />
+                    </PieChart>
+                  ) : (
+                    <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                      <Typography variant="body2" color="text.secondary">No submission status data available</Typography>
+                    </Box>
+                  )}
+                </ResponsiveContainer>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ p: 3, height: 400 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">Forms Overview</Typography>
+                <Box sx={{ p: 3, height: 300, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2 }}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" p={2} sx={{ backgroundColor: "rgba(245, 124, 0, 0.05)", borderRadius: 2, border: "1px solid rgba(245, 124, 0, 0.1)" }}>
+                    <Typography fontWeight="500">Active Forms:</Typography>
+                    <Chip label={analyticsData.forms?.active || 0} color="warning" />
+                  </Box>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" p={2} sx={{ backgroundColor: "rgba(67, 160, 71, 0.05)", borderRadius: 2, border: "1px solid rgba(67, 160, 71, 0.1)" }}>
+                    <Typography fontWeight="500">Recent Forms (30d):</Typography>
+                    <Chip label={analyticsData.trends?.last30Days?.forms || 0} color="success" />
+                  </Box>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" p={2} sx={{ backgroundColor: "rgba(2, 136, 209, 0.05)", borderRadius: 2, border: "1px solid rgba(2, 136, 209, 0.1)" }}>
+                    <Typography fontWeight="500">Recent Submissions (30d):</Typography>
+                    <Chip label={analyticsData.trends?.last30Days?.submissions || 0} color="info" />
+                  </Box>
+                </Box>
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
+      {!dataLoaded && !loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" mb={3}>
+          <Box textAlign="center">
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>No forms data available</Typography>
+            <Button variant="contained" onClick={fetchAnalyticsData} startIcon={<RefreshIcon />}>Load Data</Button>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 0:
         return renderOverview();
       case 1:
-        return renderProjects();
+        return renderReviews();
       case 2:
-        return renderInquiries();
+        return renderBlogs();
+      case 3:
+        return renderMembers();
+      case 4:
+        return renderLodgesPackages();
+      case 5:
+        return renderDestinationsRoutes();
+      case 6:
+        return renderGallery();
+      case 7:
+        return renderForms();
       default:
         return renderOverview();
     }
@@ -4139,9 +5447,9 @@ const Analytics = () => {
           onClick={() => setInquiriesHelpOpen(true)}
           color="primary"
           sx={{
-            backgroundColor: "rgba(25, 118, 210, 0.1)",
+            backgroundColor: "rgba(184, 92, 56, 0.1)",
             "&:hover": {
-              backgroundColor: "rgba(25, 118, 210, 0.2)",
+              backgroundColor: "rgba(184, 92, 56, 0.2)",
             },
           }}
           title="Click to understand the data shown here"
@@ -4345,7 +5653,7 @@ const Analytics = () => {
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
                     <YAxis />
                     <Tooltip formatter={(value) => [value, "Inquiries"]} />
-                    <Bar dataKey="count" fill="#667eea" />
+                    <Bar dataKey="count" fill="#B85C38" />
                   </BarChart>
                 </ResponsiveContainer>
               </Card>
@@ -4360,14 +5668,14 @@ const Analytics = () => {
                 <Box sx={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
-                      <tr style={{ backgroundColor: "rgba(102, 126, 234, 0.05)" }}>
-                        <th style={{ padding: "12px", textAlign: "left", borderBottom: "2px solid rgba(102, 126, 234, 0.2)" }}>
+                      <tr style={{ backgroundColor: "rgba(184, 92, 56, 0.05)" }}>
+                        <th style={{ padding: "12px", textAlign: "left", borderBottom: "2px solid rgba(184, 92, 56, 0.2)" }}>
                           Category
                         </th>
-                        <th style={{ padding: "12px", textAlign: "center", borderBottom: "2px solid rgba(102, 126, 234, 0.2)" }}>
+                        <th style={{ padding: "12px", textAlign: "center", borderBottom: "2px solid rgba(184, 92, 56, 0.2)" }}>
                           Count
                         </th>
-                        <th style={{ padding: "12px", textAlign: "center", borderBottom: "2px solid rgba(102, 126, 234, 0.2)" }}>
+                        <th style={{ padding: "12px", textAlign: "center", borderBottom: "2px solid rgba(184, 92, 56, 0.2)" }}>
                           Percentage
                         </th>
                       </tr>
@@ -4454,29 +5762,29 @@ const Analytics = () => {
           mb: 1.5,
           color: "#2c3e50",
           textAlign: "center",
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
           backgroundClip: "text",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
         }}
       >
-        Mwalimu Hope Foundation Dashboard
+        Akira Safaris Dashboard
       </Typography>
 
       <Card
         sx={{
           borderRadius: 3,
           backgroundColor: "rgba(255, 255, 255, 0.8)",
-          border: "1px solid rgba(102, 126, 234, 0.1)",
-          boxShadow: "0 8px 32px rgba(102, 126, 234, 0.1)",
+          border: "1px solid rgba(107, 78, 61, 0.1)",
+          boxShadow: "0 8px 32px rgba(107, 78, 61, 0.1)",
           backdropFilter: "blur(10px)",
         }}
       >
         <Box
           sx={{
             borderBottom: 1,
-            borderColor: "rgba(102, 126, 234, 0.1)",
-            backgroundColor: "rgba(102, 126, 234, 0.02)",
+            borderColor: "rgba(107, 78, 61, 0.1)",
+            backgroundColor: "rgba(245, 241, 232, 0.5)",
           }}
         >
           <Tabs
@@ -4485,21 +5793,21 @@ const Analytics = () => {
             variant="fullWidth"
             sx={{
               "& .MuiTab-root": {
-                color: "#667eea",
+                color: "#6B4E3D",
                 fontWeight: 600,
                 minHeight: 60,
                 fontSize: "0.875rem",
                 padding: "8px 12px",
                 "&.Mui-selected": {
-                  color: "#667eea",
-                  backgroundColor: "rgba(102, 126, 234, 0.08)",
+                  color: "#B85C38",
+                  backgroundColor: "rgba(184, 92, 56, 0.08)",
                 },
                 "&:hover": {
-                  backgroundColor: "rgba(102, 126, 234, 0.05)",
+                  backgroundColor: "rgba(184, 92, 56, 0.05)",
                 },
               },
               "& .MuiTabs-indicator": {
-                backgroundColor: "#667eea",
+                backgroundColor: "#B85C38",
                 height: 3,
                 borderRadius: "3px 3px 0 0",
               },
@@ -4522,12 +5830,13 @@ const Analytics = () => {
 
       {/* Help Dialogs */}
       <OverviewHelpDialog />
-      <ProjectsHelpDialog />
-      <InquiriesHelpDialog />
-      <TasksLaborHelpDialog />
-      <BudgetResourcesHelpDialog />
-      <PerformanceHelpDialog />
-      <EquipmentMaterialsHelpDialog />
+      <ReviewsHelpDialog />
+      <BlogsHelpDialog />
+      <AgentPartnershipHelpDialog />
+      <LodgesPackagesHelpDialog />
+      <DestinationsRoutesHelpDialog />
+      <GalleryHelpDialog />
+      <FormsHelpDialog />
     </Box>
   );
 };

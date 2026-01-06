@@ -193,8 +193,8 @@ const Documents = () => {
       text: `Do you want to delete "${document.title}"?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
+      confirmButtonColor: "#B85C38",
+      cancelButtonColor: "#6B4E3D",
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
     });
@@ -429,7 +429,7 @@ const Documents = () => {
   return (
     <Box
       sx={{
-        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+        background: "linear-gradient(135deg, #F5F1E8 0%, #E8D5C4 100%)",
         minHeight: "100vh",
       }}
     >
@@ -448,7 +448,7 @@ const Documents = () => {
         {/* Header Section */}
         <Box
           sx={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
             p: 3,
             color: "white",
             position: "relative",
@@ -517,19 +517,19 @@ const Documents = () => {
                 setOpenCreateDialog(true);
               }}
               sx={{
-                background: "linear-gradient(45deg, #FF6B6B, #4ECDC4)",
+                background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
                 borderRadius: 3,
                 px: { xs: 2, sm: 4 },
                 py: 1.5,
                 fontSize: { xs: "0.875rem", sm: "1rem" },
                 fontWeight: 600,
                 textTransform: "none",
-                boxShadow: "0 8px 25px rgba(255, 107, 107, 0.3)",
+                boxShadow: "0 8px 25px rgba(107, 78, 61, 0.3)",
                 width: { xs: "100%", sm: "auto" },
                 "&:hover": {
-                  background: "linear-gradient(45deg, #FF5252, #26A69A)",
+                  background: "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
                   transform: "translateY(-2px)",
-                  boxShadow: "0 12px 35px rgba(255, 107, 107, 0.4)",
+                  boxShadow: "0 12px 35px rgba(184, 92, 56, 0.4)",
                 },
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
@@ -553,9 +553,9 @@ const Documents = () => {
               sx={{
                 backgroundColor: "rgba(255, 255, 255, 0.8)",
                 borderRadius: 2,
-                border: "1px solid rgba(102, 126, 234, 0.1)",
+                border: "1px solid rgba(107, 78, 61, 0.1)",
                 "& .MuiTabs-indicator": {
-                  backgroundColor: "#667eea",
+                  backgroundColor: "#B85C38",
                   height: 3,
                   borderRadius: "3px 3px 0 0",
                 },
@@ -566,12 +566,12 @@ const Documents = () => {
                   minHeight: 48,
                   color: "#666",
                   "&.Mui-selected": {
-                    color: "#667eea",
+                    color: "#B85C38",
                     fontWeight: 700,
                   },
                   "&:hover": {
-                    color: "#667eea",
-                    backgroundColor: "rgba(102, 126, 234, 0.05)",
+                    color: "#B85C38",
+                    backgroundColor: "rgba(184, 92, 56, 0.05)",
                   },
                 },
               }}
@@ -592,19 +592,19 @@ const Documents = () => {
               borderRadius: 3,
               overflowX: "auto",
               backgroundColor: "rgba(255, 255, 255, 0.8)",
-              border: "1px solid rgba(102, 126, 234, 0.1)",
+              border: "1px solid rgba(184, 92, 56, 0.1)",
               "&::-webkit-scrollbar": {
                 height: 8,
               },
               "&::-webkit-scrollbar-track": {
-                backgroundColor: "rgba(102, 126, 234, 0.1)",
+                backgroundColor: "rgba(184, 92, 56, 0.1)",
                 borderRadius: 4,
               },
               "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "rgba(102, 126, 234, 0.3)",
+                backgroundColor: "rgba(184, 92, 56, 0.3)",
                 borderRadius: 4,
                 "&:hover": {
-                  backgroundColor: "rgba(102, 126, 234, 0.5)",
+                  backgroundColor: "rgba(184, 92, 56, 0.5)",
                 },
               },
             }}
@@ -614,7 +614,7 @@ const Documents = () => {
                 <TableRow
                   sx={{
                     background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
                     "& .MuiTableCell-head": {
                       color: "white",
                       fontWeight: 700,
@@ -638,7 +638,7 @@ const Documents = () => {
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                      <CircularProgress sx={{ color: "#667eea" }} />
+                      <CircularProgress sx={{ color: "#B85C38" }} />
                     </TableCell>
                   </TableRow>
                 ) : error ? (
@@ -652,7 +652,7 @@ const Documents = () => {
                         onClick={fetchDocuments}
                         sx={{
                           background:
-                            "linear-gradient(45deg, #667eea, #764ba2)",
+                            "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
                         }}
                       >
                         Retry
@@ -673,10 +673,10 @@ const Documents = () => {
                       key={document.id}
                       sx={{
                         "&:nth-of-type(even)": {
-                          backgroundColor: "rgba(102, 126, 234, 0.02)",
+                          backgroundColor: "rgba(184, 92, 56, 0.02)",
                         },
                         "&:hover": {
-                          backgroundColor: "rgba(102, 126, 234, 0.08)",
+                          backgroundColor: "rgba(184, 92, 56, 0.08)",
                           transform: { xs: "none", sm: "scale(1.01)" },
                         },
                         transition: "all 0.2s ease",
@@ -687,7 +687,7 @@ const Documents = () => {
                         },
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: "#667eea" }}>
+                      <TableCell sx={{ fontWeight: 600, color: "#B85C38" }}>
                         {page * rowsPerPage + idx + 1}
                       </TableCell>
                       <TableCell>
@@ -807,9 +807,9 @@ const Documents = () => {
             rowsPerPageOptions={[5, 10, 25, 50]}
             sx={{
               backgroundColor: "rgba(255, 255, 255, 0.8)",
-              borderTop: "1px solid rgba(102, 126, 234, 0.1)",
+              borderTop: "1px solid rgba(107, 78, 61, 0.1)",
               "& .MuiTablePagination-toolbar": {
-                color: "#667eea",
+                color: "#B85C38",
                 fontWeight: 600,
               },
               "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
@@ -843,7 +843,7 @@ const Documents = () => {
               maxHeight: "85vh",
               background: "rgba(255, 255, 255, 0.95)",
               backdropFilter: "blur(10px)",
-              border: "1px solid rgba(102, 126, 234, 0.2)",
+              border: "1px solid rgba(107, 78, 61, 0.2)",
               overflow: "hidden",
             },
             "& .MuiBackdrop-root": {
@@ -853,7 +853,7 @@ const Documents = () => {
         >
           <DialogTitle
             sx={{
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
               color: "white",
               fontWeight: "bold",
               display: "flex",
@@ -915,7 +915,7 @@ const Documents = () => {
                 <Box
                   sx={{
                     background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
                     borderRadius: 3,
                     p: 3,
                     mb: 4,
@@ -986,7 +986,7 @@ const Documents = () => {
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={2}>
-                      <Folder sx={{ fontSize: 24, color: "#667eea" }} />
+                      <Folder sx={{ fontSize: 24, color: "#B85C38" }} />
                       <Box>
                         <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
                           FILE TYPE
@@ -1017,7 +1017,7 @@ const Documents = () => {
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={2}>
-                      <PersonIcon sx={{ fontSize: 24, color: "#667eea" }} />
+                      <PersonIcon sx={{ fontSize: 24, color: "#B85C38" }} />
                       <Box>
                         <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
                           UPLOADED BY
@@ -1043,7 +1043,7 @@ const Documents = () => {
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={2}>
-                      <CalendarIcon sx={{ fontSize: 24, color: "#667eea" }} />
+                      <CalendarIcon sx={{ fontSize: 24, color: "#B85C38" }} />
                       <Box>
                         <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
                           UPLOAD DATE
@@ -1070,7 +1070,7 @@ const Documents = () => {
                       }}
                     >
                       <Box display="flex" alignItems="flex-start" gap={2}>
-                        <DescriptionIcon sx={{ fontSize: 24, color: "#667eea", mt: 0.5 }} />
+                        <DescriptionIcon sx={{ fontSize: 24, color: "#B85C38", mt: 0.5 }} />
                         <Box>
                           <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
                             DESCRIPTION
@@ -1111,18 +1111,18 @@ const Documents = () => {
                       onClick={() => handleDownloadDocument(selectedDocument.id)}
                       sx={{
                         background:
-                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                          "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
                         borderRadius: 2,
                         px: 4,
                         py: 1.5,
                         fontWeight: 600,
                         textTransform: "none",
-                        boxShadow: "0 4px 15px rgba(102, 126, 234, 0.3)",
+                        boxShadow: "0 4px 15px rgba(184, 92, 56, 0.3)",
                         "&:hover": {
                           background:
                             "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
                           transform: "translateY(-1px)",
-                          boxShadow: "0 6px 20px rgba(102, 126, 234, 0.4)",
+                          boxShadow: "0 6px 20px rgba(184, 92, 56, 0.4)",
                         },
                         transition: "all 0.3s ease",
                       }}
@@ -1206,17 +1206,17 @@ const Documents = () => {
                   {/* File Upload Section */}
                   <Box
                     sx={{
-                      border: "2px dashed #667eea",
+                      border: "2px dashed #B85C38",
                       borderRadius: 2,
                       p: 2,
                       textAlign: "center",
-                      backgroundColor: "rgba(102, 126, 234, 0.05)",
+                      backgroundColor: "rgba(184, 92, 56, 0.05)",
                     }}
                   >
                     <UploadIcon
-                      sx={{ fontSize: 48, color: "#667eea", mb: 1 }}
+                      sx={{ fontSize: 48, color: "#B85C38", mb: 1 }}
                     />
-                    <Typography variant="h6" sx={{ mb: 1, color: "#667eea" }}>
+                    <Typography variant="h6" sx={{ mb: 1, color: "#B85C38" }}>
                       Upload Document
                     </Typography>
                     <Typography
@@ -1231,13 +1231,13 @@ const Documents = () => {
                         sx={{
                           mb: 2,
                           p: 1,
-                          backgroundColor: "rgba(102, 126, 234, 0.1)",
+                          backgroundColor: "rgba(184, 92, 56, 0.1)",
                           borderRadius: 1,
                         }}
                       >
                         <Typography
                           variant="body2"
-                          sx={{ fontWeight: 600, color: "#667eea" }}
+                          sx={{ fontWeight: 600, color: "#B85C38" }}
                         >
                           Selected: {selectedFile.name}
                         </Typography>
@@ -1260,7 +1260,7 @@ const Documents = () => {
                         component="span"
                         sx={{
                           background:
-                            "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                            "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
                         }}
                       >
                         {selectedFile ? "Change File" : "Choose File"}
@@ -1272,7 +1272,7 @@ const Documents = () => {
             )}
           </DialogContent>
           <DialogActions
-            sx={{ p: 3, gap: 2, backgroundColor: "rgba(102, 126, 234, 0.05)" }}
+            sx={{ p: 3, gap: 2, backgroundColor: "rgba(184, 92, 56, 0.05)" }}
           >
             <Button
               onClick={() => {
@@ -1287,15 +1287,15 @@ const Documents = () => {
               }}
               variant="outlined"
               sx={{
-                borderColor: "#667eea",
-                color: "#667eea",
+                borderColor: "#B85C38",
+                color: "#B85C38",
                 fontWeight: 600,
                 borderRadius: 2,
                 px: 3,
                 py: 1,
                 "&:hover": {
                   borderColor: "#5a6fd8",
-                  backgroundColor: "rgba(102, 126, 234, 0.1)",
+                  backgroundColor: "rgba(184, 92, 56, 0.1)",
                 },
               }}
             >
@@ -1308,21 +1308,21 @@ const Documents = () => {
                 startIcon={<AddIcon />}
                 sx={{
                   background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
                   borderRadius: 2,
                   px: 4,
                   py: 1,
                   fontWeight: 600,
                   textTransform: "none",
-                  boxShadow: "0 4px 15px rgba(102, 126, 234, 0.3)",
+                  boxShadow: "0 4px 15px rgba(184, 92, 56, 0.3)",
                   "&:hover": {
                     background:
                       "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
                     transform: "translateY(-1px)",
-                    boxShadow: "0 6px 20px rgba(102, 126, 234, 0.4)",
+                    boxShadow: "0 6px 20px rgba(184, 92, 56, 0.4)",
                   },
                   "&:disabled": {
-                    background: "rgba(102, 126, 234, 0.3)",
+                    background: "rgba(184, 92, 56, 0.3)",
                     color: "rgba(255, 255, 255, 0.6)",
                   },
                   transition: "all 0.3s ease",
