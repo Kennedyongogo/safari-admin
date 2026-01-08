@@ -135,13 +135,8 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
   };
 
   const handleSaveField = async () => {
-    console.log('handleSaveField called with currentField:', currentField);
-    console.log('conditional_logic in currentField:', currentField.conditional_logic);
-
     const newFields = [...fields];
     const fieldData = { ...currentField };
-    console.log('fieldData after copy:', fieldData);
-    console.log('conditional_logic in fieldData:', fieldData.conditional_logic);
 
     // Generate field name from label if not provided
     if (!fieldData.field_name && fieldData.label) {
@@ -173,23 +168,19 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
       }
     }
 
-    console.log('newFields being passed to onFieldsChange:', newFields);
     onFieldsChange(newFields);
     setFieldDialog({ open: false, editingIndex: null, field: null });
   };
 
   const handleFieldOptionsUpdate = async (fieldData) => {
-    console.log("handleFieldOptionsUpdate called with fieldData:", fieldData);
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("No authentication token found");
     }
 
     const existingFieldId = fieldDialog.editingIndex !== null ? fields[fieldDialog.editingIndex]?.id : null;
-    console.log("existingFieldId:", existingFieldId);
 
     if (!existingFieldId) {
-      console.log("No existing field ID, skipping option updates for new field");
       // For new fields, options will be created when the field is saved
       return;
     }
@@ -210,10 +201,6 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
     const optionsToCreate = fieldData.options.filter(option => !option.id);
     const optionsToUpdate = [];
     const optionsToDelete = [];
-
-    console.log("fieldData.options:", fieldData.options);
-    console.log("existingOptions:", existingOptions);
-    console.log("optionsToCreate:", optionsToCreate);
 
     // Check which existing options need updating
     fieldData.options.forEach(option => {
@@ -242,22 +229,11 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
       }
     });
 
-    console.log("optionsToUpdate:", optionsToUpdate);
-    console.log("optionsToDelete:", optionsToDelete);
-
     // Execute API calls
     const promises = [];
 
     // Create new options
     optionsToCreate.forEach(option => {
-      console.log("Creating option:", {
-        form_field_id: existingFieldId,
-        option_value: option.option_value || "",
-        option_label: option.option_label || option.option_value || "",
-        description: option.description || null,
-        display_order: option.display_order || 0,
-        is_default: option.is_default || false,
-      });
       promises.push(
         fetch("/api/form-fields/options", {
           method: "POST",
@@ -720,10 +696,47 @@ const FormBuilder = ({ fields = [], onFieldsChange, onSave }) => {
               fullWidth
               size="small"
               label="Question/Field Label"
-              value={currentField.label}
-              onChange={(e) => setCurrentField({ ...currentField, label: e.target.value })}
+              value={currentField.label || ""}
+              onChange={(e) => {
+                const newLabel = e.target.value;
+                const updatedField = { ...currentField, label: newLabel };
+                // Auto-generate field_name from label only if field_name is empty or field is new (no id)
+                if ((!currentField.field_name || currentField.field_name.trim() === "") && newLabel && !currentField.id) {
+                  updatedField.field_name = newLabel
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]/g, "_")
+                    .replace(/_+/g, "_")
+                    .replace(/^_|_$/g, "");
+                }
+                setCurrentField(updatedField);
+              }}
               required
               helperText="This is what users will see as the question"
+              sx={{ mt: 1 }}
+            />
+
+            <TextField
+              fullWidth
+              size="small"
+              label="Field Name (Technical Identifier)"
+              value={currentField.field_name || ""}
+              onChange={(e) => {
+                const newFieldName = e.target.value
+                  .toLowerCase()
+                  .replace(/[^a-z0-9_]/g, "_")
+                  .replace(/_+/g, "_")
+                  .replace(/^_|_$/g, "");
+                setCurrentField({ ...currentField, field_name: newFieldName });
+              }}
+              helperText={fieldDialog.editingIndex !== null && currentField.id 
+                ? "⚠️ WARNING: Changing this for existing fields will break existing submissions! Only change if you understand the consequences."
+                : "Unique identifier for storing form data. Only lowercase letters, numbers, and underscores."}
+              sx={{ 
+                mt: 1,
+                '& .MuiInputBase-input': fieldDialog.editingIndex !== null && currentField.id 
+                  ? { backgroundColor: '#fff3cd' } 
+                  : {}
+              }}
             />
 
             {/* Show placeholder only for input-type fields */}
