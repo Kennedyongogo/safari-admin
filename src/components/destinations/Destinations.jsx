@@ -231,8 +231,8 @@ const Destinations = () => {
                 >
                   <TableCell>NO</TableCell>
                   <TableCell>Title</TableCell>
+                  <TableCell>Subtitle</TableCell>
                   <TableCell>Location</TableCell>
-                  <TableCell>Categories</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -264,23 +264,16 @@ const Destinations = () => {
                         </Typography>
                       </TableCell>
                       <TableCell>
+                        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic" }}>
+                          {destination.subtitle || "—"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
                         <Chip
                           label={destination.location || "—"}
                           size="small"
                           sx={{ textTransform: "capitalize" }}
                         />
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                          {(destination.category_tags || []).slice(0, 3).map((tag) => (
-                            <Chip
-                              key={tag}
-                              label={tag}
-                              size="small"
-                              sx={{ textTransform: "capitalize" }}
-                            />
-                          ))}
-                        </Box>
                       </TableCell>
                       <TableCell align="right">
                         <Tooltip title="View">

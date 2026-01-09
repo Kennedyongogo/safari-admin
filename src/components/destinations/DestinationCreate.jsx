@@ -5,7 +5,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Grid,
   TextField,
   Button,
   Stack,
@@ -16,8 +15,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  OutlinedInput,
-  Chip,
 } from "@mui/material";
 import {
   Save,
@@ -26,100 +23,11 @@ import {
   Image as ImageIcon,
   Close as CloseIcon,
   Article,
-  Add,
   Collections,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-
-// Reusable component for managing array fields with chips
-const ChipArrayField = ({ label, value, onChange, placeholder }) => {
-  const [inputValue, setInputValue] = useState("");
-
-  const handleAddItem = () => {
-    const trimmedValue = inputValue.trim();
-    if (trimmedValue && !value.includes(trimmedValue)) {
-      onChange([...value, trimmedValue]);
-      setInputValue("");
-    }
-  };
-
-  const handleRemoveItem = (itemToRemove) => {
-    onChange(value.filter((item) => item !== itemToRemove));
-  };
-
-  const handleKeyPress = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleAddItem();
-    }
-  };
-
-  return (
-    <Box>
-      <Typography variant="h6" sx={{ mb: 1 }}>
-        {label}
-      </Typography>
-      <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder={placeholder}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={handleKeyPress}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              backgroundColor: "transparent",
-            },
-          }}
-        />
-        <Button
-          variant="contained"
-          onClick={handleAddItem}
-          disabled={!inputValue.trim() || value.includes(inputValue.trim())}
-          sx={{
-            background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
-            color: "white",
-            minWidth: "auto",
-            px: 2,
-            "&:hover": {
-              background: "linear-gradient(135deg, #8B4225 0%, #6B4E3D 100%)",
-            },
-            "&:disabled": {
-              background: "#e0e0e0",
-              color: "#999",
-            },
-          }}
-        >
-          <Add />
-        </Button>
-      </Box>
-      {value.length > 0 && (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-          {value.map((item, index) => (
-            <Chip
-              key={index}
-              label={item}
-              onDelete={() => handleRemoveItem(item)}
-              sx={{
-                backgroundColor: "#6B4E3D",
-                color: "white",
-                "& .MuiChip-deleteIcon": {
-                  color: "rgba(255, 255, 255, 0.7)",
-                  "&:hover": {
-                    color: "white",
-                  },
-                },
-              }}
-            />
-          ))}
-        </Box>
-      )}
-    </Box>
-  );
-};
-
+import PackageManager from "./PackageManager";
 
 const DestinationCreate = () => {
   const navigate = useNavigate();
@@ -129,21 +37,21 @@ const DestinationCreate = () => {
 
   const [destinationForm, setDestinationForm] = useState({
     title: "",
+    subtitle: "",
     slug: "",
-    description: "",
+    brief_description: "",
     location: "",
-    duration_min: "",
-    duration_max: "",
-    duration_display: "",
-    wildlife_types: [],
-    featured_species: [],
-    key_highlights: [],
-    attractions: [],
-    category_tags: [],
-    best_visit_months: [],
+    packages: [],
     is_active: true,
     sort_order: 0,
   });
+
+  const buildImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith("http")) return path;
+    if (path.startsWith("/")) return path;
+    return `/${path}`;
+  };
 
   const handleInputChange = (field, value) => {
     setDestinationForm((prev) => ({ ...prev, [field]: value }));
@@ -162,10 +70,9 @@ const DestinationCreate = () => {
     setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-
   const isFormValid = () =>
     destinationForm.title.trim() &&
-    destinationForm.description.trim() &&
+    destinationForm.brief_description.trim() &&
     destinationForm.location.trim();
 
   const handleCreate = async () => {
@@ -175,69 +82,61 @@ const DestinationCreate = () => {
 
       const token = localStorage.getItem("token");
 
-      // Prepare data payload
-      const payload = {
-        title: destinationForm.title,
-        slug: destinationForm.slug || destinationForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-        description: destinationForm.description,
-        location: destinationForm.location,
-        wildlife_types: destinationForm.wildlife_types,
-        featured_species: destinationForm.featured_species,
-        key_highlights: destinationForm.key_highlights,
-        attractions: destinationForm.attractions,
-        category_tags: destinationForm.category_tags,
-        best_visit_months: destinationForm.best_visit_months,
-        is_active: destinationForm.is_active,
-        sort_order: destinationForm.sort_order,
-      };
-
-      // Add optional travel fields
-      if (destinationForm.duration_min) payload.duration_min = parseInt(destinationForm.duration_min);
-      if (destinationForm.duration_max) payload.duration_max = parseInt(destinationForm.duration_max);
-      if (destinationForm.duration_display) payload.duration_display = destinationForm.duration_display;
-
-      // Add array fields as JSON
       const formData = new FormData();
 
-      // Handle attractions separately (remove File objects before stringifying)
-      const attractionsForJson = payload.attractions.map(attraction => ({
-        name: attraction.name,
-        description: attraction.description,
-        images: [] // Images will be added by backend after upload
+      // Add basic fields
+      formData.append("title", destinationForm.title);
+      formData.append("subtitle", destinationForm.subtitle || "");
+      formData.append(
+        "slug",
+        destinationForm.slug ||
+          destinationForm.title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-|-$/g, "")
+      );
+      formData.append("brief_description", destinationForm.brief_description);
+      formData.append("location", destinationForm.location);
+      formData.append("is_active", destinationForm.is_active.toString());
+      formData.append("sort_order", destinationForm.sort_order.toString());
+
+      // Process packages - separate File objects from data
+      const packagesForJson = destinationForm.packages.map((category, catIndex) => ({
+        category_name: category.category_name,
+        category_order: category.category_order || catIndex + 1,
+        packages: category.packages.map((pkg, pkgIndex) => ({
+          number: pkg.number || pkgIndex + 1,
+          title: pkg.title,
+          short_description: pkg.short_description,
+          highlights: pkg.highlights || [],
+          pricing_tiers: pkg.pricing_tiers || [],
+          // Keep only string URLs (existing images), File objects will be uploaded separately
+          gallery: (pkg.gallery || []).filter((img) => typeof img === "string"),
+        })),
       }));
 
-      // Add all payload fields to FormData
-      Object.entries(payload).forEach(([key, value]) => {
-        if (key === 'attractions') {
-          // Attractions is an array of objects - stringify it
-          formData.append(key, JSON.stringify(attractionsForJson));
-        } else if (Array.isArray(value)) {
-          // Check if array contains objects or simple strings
-          if (value.length > 0 && typeof value[0] === 'object') {
-            // For other arrays of objects, stringify the entire array
-            formData.append(key, JSON.stringify(value));
-          } else {
-            // For arrays of strings, append each value separately
-            value.forEach((v) => formData.append(key, v));
-          }
-        } else {
-          formData.append(key, value);
-        }
-      });
+      formData.append("packages", JSON.stringify(packagesForJson));
 
       // Add hero image if selected
       if (galleryFiles.length > 0) {
         formData.append("hero_image", galleryFiles[0]);
         // Add additional gallery images (skip first one as it's the hero)
-        galleryFiles.slice(1).forEach((file) => formData.append("gallery_images", file));
+        galleryFiles.slice(1).forEach((file) => {
+          formData.append("gallery_images", file);
+        });
       }
 
-      // Add attraction images
-      const allAttractionImages = payload.attractions.flatMap(attraction =>
-        attraction.images || []
-      ).filter(img => img instanceof File);
-
-      allAttractionImages.forEach((file) => formData.append("attraction_images", file));
+      // Add package gallery images with proper field names
+      destinationForm.packages.forEach((category, catIndex) => {
+        category.packages.forEach((pkg, pkgIndex) => {
+          const newGalleryImages = (pkg.gallery || []).filter(
+            (img) => img instanceof File
+          );
+          newGalleryImages.forEach((file) => {
+            formData.append(`package_gallery_${catIndex}_${pkgIndex}`, file);
+          });
+        });
+      });
 
       const response = await fetch("/api/destinations", {
         method: "POST",
@@ -372,6 +271,15 @@ const DestinationCreate = () => {
                 label="Title"
                 value={destinationForm.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
+                required
+              />
+              <TextField
+                fullWidth
+                label="Subtitle (optional)"
+                value={destinationForm.subtitle}
+                onChange={(e) => handleInputChange("subtitle", e.target.value)}
+                placeholder="e.g., THE PEARL OF AFRICA"
+                helperText="Optional tagline or subtitle for the destination"
               />
               <TextField
                 fullWidth
@@ -382,305 +290,36 @@ const DestinationCreate = () => {
               />
               <TextField
                 fullWidth
-                label="Description"
+                label="Brief Description"
                 multiline
                 rows={4}
-                value={destinationForm.description}
+                value={destinationForm.brief_description}
                 onChange={(e) =>
-                  handleInputChange("description", e.target.value)
+                  handleInputChange("brief_description", e.target.value)
                 }
+                required
+                placeholder="Brief description of the destination/country"
               />
               <TextField
                 fullWidth
                 label="Location (e.g., East Africa)"
                 value={destinationForm.location}
                 onChange={(e) => handleInputChange("location", e.target.value)}
+                required
               />
 
-              {/* Travel Information */}
+              {/* Packages Section */}
               <Box>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Travel Information
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
+                  Packages
                 </Typography>
-                <TextField
-                  fullWidth
-                  label="Duration Min (days)"
-                  type="number"
-                  value={destinationForm.duration_min}
-                  onChange={(e) => handleInputChange("duration_min", e.target.value)}
-                  sx={{ mb: 2 }}
+                <PackageManager
+                  packages={destinationForm.packages}
+                  onChange={(packages) => handleInputChange("packages", packages)}
+                  buildImageUrl={buildImageUrl}
                 />
-                <TextField
-                  fullWidth
-                  label="Duration Max (days)"
-                  type="number"
-                  value={destinationForm.duration_max}
-                  onChange={(e) => handleInputChange("duration_max", e.target.value)}
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  fullWidth
-                  label="Duration Display (e.g., '5-14 Days')"
-                  value={destinationForm.duration_display}
-                  onChange={(e) => handleInputChange("duration_display", e.target.value)}
-                  sx={{ mb: 2 }}
-                />
-                <Box>
-                  <Typography variant="h6" sx={{ mb: 1 }}>
-                    Best Months to Visit
-                  </Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
-                    {[
-                      "January", "February", "March", "April", "May", "June",
-                      "July", "August", "September", "October", "November", "December"
-                    ].map((month) => {
-                      const isSelected = destinationForm.best_visit_months.includes(month);
-                      return (
-                        <Chip
-                          key={month}
-                          label={month}
-                          onClick={() => {
-                            const updatedMonths = isSelected
-                              ? destinationForm.best_visit_months.filter(m => m !== month)
-                              : [...destinationForm.best_visit_months, month];
-                            handleInputChange("best_visit_months", updatedMonths);
-                          }}
-                          sx={{
-                            backgroundColor: isSelected ? "#6B4E3D" : "#f5f5f5",
-                            color: isSelected ? "white" : "text.primary",
-                            "&:hover": {
-                              backgroundColor: isSelected ? "#B85C38" : "#e0e0e0",
-                            },
-                            cursor: "pointer",
-                          }}
-                        />
-                      );
-                    })}
-                  </Box>
-                  {destinationForm.best_visit_months.length > 0 && (
-                    <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-                      Selected: {destinationForm.best_visit_months.join(", ")}
-                    </Typography>
-                  )}
-                </Box>
               </Box>
-              {/* Category Tags */}
-              <ChipArrayField
-                label="Category Tags"
-                value={destinationForm.category_tags}
-                onChange={(value) => handleInputChange("category_tags", value)}
-                placeholder="Add a category tag (e.g., Wildlife Adventures)..."
-              />
 
-              {/* Wildlife Information */}
-              <ChipArrayField
-                label="Wildlife Types"
-                value={destinationForm.wildlife_types}
-                onChange={(value) => handleInputChange("wildlife_types", value)}
-                placeholder="Add a wildlife type (e.g., Big Five)..."
-              />
-
-              <ChipArrayField
-                label="Featured Species"
-                value={destinationForm.featured_species}
-                onChange={(value) => handleInputChange("featured_species", value)}
-                placeholder="Add a featured species (e.g., Lion)..."
-              />
-
-              {/* Key Highlights */}
-              <ChipArrayField
-                label="Key Highlights"
-                value={destinationForm.key_highlights}
-                onChange={(value) => handleInputChange("key_highlights", value)}
-                placeholder="Add a key highlight (e.g., Maasai Mara)..."
-              />
-
-              {/* Tourist Attractions */}
-              <Box>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Tourist Attractions
-                </Typography>
-                {destinationForm.attractions.map((attraction, index) => (
-                  <Card key={index} sx={{ mb: 3, p: 2 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        Attraction {index + 1}
-                      </Typography>
-                      <IconButton
-                        onClick={() => {
-                          const updatedAttractions = destinationForm.attractions.filter((_, i) => i !== index);
-                          handleInputChange("attractions", updatedAttractions);
-                        }}
-                        color="error"
-                        size="small"
-                      >
-                        <CloseIcon />
-                      </IconButton>
-                    </Box>
-                    <TextField
-                      fullWidth
-                      label="Attraction Name"
-                      value={attraction.name || ""}
-                      onChange={(e) => {
-                        const updatedAttractions = [...destinationForm.attractions];
-                        updatedAttractions[index] = { ...updatedAttractions[index], name: e.target.value };
-                        handleInputChange("attractions", updatedAttractions);
-                      }}
-                      placeholder="e.g., Maasai Mara National Reserve"
-                      sx={{ mb: 2 }}
-                    />
-                    <TextField
-                      fullWidth
-                      label="Short Description"
-                      value={attraction.description || ""}
-                      onChange={(e) => {
-                        const updatedAttractions = [...destinationForm.attractions];
-                        updatedAttractions[index] = { ...updatedAttractions[index], description: e.target.value };
-                        handleInputChange("attractions", updatedAttractions);
-                      }}
-                      placeholder="Brief description of the attraction"
-                      multiline
-                      rows={2}
-                      sx={{ mb: 2 }}
-                    />
-                      <Grid item xs={12}>
-                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                          Attraction Gallery Images
-                        </Typography>
-                        <Box sx={{ mb: 2 }}>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={(e) => {
-                              const files = Array.from(e.target.files || []);
-                              const valid = files.filter(
-                                (file) => file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024
-                              );
-                              const updatedAttractions = [...destinationForm.attractions];
-                              const existingImages = updatedAttractions[index].images || [];
-                              updatedAttractions[index] = {
-                                ...updatedAttractions[index],
-                                images: [...existingImages, ...valid]
-                              };
-                              handleInputChange("attractions", updatedAttractions);
-                              e.target.value = "";
-                            }}
-                            style={{ display: "none" }}
-                            id={`attraction-gallery-${index}`}
-                          />
-                          <label htmlFor={`attraction-gallery-${index}`}>
-                            <Button
-                              variant="outlined"
-                              component="span"
-                              startIcon={<CloudUpload />}
-                              size="small"
-                              sx={{
-                                color: "#667eea",
-                                borderColor: "#667eea",
-                                "&:hover": {
-                                  borderColor: "#667eea",
-                                  backgroundColor: "rgba(102, 126, 234, 0.1)",
-                                },
-                                mb: 1,
-                              }}
-                            >
-                              Upload Gallery Images
-                            </Button>
-                          </label>
-                        </Box>
-
-                        {/* Display selected images for this attraction */}
-                        {attraction.images && attraction.images.length > 0 && (
-                          <Box>
-                            <Typography variant="caption" sx={{ color: "text.secondary", mb: 1, display: "block" }}>
-                              {attraction.images.length} image{attraction.images.length !== 1 ? "s" : ""} selected
-                            </Typography>
-                            <Grid container spacing={1}>
-                              {attraction.images.map((file, imgIndex) => (
-                                <Grid item xs={6} sm={4} md={3} key={imgIndex}>
-                                  <Box
-                                    sx={{
-                                      position: "relative",
-                                      border: "1px solid #e0e0e0",
-                                      borderRadius: 1,
-                                      overflow: "hidden",
-                                      "&:hover .remove-btn": {
-                                        opacity: 1,
-                                      },
-                                    }}
-                                  >
-                                    <Box
-                                      component="img"
-                                      src={URL.createObjectURL(file)}
-                                      alt={`Attraction ${index + 1} - Image ${imgIndex + 1}`}
-                                      sx={{
-                                        width: "100%",
-                                        height: 80,
-                                        objectFit: "cover",
-                                      }}
-                                    />
-                                    <Box
-                                      className="remove-btn"
-                                      sx={{
-                                        position: "absolute",
-                                        top: 2,
-                                        right: 2,
-                                        opacity: 0,
-                                        transition: "opacity 0.2s",
-                                      }}
-                                    >
-                                      <IconButton
-                                        size="small"
-                                        onClick={() => {
-                                          const updatedAttractions = [...destinationForm.attractions];
-                                          const updatedImages = attraction.images.filter((_, i) => i !== imgIndex);
-                                          updatedAttractions[index] = {
-                                            ...updatedAttractions[index],
-                                            images: updatedImages
-                                          };
-                                          handleInputChange("attractions", updatedAttractions);
-                                        }}
-                                        sx={{
-                                          backgroundColor: "rgba(255, 255, 255, 0.9)",
-                                          "&:hover": {
-                                            backgroundColor: "rgba(255, 255, 255, 1)",
-                                          },
-                                          width: 20,
-                                          height: 20,
-                                        }}
-                                      >
-                                        <CloseIcon fontSize="small" color="error" />
-                                      </IconButton>
-                                    </Box>
-                                  </Box>
-                                </Grid>
-                              ))}
-                            </Grid>
-                          </Box>
-                        )}
-                      </Grid>
-                  </Card>
-                ))}
-                <Button
-                  variant="outlined"
-                  startIcon={<Add />}
-                  onClick={() => {
-                    const newAttraction = { name: "", description: "", images: [] };
-                    handleInputChange("attractions", [...destinationForm.attractions, newAttraction]);
-                  }}
-                  sx={{
-                    color: "#6B4E3D",
-                    borderColor: "#6B4E3D",
-                    "&:hover": {
-                      borderColor: "#B85C38",
-                      backgroundColor: "rgba(184, 92, 56, 0.1)",
-                    },
-                  }}
-                >
-                  Add Tourist Attraction
-                </Button>
-              </Box>
               {/* Administrative Fields */}
               <Box>
                 <Typography variant="h6" sx={{ mb: 2 }}>
@@ -690,7 +329,9 @@ const DestinationCreate = () => {
                   <InputLabel>Status</InputLabel>
                   <Select
                     value={destinationForm.is_active}
-                    onChange={(e) => handleInputChange("is_active", e.target.value === 'true')}
+                    onChange={(e) =>
+                      handleInputChange("is_active", e.target.value === "true")
+                    }
                     label="Status"
                   >
                     <MenuItem value={true}>Active</MenuItem>
@@ -702,19 +343,23 @@ const DestinationCreate = () => {
                   label="Sort Order"
                   type="number"
                   value={destinationForm.sort_order}
-                  onChange={(e) => handleInputChange("sort_order", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("sort_order", parseInt(e.target.value) || 0)
+                  }
                   helperText="Lower numbers appear first"
                   sx={{ mb: 2 }}
                 />
               </Box>
 
+              {/* Destination Gallery Images */}
               <Box>
                 <Typography variant="h6" sx={{ mb: 1 }}>
                   <Collections sx={{ mr: 1, verticalAlign: "middle" }} />
-                  Images
+                  Destination Images
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
-                  First image will be used as the hero image, additional images will be in the gallery.
+                  First image will be used as the hero image, additional images
+                  will be in the gallery.
                 </Typography>
                 <Box mb={2}>
                   <input
@@ -765,7 +410,10 @@ const DestinationCreate = () => {
                             height: 120,
                             borderRadius: 2,
                             overflow: "hidden",
-                            border: index === 0 ? "2px solid #6B4E3D" : "1px solid #e0e0e0",
+                            border:
+                              index === 0
+                                ? "2px solid #6B4E3D"
+                                : "1px solid #e0e0e0",
                           }}
                         >
                           <IconButton
@@ -802,13 +450,18 @@ const DestinationCreate = () => {
                               bottom: 0,
                               left: 0,
                               right: 0,
-                              backgroundColor: index === 0 ? "#6B4E3D" : "rgba(0, 0, 0, 0.7)",
+                              backgroundColor:
+                                index === 0
+                                  ? "#6B4E3D"
+                                  : "rgba(0, 0, 0, 0.7)",
                               color: "white",
                               padding: "2px 6px",
                               fontSize: "0.75rem",
                             }}
                           >
-                            {index === 0 ? "HERO" : file.name.length > 15
+                            {index === 0
+                              ? "HERO"
+                              : file.name.length > 15
                               ? `${file.name.substring(0, 12)}...`
                               : file.name}
                           </Box>
@@ -827,11 +480,9 @@ const DestinationCreate = () => {
                     }}
                   >
                     <ImageIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "text.secondary" }}
-                    >
-                      No images selected. Click "Upload Images" to add a hero image and gallery images.
+                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                      No images selected. Click "Upload Images" to add a hero
+                      image and gallery images.
                     </Typography>
                   </Box>
                 )}
@@ -846,12 +497,10 @@ const DestinationCreate = () => {
                   disabled={!isFormValid() || saving}
                   sx={{
                     flex: 1,
-                    background:
-                      "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
+                    background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
                     color: "white",
                     "&:hover": {
-                      background:
-                        "linear-gradient(135deg, #8B4225 0%, #6B4E3D 100%)",
+                      background: "linear-gradient(135deg, #8B4225 0%, #6B4E3D 100%)",
                     },
                     "&:disabled": {
                       background: "#e0e0e0",

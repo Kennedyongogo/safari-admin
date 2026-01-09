@@ -54,11 +54,7 @@ const DestinationView = () => {
 
       const normalized = {
         ...data.data,
-        wildlife_types: Array.isArray(data.data?.wildlife_types) ? data.data.wildlife_types : [],
-        featured_species: Array.isArray(data.data?.featured_species) ? data.data.featured_species : [],
-        key_highlights: Array.isArray(data.data?.key_highlights) ? data.data.key_highlights : [],
-        category_tags: Array.isArray(data.data?.category_tags) ? data.data.category_tags : [],
-        best_visit_months: Array.isArray(data.data?.best_visit_months) ? data.data.best_visit_months : [],
+        packages: Array.isArray(data.data?.packages) ? data.data.packages : [],
         gallery_images: Array.isArray(data.data?.gallery_images) ? data.data.gallery_images : [],
       };
 
@@ -141,7 +137,12 @@ const DestinationView = () => {
               <Typography variant="h4" sx={{ fontWeight: 800, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
                 {destination.title}
               </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              {destination.subtitle && (
+                <Typography variant="body1" sx={{ opacity: 0.9, fontStyle: "italic" }}>
+                  {destination.subtitle}
+                </Typography>
+              )}
+              <Typography variant="body2" sx={{ opacity: 0.8 }}>
                 Destination details
               </Typography>
             </Box>
@@ -178,16 +179,13 @@ const DestinationView = () => {
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
                 <Chip label={`Location: ${destination.location || "—"}`} size="small" />
                 <Chip label={`Slug: ${destination.slug || "—"}`} size="small" />
-                {destination.duration_display && (
-                  <Chip label={`Duration: ${destination.duration_display}`} size="small" />
-                )}
-                {Array.isArray(destination.best_visit_months) && destination.best_visit_months.length > 0 && (
-                  <Chip label={`Best Months: ${destination.best_visit_months.join(", ")}`} size="small" />
-                )}
                 <Chip label={`Status: ${destination.is_active ? "Active" : "Inactive"}`} size="small" />
                 <Chip label={`Sort Order: ${destination.sort_order || 0}`} size="small" />
-                {Array.isArray(destination.category_tags) && destination.category_tags.length > 0 && (
-                  <Chip label={`Categories: ${destination.category_tags.join(", ")}`} size="small" />
+                {Array.isArray(destination.packages) && destination.packages.length > 0 && (
+                  <Chip 
+                    label={`Categories: ${destination.packages.length}`} 
+                    size="small" 
+                  />
                 )}
               </Box>
 
@@ -228,7 +226,7 @@ const DestinationView = () => {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
                 <Article sx={{ color: "#6B4E3D" }} />
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                  Description
+                  Brief Description
                 </Typography>
               </Box>
               <Box
@@ -240,13 +238,14 @@ const DestinationView = () => {
                 }}
               >
                 <Typography variant="body1" sx={{ color: "text.secondary", whiteSpace: "pre-wrap" }}>
-                  {destination.description || "No description provided."}
+                  {destination.brief_description || "No description provided."}
                 </Typography>
               </Box>
             </CardContent>
           </Card>
 
-          {Array.isArray(destination.key_highlights) && destination.key_highlights.length > 0 && (
+          {/* Packages Section */}
+          {Array.isArray(destination.packages) && destination.packages.length > 0 && (
             <Card
               sx={{
                 backgroundColor: "white",
@@ -257,143 +256,86 @@ const DestinationView = () => {
             >
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
-                  Key Highlights
+                  Packages by Category
                 </Typography>
-                <Box component="ul" sx={{ pl: 2, m: 0 }}>
-                  {destination.key_highlights.map((highlight, idx) => (
-                    <Typography key={idx} component="li" variant="body2" sx={{ mb: 1 }}>
-                      {highlight}
+                {destination.packages.map((category, catIdx) => (
+                  <Box key={catIdx} sx={{ mb: 3 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: "#6B4E3D" }}>
+                      {category.category_name || `Category ${catIdx + 1}`}
                     </Typography>
-                  ))}
-                </Box>
-              </CardContent>
-            </Card>
-          )}
-
-          {Array.isArray(destination.attractions) && destination.attractions.length > 0 && (
-            <Card
-              sx={{
-                backgroundColor: "white",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-                border: "1px solid #e0e0e0",
-                borderLeft: "6px solid #6B4E3D",
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
-                  Tourist Attractions
-                </Typography>
-                <Grid container spacing={2}>
-                  {destination.attractions.map((attraction, idx) => (
-                    <Grid item xs={12} key={idx}>
-                      <Card
-                        sx={{
-                          border: "1px solid #e0e0e0",
-                          borderRadius: 2,
-                        }}
-                      >
-                        <CardContent sx={{ p: 2 }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
-                            {attraction.name}
-                          </Typography>
-                          <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
-                            {attraction.description}
-                          </Typography>
-                          {Array.isArray(attraction.images) && attraction.images.length > 0 && (
-                            <Box sx={{ mt: 2 }}>
-                            <Typography variant="caption" sx={{ color: "text.secondary", mb: 1, display: "block" }}>
-                              All Images ({attraction.images.length})
-                            </Typography>
-                              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                                {attraction.images.map((image, imgIdx) => (
-                                  <Box
-                                    key={imgIdx}
-                                    component="img"
-                                    src={typeof image === 'string' ? buildImageUrl(image) : URL.createObjectURL(image)}
-                                    alt={`${attraction.name} - Image ${imgIdx + 1}`}
-                                    sx={{
-                                      width: 80,
-                                      height: 60,
-                                      objectFit: "cover",
-                                      borderRadius: 1,
-                                      border: "1px solid #e0e0e0",
-                                    }}
-                                  />
-                                ))}
-                              </Box>
-                            </Box>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-              </CardContent>
-            </Card>
-          )}
-
-          {Array.isArray(destination.wildlife_types) && destination.wildlife_types.length > 0 && (
-            <Card
-              sx={{
-                backgroundColor: "white",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-                border: "1px solid #e0e0e0",
-                borderLeft: "6px solid #B85C38",
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
-                  Wildlife Types
-                </Typography>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                  {destination.wildlife_types.map((type, idx) => (
-                    <Chip key={idx} label={type} size="small" />
-                  ))}
-                </Box>
-              </CardContent>
-            </Card>
-          )}
-
-          {Array.isArray(destination.featured_species) && destination.featured_species.length > 0 && (
-            <Card
-              sx={{
-                backgroundColor: "white",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-                border: "1px solid #e0e0e0",
-                borderLeft: "6px solid #6B4E3D",
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
-                  Featured Species
-                </Typography>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                  {destination.featured_species.map((species, idx) => (
-                    <Chip key={idx} label={species} size="small" />
-                  ))}
-                </Box>
-              </CardContent>
-            </Card>
-          )}
-
-          {Array.isArray(destination.category_tags) && destination.category_tags.length > 0 && (
-            <Card
-              sx={{
-                backgroundColor: "white",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-                border: "1px solid #e0e0e0",
-                borderLeft: "6px solid #B85C38",
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
-                  Categories
-                </Typography>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                  {destination.category_tags.map((tag, idx) => (
-                    <Chip key={idx} label={tag} size="small" />
-                  ))}
-                </Box>
+                    {Array.isArray(category.packages) && category.packages.length > 0 && (
+                      <Grid container spacing={2}>
+                        {category.packages.map((pkg, pkgIdx) => (
+                          <Grid item xs={12} md={6} key={pkgIdx}>
+                            <Card sx={{ border: "1px solid #e0e0e0", borderRadius: 2 }}>
+                              <CardContent sx={{ p: 2 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                                  #{pkg.number || pkgIdx + 1}. {pkg.title}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
+                                  {pkg.short_description}
+                                </Typography>
+                                {Array.isArray(pkg.highlights) && pkg.highlights.length > 0 && (
+                                  <Box sx={{ mb: 1 }}>
+                                    <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 0.5 }}>
+                                      Highlights:
+                                    </Typography>
+                                    <Box component="ul" sx={{ pl: 2, m: 0 }}>
+                                      {pkg.highlights.map((highlight, hIdx) => (
+                                        <Typography key={hIdx} component="li" variant="caption" sx={{ mb: 0.5 }}>
+                                          {highlight}
+                                        </Typography>
+                                      ))}
+                                    </Box>
+                                  </Box>
+                                )}
+                                {Array.isArray(pkg.pricing_tiers) && pkg.pricing_tiers.length > 0 && (
+                                  <Box sx={{ mb: 1 }}>
+                                    <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 0.5 }}>
+                                      Pricing:
+                                    </Typography>
+                                    {pkg.pricing_tiers.map((tier, tIdx) => (
+                                      <Chip
+                                        key={tIdx}
+                                        label={`${tier.tier}: ${tier.price_range}`}
+                                        size="small"
+                                        sx={{ mr: 0.5, mb: 0.5 }}
+                                      />
+                                    ))}
+                                  </Box>
+                                )}
+                                {Array.isArray(pkg.gallery) && pkg.gallery.length > 0 && (
+                                  <Box sx={{ mt: 1 }}>
+                                    <Typography variant="caption" sx={{ color: "text.secondary", mb: 0.5, display: "block" }}>
+                                      Gallery ({pkg.gallery.length} images)
+                                    </Typography>
+                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                                      {pkg.gallery.slice(0, 4).map((img, imgIdx) => (
+                                        <Box
+                                          key={imgIdx}
+                                          component="img"
+                                          src={buildImageUrl(img)}
+                                          alt={`Package ${pkgIdx + 1} - Image ${imgIdx + 1}`}
+                                          sx={{
+                                            width: 60,
+                                            height: 45,
+                                            objectFit: "cover",
+                                            borderRadius: 1,
+                                            border: "1px solid #e0e0e0",
+                                          }}
+                                        />
+                                      ))}
+                                    </Box>
+                                  </Box>
+                                )}
+                              </CardContent>
+                            </Card>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    )}
+                  </Box>
+                ))}
               </CardContent>
             </Card>
           )}
