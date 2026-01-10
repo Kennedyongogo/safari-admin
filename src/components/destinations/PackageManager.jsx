@@ -29,7 +29,7 @@ import {
 } from "@mui/icons-material";
 
 // Predefined package categories based on TOC structure
-// Includes categories for Uganda, Kenya, and Tanzania destinations
+// Includes categories for Uganda, Kenya, Tanzania, and Rwanda destinations
 const PACKAGE_CATEGORIES = [
   // Uganda categories
   "CLASSIC UGANDA SAFARI TOURS",
@@ -48,7 +48,11 @@ const PACKAGE_CATEGORIES = [
   "SOUTHERN & WESTERN CIRCUIT SAFARIS",
   "MOUNT KILIMANJARO CLIMBS",
   "ZANZIBAR BEACH EXTENSIONS",
-  "COMBINED SAFARI & BEACH HOLIDAYS"
+  "COMBINED SAFARI & BEACH HOLIDAYS",
+  // Rwanda categories
+  "GORILLA & PRIMATE SAFARIS",
+  "WILDLIFE & SCENIC SAFARIS",
+  "CULTURE, SCENERY & RELAXATION"
 ];
 
 const PackageManager = ({ packages, onChange, buildImageUrl }) => {
