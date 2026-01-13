@@ -36,6 +36,9 @@ import GalleryList from "./Gallery/GalleryList";
 import GalleryView from "./Gallery/GalleryView";
 import GalleryCreate from "./Gallery/GalleryCreate";
 import GalleryEdit from "./Gallery/GalleryEdit";
+import PackageInquiries from "./package inquiry/PackageInquiry";
+import PackageInquiryView from "./package inquiry/PackageView";
+import PackageInquiryReply from "./package inquiry/PackageReply";
 
 function PageRoutes() {
   const [user, setUser] = useState(null);
@@ -91,7 +94,10 @@ function PageRoutes() {
             <Route path="forms/create" element={<FormCreate />} />
             <Route path="forms/:id" element={<FormView />} />
             <Route path="forms/:id/edit" element={<FormEdit />} />
-            <Route path="forms/:form_id/submissions" element={<FormSubmission />} />
+            <Route
+              path="forms/:form_id/submissions"
+              element={<FormSubmission />}
+            />
             <Route path="destinations" element={<Destinations />} />
             <Route path="destinations/create" element={<DestinationCreate />} />
             <Route path="destinations/:id" element={<DestinationView />} />
@@ -104,7 +110,10 @@ function PageRoutes() {
             <Route path="gallery/create" element={<GalleryCreate />} />
             <Route path="gallery/:id" element={<GalleryView />} />
             <Route path="gallery/:id/edit" element={<GalleryEdit />} />
-            <Route path="testimonies" element={<Navigate to="/reviews" replace />} />
+            <Route
+              path="testimonies"
+              element={<Navigate to="/reviews" replace />}
+            />
             <Route path="reviews" element={<Review />} />
             <Route path="map" element={<CharityMap />} />
             <Route path="documents" element={<Documents />} />
@@ -112,6 +121,15 @@ function PageRoutes() {
             <Route path="audit" element={<Audit />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="users" element={<UsersTable />} />
+            <Route path="package-inquiries" element={<PackageInquiries />} />
+            <Route
+              path="package-inquiries/:id"
+              element={<PackageInquiryView />}
+            />
+            <Route
+              path="package-inquiries/:id/reply"
+              element={<PackageInquiryReply />}
+            />
             <Route path="settings" element={<Settings user={user} />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
