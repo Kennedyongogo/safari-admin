@@ -26,7 +26,9 @@ import {
   ExpandMore as ExpandMoreIcon,
   CloudUpload,
   Image as ImageIcon,
+  LocationOn as LocationOnIcon,
 } from "@mui/icons-material";
+import LocationPicker from "./LocationPicker";
 
 // Predefined package categories based on TOC structure
 // Includes categories for Uganda, Kenya, Tanzania, and Rwanda destinations
@@ -94,6 +96,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
       highlights: [],
       pricing_tiers: [],
       gallery: [],
+      itinerary: [],
     };
     category.packages = [...category.packages, newPackage];
     onChange(updated);
@@ -183,6 +186,107 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
     const pkg = updated[catIndex].packages[pkgIndex];
     pkg.gallery = pkg.gallery.filter((_, i) => i !== imgIndex);
     onChange(updated);
+  };
+
+  // Itinerary management functions
+  const addItineraryDay = (catIndex, pkgIndex) => {
+    const updated = [...packages];
+    const pkg = updated[catIndex].packages[pkgIndex];
+    const currentItinerary = pkg.itinerary || [];
+    const nextDayNumber = currentItinerary.length > 0 
+      ? Math.max(...currentItinerary.map(d => d.day)) + 1 
+      : 1;
+    const newDay = {
+      day: nextDayNumber,
+      description: "",
+      start_location: {
+        latitude: 0,
+        longitude: 0,
+      },
+    };
+    pkg.itinerary = [...currentItinerary, newDay];
+    onChange(updated);
+  };
+
+  const updateItineraryDay = (catIndex, pkgIndex, dayIndex, field, value) => {
+    const updated = [...packages];
+    const pkg = updated[catIndex].packages[pkgIndex];
+    const day = pkg.itinerary[dayIndex];
+    
+    // Handle nested location fields
+    if (field === "start_latitude" || field === "start_longitude") {
+      const locationType = field.replace("start_", "");
+      day.start_location = day.start_location || { latitude: 0, longitude: 0 };
+      day.start_location[locationType] = value;
+    } else if (field === "end_latitude" || field === "end_longitude") {
+      const locationType = field.replace("end_", "");
+      day.end_location = day.end_location || { latitude: 0, longitude: 0 };
+      day.end_location[locationType] = value;
+    } else {
+      day[field] = value;
+    }
+    
+    pkg.itinerary[dayIndex] = day;
+    onChange(updated);
+  };
+
+  const removeItineraryDay = (catIndex, pkgIndex, dayIndex) => {
+    const updated = [...packages];
+    const pkg = updated[catIndex].packages[pkgIndex];
+    pkg.itinerary = pkg.itinerary.filter((_, i) => i !== dayIndex);
+    onChange(updated);
+  };
+
+  const addEndLocation = (catIndex, pkgIndex, dayIndex) => {
+    const updated = [...packages];
+    const pkg = updated[catIndex].packages[pkgIndex];
+    const day = pkg.itinerary[dayIndex];
+    // Initialize end_location with same as start if not exists
+    if (!day.end_location) {
+      day.end_location = {
+        latitude: day.start_location?.latitude || 0,
+        longitude: day.start_location?.longitude || 0,
+      };
+      onChange(updated);
+    }
+  };
+
+  const removeEndLocation = (catIndex, pkgIndex, dayIndex) => {
+    const updated = [...packages];
+    const pkg = updated[catIndex].packages[pkgIndex];
+    const day = pkg.itinerary[dayIndex];
+    delete day.end_location;
+    onChange(updated);
+  };
+
+  const [locationPickerState, setLocationPickerState] = useState({
+    open: false,
+    catIndex: null,
+    pkgIndex: null,
+    dayIndex: null,
+    locationType: null, // 'start' or 'end'
+  });
+
+  const openLocationPicker = (catIndex, pkgIndex, dayIndex, locationType) => {
+    setLocationPickerState({
+      open: true,
+      catIndex,
+      pkgIndex,
+      dayIndex,
+      locationType,
+    });
+  };
+
+  const handleLocationSelect = (location) => {
+    if (locationPickerState.catIndex !== null && 
+        locationPickerState.pkgIndex !== null && 
+        locationPickerState.dayIndex !== null &&
+        locationPickerState.locationType) {
+      const { catIndex, pkgIndex, dayIndex, locationType } = locationPickerState;
+      updateItineraryDay(catIndex, pkgIndex, dayIndex, `${locationType}_latitude`, location.latitude);
+      updateItineraryDay(catIndex, pkgIndex, dayIndex, `${locationType}_longitude`, location.longitude);
+    }
+    setLocationPickerState({ open: false, catIndex: null, pkgIndex: null, dayIndex: null, locationType: null });
   };
 
   return (
@@ -553,6 +657,214 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                               </Grid>
                             )}
                           </Box>
+
+                          {/* Itinerary Section */}
+                          <Box>
+                            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                              Day-by-Day Itinerary with Locations
+                            </Typography>
+                            {(pkg.itinerary || []).map((day, dayIndex) => (
+                              <Card
+                                key={dayIndex}
+                                sx={{
+                                  mb: 2,
+                                  p: 2,
+                                  border: "1px solid #e0e0e0",
+                                  backgroundColor: "#fafafa",
+                                }}
+                              >
+                                <Stack spacing={2}>
+                                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                      Day {day.day}
+                                    </Typography>
+                                    <IconButton
+                                      size="small"
+                                      color="error"
+                                      onClick={() => removeItineraryDay(catIndex, pkgIndex, dayIndex)}
+                                    >
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                  </Box>
+                                  <TextField
+                                    fullWidth
+                                    size="small"
+                                    label="Day Description"
+                                    value={day.description || ""}
+                                    onChange={(e) =>
+                                      updateItineraryDay(
+                                        catIndex,
+                                        pkgIndex,
+                                        dayIndex,
+                                        "description",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="e.g., Nairobi to Maasai Mara, afternoon game drive"
+                                    multiline
+                                    rows={2}
+                                  />
+                                  
+                                  {/* Start Location */}
+                                  <Box>
+                                    <Typography variant="caption" sx={{ fontWeight: 600, mb: 1, display: "block" }}>
+                                      Start Location *
+                                    </Typography>
+                                    <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+                                      <TextField
+                                        size="small"
+                                        label="Latitude"
+                                        type="number"
+                                        value={day.start_location?.latitude || ""}
+                                        onChange={(e) =>
+                                          updateItineraryDay(
+                                            catIndex,
+                                            pkgIndex,
+                                            dayIndex,
+                                            "start_latitude",
+                                            parseFloat(e.target.value) || 0
+                                          )
+                                        }
+                                        sx={{ flex: 1 }}
+                                        inputProps={{ step: "0.000001" }}
+                                      />
+                                      <TextField
+                                        size="small"
+                                        label="Longitude"
+                                        type="number"
+                                        value={day.start_location?.longitude || ""}
+                                        onChange={(e) =>
+                                          updateItineraryDay(
+                                            catIndex,
+                                            pkgIndex,
+                                            dayIndex,
+                                            "start_longitude",
+                                            parseFloat(e.target.value) || 0
+                                          )
+                                        }
+                                        sx={{ flex: 1 }}
+                                        inputProps={{ step: "0.000001" }}
+                                      />
+                                      <Button
+                                        variant="outlined"
+                                        size="small"
+                                        startIcon={<LocationOnIcon />}
+                                        onClick={() => openLocationPicker(catIndex, pkgIndex, dayIndex, "start")}
+                                        sx={{
+                                          color: "#6B4E3D",
+                                          borderColor: "#6B4E3D",
+                                          "&:hover": {
+                                            borderColor: "#B85C38",
+                                            backgroundColor: "rgba(107, 78, 61, 0.1)",
+                                          },
+                                        }}
+                                      >
+                                        Pick on Map
+                                      </Button>
+                                    </Box>
+                                    {day.start_location?.latitude && day.start_location?.longitude && (
+                                      <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
+                                        Start: {day.start_location.latitude.toFixed(6)}, {day.start_location.longitude.toFixed(6)}
+                                      </Typography>
+                                    )}
+                                  </Box>
+
+                                  {/* End Location - Optional */}
+                                  {day.end_location ? (
+                                    <Box>
+                                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                                        <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                                          End Location (optional)
+                                        </Typography>
+                                        <Button
+                                          size="small"
+                                          onClick={() => removeEndLocation(catIndex, pkgIndex, dayIndex)}
+                                          sx={{ minWidth: "auto", p: 0.5 }}
+                                        >
+                                          <CloseIcon fontSize="small" />
+                                        </Button>
+                                      </Box>
+                                      <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+                                        <TextField
+                                          size="small"
+                                          label="Latitude"
+                                          type="number"
+                                          value={day.end_location?.latitude || ""}
+                                          onChange={(e) =>
+                                            updateItineraryDay(
+                                              catIndex,
+                                              pkgIndex,
+                                              dayIndex,
+                                              "end_latitude",
+                                              parseFloat(e.target.value) || 0
+                                            )
+                                          }
+                                          sx={{ flex: 1 }}
+                                          inputProps={{ step: "0.000001" }}
+                                        />
+                                        <TextField
+                                          size="small"
+                                          label="Longitude"
+                                          type="number"
+                                          value={day.end_location?.longitude || ""}
+                                          onChange={(e) =>
+                                            updateItineraryDay(
+                                              catIndex,
+                                              pkgIndex,
+                                              dayIndex,
+                                              "end_longitude",
+                                              parseFloat(e.target.value) || 0
+                                            )
+                                          }
+                                          sx={{ flex: 1 }}
+                                          inputProps={{ step: "0.000001" }}
+                                        />
+                                        <Button
+                                          variant="outlined"
+                                          size="small"
+                                          startIcon={<LocationOnIcon />}
+                                          onClick={() => openLocationPicker(catIndex, pkgIndex, dayIndex, "end")}
+                                          sx={{
+                                            color: "#6B4E3D",
+                                            borderColor: "#6B4E3D",
+                                            "&:hover": {
+                                              borderColor: "#B85C38",
+                                              backgroundColor: "rgba(107, 78, 61, 0.1)",
+                                            },
+                                          }}
+                                        >
+                                          Pick on Map
+                                        </Button>
+                                      </Box>
+                                      {day.end_location?.latitude && day.end_location?.longitude && (
+                                        <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
+                                          End: {day.end_location.latitude.toFixed(6)}, {day.end_location.longitude.toFixed(6)}
+                                        </Typography>
+                                      )}
+                                    </Box>
+                                  ) : (
+                                    <Button
+                                      size="small"
+                                      variant="text"
+                                      startIcon={<AddIcon />}
+                                      onClick={() => addEndLocation(catIndex, pkgIndex, dayIndex)}
+                                      sx={{ mt: -1 }}
+                                    >
+                                      Add End Location (for routes)
+                                    </Button>
+                                  )}
+                                </Stack>
+                              </Card>
+                            ))}
+                            <Button
+                              size="small"
+                              startIcon={<AddIcon />}
+                              onClick={() => addItineraryDay(catIndex, pkgIndex)}
+                              sx={{ mt: 1 }}
+                            >
+                              Add Day
+                            </Button>
+                          </Box>
                         </Stack>
                       </Card>
                     ))}
@@ -563,6 +875,35 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
           </AccordionDetails>
         </Accordion>
       ))}
+
+      {/* Location Picker Dialog */}
+      {locationPickerState.open && (
+        <LocationPicker
+          open={locationPickerState.open}
+          onClose={() => setLocationPickerState({ open: false, catIndex: null, pkgIndex: null, dayIndex: null, locationType: null })}
+          onSelect={handleLocationSelect}
+          initialLat={
+            locationPickerState.catIndex !== null &&
+            locationPickerState.pkgIndex !== null &&
+            locationPickerState.dayIndex !== null &&
+            locationPickerState.locationType
+              ? (locationPickerState.locationType === "start"
+                  ? packages[locationPickerState.catIndex]?.packages[locationPickerState.pkgIndex]?.itinerary?.[locationPickerState.dayIndex]?.start_location?.latitude
+                  : packages[locationPickerState.catIndex]?.packages[locationPickerState.pkgIndex]?.itinerary?.[locationPickerState.dayIndex]?.end_location?.latitude)
+              : null
+          }
+          initialLng={
+            locationPickerState.catIndex !== null &&
+            locationPickerState.pkgIndex !== null &&
+            locationPickerState.dayIndex !== null &&
+            locationPickerState.locationType
+              ? (locationPickerState.locationType === "start"
+                  ? packages[locationPickerState.catIndex]?.packages[locationPickerState.pkgIndex]?.itinerary?.[locationPickerState.dayIndex]?.start_location?.longitude
+                  : packages[locationPickerState.catIndex]?.packages[locationPickerState.pkgIndex]?.itinerary?.[locationPickerState.dayIndex]?.end_location?.longitude)
+              : null
+          }
+        />
+      )}
 
       {packages.length === 0 && (
         <Card sx={{ p: 4, textAlign: "center", border: "2px dashed #e0e0e0" }}>

@@ -21,6 +21,7 @@ import {
   Edit,
   Article,
 } from "@mui/icons-material";
+import ItineraryMap from "./ItineraryMap";
 
 const DestinationView = () => {
   const { id } = useParams();
@@ -325,6 +326,28 @@ const DestinationView = () => {
                                           }}
                                         />
                                       ))}
+                                    </Box>
+                                  </Box>
+                                )}
+                                
+                                {/* Itinerary Map */}
+                                {Array.isArray(pkg.itinerary) && pkg.itinerary.length > 0 && (
+                                  <Box sx={{ mt: 2 }}>
+                                    <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 1 }}>
+                                      Itinerary Route Map
+                                    </Typography>
+                                    <ItineraryMap itinerary={pkg.itinerary} height={250} />
+                                    <Box sx={{ mt: 1 }}>
+                                      <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
+                                        {pkg.itinerary.length} day{pkg.itinerary.length !== 1 ? "s" : ""} itinerary
+                                      </Typography>
+                                      <Box component="ul" sx={{ pl: 2, m: 0, mt: 0.5 }}>
+                                        {pkg.itinerary.map((day, dayIdx) => (
+                                          <Typography key={dayIdx} component="li" variant="caption" sx={{ mb: 0.3 }}>
+                                            <strong>Day {day.day}:</strong> {day.description || "No description"}
+                                          </Typography>
+                                        ))}
+                                      </Box>
                                     </Box>
                                   </Box>
                                 )}

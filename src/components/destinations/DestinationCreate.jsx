@@ -112,6 +112,26 @@ const DestinationCreate = () => {
           pricing_tiers: pkg.pricing_tiers || [],
           // Keep only string URLs (existing images), File objects will be uploaded separately
           gallery: (pkg.gallery || []).filter((img) => typeof img === "string"),
+          itinerary: (pkg.itinerary || []).map((day) => {
+            const itineraryDay = {
+              day: day.day,
+              description: day.description || "",
+              start_location: {
+                latitude: day.start_location?.latitude || 0,
+                longitude: day.start_location?.longitude || 0,
+              },
+            };
+            // Only include end_location if it exists and is different from start
+            if (day.end_location && 
+                (day.end_location.latitude !== day.start_location?.latitude || 
+                 day.end_location.longitude !== day.start_location?.longitude)) {
+              itineraryDay.end_location = {
+                latitude: day.end_location.latitude || 0,
+                longitude: day.end_location.longitude || 0,
+              };
+            }
+            return itineraryDay;
+          }),
         })),
       }));
 
