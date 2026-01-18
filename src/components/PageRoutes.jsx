@@ -36,6 +36,14 @@ import GalleryList from "./Gallery/GalleryList";
 import GalleryView from "./Gallery/GalleryView";
 import GalleryCreate from "./Gallery/GalleryCreate";
 import GalleryEdit from "./Gallery/GalleryEdit";
+import Traveller from "./bytraveller/Traveller";
+import TravellerCreate from "./bytraveller/TravellerCreate";
+import TravellerView from "./bytraveller/TravellerView";
+import TravellerEdit from "./bytraveller/TravellerEdit";
+import Interest from "./byinterest/Interest";
+import InterestCreate from "./byinterest/InterestCreate";
+import InterestView from "./byinterest/InterestView";
+import InterestEdit from "./byinterest/InterestEdit";
 import PackageInquiries from "./package inquiry/PackageInquiry";
 import PackageInquiryView from "./package inquiry/PackageView";
 import PackageInquiryReply from "./package inquiry/PackageReply";
@@ -110,6 +118,14 @@ function PageRoutes() {
             <Route path="gallery/create" element={<GalleryCreate />} />
             <Route path="gallery/:id" element={<GalleryView />} />
             <Route path="gallery/:id/edit" element={<GalleryEdit />} />
+            <Route path="traveller" element={<Traveller />} />
+            <Route path="traveller/create" element={<TravellerCreate />} />
+            <Route path="traveller/:id" element={<TravellerView />} />
+            <Route path="traveller/:id/edit" element={<TravellerEdit />} />
+            <Route path="interest" element={<Interest />} />
+            <Route path="interest/create" element={<InterestCreate />} />
+            <Route path="interest/:id" element={<InterestView />} />
+            <Route path="interest/:id/edit" element={<InterestEdit />} />
             <Route
               path="testimonies"
               element={<Navigate to="/reviews" replace />}

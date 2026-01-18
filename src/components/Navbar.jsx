@@ -219,6 +219,16 @@ const Navbar = (props) => {
               icon: <People />,
               path: "/public-members",
             },
+            {
+              text: "Traveller",
+              icon: <PeopleAlt />,
+              path: "/traveller",
+            },
+            {
+              text: "Interest",
+              icon: <Favorite />,
+              path: "/interest",
+            },
           ],
         },
     {
