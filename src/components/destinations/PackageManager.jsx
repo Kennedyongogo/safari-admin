@@ -198,6 +198,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
       : 1;
     const newDay = {
       day: nextDayNumber,
+      title: "",
       description: "",
       start_location: {
         latitude: 0,
@@ -689,6 +690,22 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                   <TextField
                                     fullWidth
                                     size="small"
+                                    label="Day Title"
+                                    value={day.title || ""}
+                                    onChange={(e) =>
+                                      updateItineraryDay(
+                                        catIndex,
+                                        pkgIndex,
+                                        dayIndex,
+                                        "title",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="e.g., Day 1: Nairobi to Maasai Mara"
+                                  />
+                                  <TextField
+                                    fullWidth
+                                    size="small"
                                     label="Day Description"
                                     value={day.description || ""}
                                     onChange={(e) =>
@@ -700,9 +717,9 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                         e.target.value
                                       )
                                     }
-                                    placeholder="e.g., Nairobi to Maasai Mara, afternoon game drive"
+                                    placeholder="e.g., Depart Nairobi in the morning for a scenic drive down the Great Rift Valley escarpment. Arrive at your lodge/camp in time for lunch. Embark on your first thrilling afternoon game drive across the rolling savannah plains in search of wildlife."
                                     multiline
-                                    rows={2}
+                                    rows={4}
                                   />
                                   
                                   {/* Start Location */}

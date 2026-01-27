@@ -115,6 +115,7 @@ const DestinationCreate = () => {
           itinerary: (pkg.itinerary || []).map((day) => {
             const itineraryDay = {
               day: day.day,
+              title: day.title || "",
               description: day.description || "",
               start_location: {
                 latitude: day.start_location?.latitude || 0,
