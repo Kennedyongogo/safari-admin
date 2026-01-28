@@ -1,5 +1,13 @@
 import React, { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Polyline, useMap, Popup, Tooltip } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Polyline,
+  useMap,
+  Popup,
+  Tooltip,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { Box, Typography } from "@mui/material";
@@ -7,9 +15,12 @@ import { Box, Typography } from "@mui/material";
 // Fix for default marker icon in react-leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
 // Custom marker icon with day number
@@ -62,12 +73,19 @@ const ItineraryMap = ({ itinerary, height = 300 }) => {
   const markers = [];
 
   itinerary.forEach((day, index) => {
-    if (!day.start_location || !day.start_location.latitude || !day.start_location.longitude) {
+    if (
+      !day.start_location ||
+      !day.start_location.latitude ||
+      !day.start_location.longitude
+    ) {
       return; // Skip if no start location
     }
 
-    const startCoord = [day.start_location.latitude, day.start_location.longitude];
-    
+    const startCoord = [
+      day.start_location.latitude,
+      day.start_location.longitude,
+    ];
+
     // Check if day has end location that's different from start
     const hasEndLocation =
       day.end_location &&
@@ -86,19 +104,26 @@ const ItineraryMap = ({ itinerary, height = 300 }) => {
       allCoordinates.push(endCoord);
     }
 
-    // Add marker at START location with day number
+    const dayLabel =
+      day.day_end != null && day.day_end > day.day
+        ? `${day.day}–${day.day_end}`
+        : String(day.day);
+
+    // Add marker at START location with day label
     markers.push({
       position: startCoord,
       day: day.day,
+      dayLabel,
       description: day.description,
       isStart: true,
     });
 
-    // Add marker at END location with same day number (if end exists and is different)
+    // Add marker at END location with same day label (if end exists and is different)
     if (hasEndLocation && endCoord) {
       markers.push({
         position: endCoord,
         day: day.day,
+        dayLabel,
         description: day.description,
         isStart: false,
       });
@@ -107,6 +132,7 @@ const ItineraryMap = ({ itinerary, height = 300 }) => {
       routeSegments.push({
         coordinates: [startCoord, endCoord],
         day: day.day,
+        dayLabel,
         isDayRoute: true,
       });
     }
@@ -119,14 +145,18 @@ const ItineraryMap = ({ itinerary, height = 300 }) => {
         nextDay.start_location.latitude &&
         nextDay.start_location.longitude
       ) {
+        const nextDayLabel =
+          nextDay.day_end != null && nextDay.day_end > nextDay.day
+            ? `${nextDay.day}–${nextDay.day_end}`
+            : String(nextDay.day);
         const nextStartCoord = [
           nextDay.start_location.latitude,
           nextDay.start_location.longitude,
         ];
-        
+
         // Use end location if exists, otherwise use start location
         const currentDayEnd = endCoord || startCoord;
-        
+
         // Only draw connecting line if next day's start is different from current day's end/start
         if (
           nextStartCoord[0] !== currentDayEnd[0] ||
@@ -134,7 +164,7 @@ const ItineraryMap = ({ itinerary, height = 300 }) => {
         ) {
           routeSegments.push({
             coordinates: [currentDayEnd, nextStartCoord],
-            day: `Day ${day.day} to ${nextDay.day}`,
+            day: `Day ${dayLabel} to ${nextDayLabel}`,
             isDayRoute: false,
           });
         }
@@ -150,7 +180,15 @@ const ItineraryMap = ({ itinerary, height = 300 }) => {
       : defaultCenter;
 
   return (
-    <Box sx={{ width: "100%", height, borderRadius: 1, overflow: "hidden", border: "1px solid #e0e0e0" }}>
+    <Box
+      sx={{
+        width: "100%",
+        height,
+        borderRadius: 1,
+        overflow: "hidden",
+        border: "1px solid #e0e0e0",
+      }}
+    >
       <MapContainer
         center={mapCenter}
         zoom={6}
@@ -176,23 +214,41 @@ const ItineraryMap = ({ itinerary, height = 300 }) => {
         {/* Add markers for each day */}
         {markers.map((marker, idx) => {
           const locationType = marker.isStart ? "Start" : "End";
-          const tooltipText = `Day ${marker.day} (${locationType}): ${marker.description || "No description"}`;
-          
+          const dayLabel =
+            marker.dayLabel != null ? marker.dayLabel : String(marker.day);
+          const tooltipText = `Day ${dayLabel} (${locationType}): ${marker.description || "No description"}`;
+
           return (
-            <Marker key={`marker-${idx}`} position={marker.position} icon={createDayMarker(marker.day)}>
-              <Tooltip permanent={false} direction="top" offset={[0, -10]} interactive={false}>
+            <Marker
+              key={`marker-${idx}`}
+              position={marker.position}
+              icon={createDayMarker(dayLabel)}
+            >
+              <Tooltip
+                permanent={false}
+                direction="top"
+                offset={[0, -10]}
+                interactive={false}
+              >
                 {tooltipText}
               </Tooltip>
               <Popup>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
-                    Day {marker.day} ({locationType})
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: 700, mb: 0.5 }}
+                  >
+                    Day {dayLabel} ({locationType})
                   </Typography>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     {marker.description || "No description"}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
-                    {marker.position[0].toFixed(6)}, {marker.position[1].toFixed(6)}
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary", mt: 0.5, display: "block" }}
+                  >
+                    {marker.position[0].toFixed(6)},{" "}
+                    {marker.position[1].toFixed(6)}
                   </Typography>
                 </Box>
               </Popup>

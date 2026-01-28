@@ -16,11 +16,7 @@ import {
   Stack,
   Divider,
 } from "@mui/material";
-import {
-  ArrowBack,
-  Edit,
-  Article,
-} from "@mui/icons-material";
+import { ArrowBack, Edit, Article } from "@mui/icons-material";
 import ItineraryMap from "./ItineraryMap";
 
 const DestinationView = () => {
@@ -51,12 +47,15 @@ const DestinationView = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message || "Failed to load destination");
+      if (!res.ok || !data.success)
+        throw new Error(data.message || "Failed to load destination");
 
       const normalized = {
         ...data.data,
         packages: Array.isArray(data.data?.packages) ? data.data.packages : [],
-        gallery_images: Array.isArray(data.data?.gallery_images) ? data.data.gallery_images : [],
+        gallery_images: Array.isArray(data.data?.gallery_images)
+          ? data.data.gallery_images
+          : [],
       };
 
       setDestination(normalized);
@@ -78,7 +77,12 @@ const DestinationView = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="60vh"
+      >
         <CircularProgress />
       </Box>
     );
@@ -122,7 +126,13 @@ const DestinationView = () => {
             mb: 2,
           }}
         >
-          <Box display="flex" alignItems="center" gap={2} position="relative" zIndex={1}>
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={2}
+            position="relative"
+            zIndex={1}
+          >
             <IconButton
               onClick={() => navigate("/destinations")}
               sx={{
@@ -135,11 +145,20 @@ const DestinationView = () => {
             </IconButton>
             <Article sx={{ fontSize: 40 }} />
             <Box>
-              <Typography variant="h4" sx={{ fontWeight: 800, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 800,
+                  textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                }}
+              >
                 {destination.title}
               </Typography>
               {destination.subtitle && (
-                <Typography variant="body1" sx={{ opacity: 0.9, fontStyle: "italic" }}>
+                <Typography
+                  variant="body1"
+                  sx={{ opacity: 0.9, fontStyle: "italic" }}
+                >
                   {destination.subtitle}
                 </Typography>
               )}
@@ -178,19 +197,45 @@ const DestinationView = () => {
                 Overview
               </Typography>
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
-                <Chip label={`Location: ${destination.location || "—"}`} size="small" />
+                <Chip
+                  label={`Location: ${destination.location || "—"}`}
+                  size="small"
+                />
                 <Chip label={`Slug: ${destination.slug || "—"}`} size="small" />
-                <Chip label={`Status: ${destination.is_active ? "Active" : "Inactive"}`} size="small" />
-                <Chip label={`Sort Order: ${destination.sort_order || 0}`} size="small" />
-                {Array.isArray(destination.packages) && destination.packages.length > 0 && (
-                  <Chip 
-                    label={`Categories: ${destination.packages.length}`} 
-                    size="small" 
-                  />
-                )}
+                <Chip
+                  label={`Status: ${destination.is_active ? "Active" : "Inactive"}`}
+                  size="small"
+                />
+                <Chip
+                  label={`Sort Order: ${destination.sort_order || 0}`}
+                  size="small"
+                />
+                {Array.isArray(destination.packages) &&
+                  destination.packages.length > 0 && (
+                    <Chip
+                      label={`Categories: ${destination.packages.length}`}
+                      size="small"
+                    />
+                  )}
               </Box>
 
               <Grid container spacing={2}>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    Sort Order
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    {destination.sort_order != null
+                      ? destination.sort_order
+                      : 0}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary" }}
+                  >
+                    Lower numbers appear first on the website
+                  </Typography>
+                </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     Created
@@ -209,9 +254,7 @@ const DestinationView = () => {
                 </Grid>
               </Grid>
 
-
               <Divider sx={{ my: 2 }} />
-
             </CardContent>
           </Card>
 
@@ -224,7 +267,9 @@ const DestinationView = () => {
             }}
           >
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}
+              >
                 <Article sx={{ color: "#6B4E3D" }} />
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>
                   Brief Description
@@ -238,7 +283,10 @@ const DestinationView = () => {
                   border: "1px dashed #e0d6c8",
                 }}
               >
-                <Typography variant="body1" sx={{ color: "text.secondary", whiteSpace: "pre-wrap" }}>
+                <Typography
+                  variant="body1"
+                  sx={{ color: "text.secondary", whiteSpace: "pre-wrap" }}
+                >
                   {destination.brief_description || "No description provided."}
                 </Typography>
               </Box>
@@ -246,122 +294,218 @@ const DestinationView = () => {
           </Card>
 
           {/* Packages Section */}
-          {Array.isArray(destination.packages) && destination.packages.length > 0 && (
-            <Card
-              sx={{
-                backgroundColor: "white",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-                border: "1px solid #e0e0e0",
-                borderLeft: "6px solid #6B4E3D",
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
-                  Packages by Category
-                </Typography>
-                {destination.packages.map((category, catIdx) => (
-                  <Box key={catIdx} sx={{ mb: 3 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: "#6B4E3D" }}>
-                      {category.category_name || `Category ${catIdx + 1}`}
-                    </Typography>
-                    {Array.isArray(category.packages) && category.packages.length > 0 && (
-                      <Grid container spacing={2}>
-                        {category.packages.map((pkg, pkgIdx) => (
-                          <Grid item xs={12} md={6} key={pkgIdx}>
-                            <Card sx={{ border: "1px solid #e0e0e0", borderRadius: 2 }}>
-                              <CardContent sx={{ p: 2 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                                  #{pkg.number || pkgIdx + 1}. {pkg.title}
-                                </Typography>
-                                <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
-                                  {pkg.short_description}
-                                </Typography>
-                                {Array.isArray(pkg.highlights) && pkg.highlights.length > 0 && (
-                                  <Box sx={{ mb: 1 }}>
-                                    <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 0.5 }}>
-                                      Highlights:
+          {Array.isArray(destination.packages) &&
+            destination.packages.length > 0 && (
+              <Card
+                sx={{
+                  backgroundColor: "white",
+                  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+                  border: "1px solid #e0e0e0",
+                  borderLeft: "6px solid #6B4E3D",
+                }}
+              >
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
+                    Packages by Category
+                  </Typography>
+                  {destination.packages.map((category, catIdx) => (
+                    <Box key={catIdx} sx={{ mb: 3 }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{ fontWeight: 700, mb: 1, color: "#6B4E3D" }}
+                      >
+                        {category.category_name || `Category ${catIdx + 1}`}
+                      </Typography>
+                      {Array.isArray(category.packages) &&
+                        category.packages.length > 0 && (
+                          <Grid container spacing={2}>
+                            {category.packages.map((pkg, pkgIdx) => (
+                              <Grid item xs={12} md={6} key={pkgIdx}>
+                                <Card
+                                  sx={{
+                                    border: "1px solid #e0e0e0",
+                                    borderRadius: 2,
+                                  }}
+                                >
+                                  <CardContent sx={{ p: 2 }}>
+                                    <Typography
+                                      variant="subtitle2"
+                                      sx={{ fontWeight: 700, mb: 1 }}
+                                    >
+                                      #{pkg.number || pkgIdx + 1}. {pkg.title}
                                     </Typography>
-                                    <Box component="ul" sx={{ pl: 2, m: 0 }}>
-                                      {pkg.highlights.map((highlight, hIdx) => (
-                                        <Typography key={hIdx} component="li" variant="caption" sx={{ mb: 0.5 }}>
-                                          {highlight}
-                                        </Typography>
-                                      ))}
-                                    </Box>
-                                  </Box>
-                                )}
-                                {Array.isArray(pkg.pricing_tiers) && pkg.pricing_tiers.length > 0 && (
-                                  <Box sx={{ mb: 1 }}>
-                                    <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 0.5 }}>
-                                      Pricing:
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ color: "text.secondary", mb: 1 }}
+                                    >
+                                      {pkg.short_description}
                                     </Typography>
-                                    {pkg.pricing_tiers.map((tier, tIdx) => (
-                                      <Chip
-                                        key={tIdx}
-                                        label={`${tier.tier}: ${tier.price_range}`}
-                                        size="small"
-                                        sx={{ mr: 0.5, mb: 0.5 }}
-                                      />
-                                    ))}
-                                  </Box>
-                                )}
-                                {Array.isArray(pkg.gallery) && pkg.gallery.length > 0 && (
-                                  <Box sx={{ mt: 1 }}>
-                                    <Typography variant="caption" sx={{ color: "text.secondary", mb: 0.5, display: "block" }}>
-                                      Gallery ({pkg.gallery.length} images)
-                                    </Typography>
-                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                                      {pkg.gallery.slice(0, 4).map((img, imgIdx) => (
-                                        <Box
-                                          key={imgIdx}
-                                          component="img"
-                                          src={buildImageUrl(img)}
-                                          alt={`Package ${pkgIdx + 1} - Image ${imgIdx + 1}`}
-                                          sx={{
-                                            width: 60,
-                                            height: 45,
-                                            objectFit: "cover",
-                                            borderRadius: 1,
-                                            border: "1px solid #e0e0e0",
-                                          }}
-                                        />
-                                      ))}
-                                    </Box>
-                                  </Box>
-                                )}
-                                
-                                {/* Itinerary Map */}
-                                {Array.isArray(pkg.itinerary) && pkg.itinerary.length > 0 && (
-                                  <Box sx={{ mt: 2 }}>
-                                    <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 1 }}>
-                                      Itinerary Route Map
-                                    </Typography>
-                                    <ItineraryMap itinerary={pkg.itinerary} height={250} />
-                                    <Box sx={{ mt: 1 }}>
-                                      <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
-                                        {pkg.itinerary.length} day{pkg.itinerary.length !== 1 ? "s" : ""} itinerary
-                                      </Typography>
-                                      <Box component="ul" sx={{ pl: 2, m: 0, mt: 0.5 }}>
-                                        {pkg.itinerary.map((day, dayIdx) => (
-                                          <Typography key={dayIdx} component="li" variant="caption" sx={{ mb: 0.3 }}>
-                                            <strong>Day {day.day}:</strong> {day.description || "No description"}
+                                    {Array.isArray(pkg.highlights) &&
+                                      pkg.highlights.length > 0 && (
+                                        <Box sx={{ mb: 1 }}>
+                                          <Typography
+                                            variant="caption"
+                                            sx={{
+                                              fontWeight: 600,
+                                              display: "block",
+                                              mb: 0.5,
+                                            }}
+                                          >
+                                            Highlights:
                                           </Typography>
-                                        ))}
-                                      </Box>
-                                    </Box>
-                                  </Box>
-                                )}
-                              </CardContent>
-                            </Card>
+                                          <Box
+                                            component="ul"
+                                            sx={{ pl: 2, m: 0 }}
+                                          >
+                                            {pkg.highlights.map(
+                                              (highlight, hIdx) => (
+                                                <Typography
+                                                  key={hIdx}
+                                                  component="li"
+                                                  variant="caption"
+                                                  sx={{ mb: 0.5 }}
+                                                >
+                                                  {highlight}
+                                                </Typography>
+                                              ),
+                                            )}
+                                          </Box>
+                                        </Box>
+                                      )}
+                                    {Array.isArray(pkg.pricing_tiers) &&
+                                      pkg.pricing_tiers.length > 0 && (
+                                        <Box sx={{ mb: 1 }}>
+                                          <Typography
+                                            variant="caption"
+                                            sx={{
+                                              fontWeight: 600,
+                                              display: "block",
+                                              mb: 0.5,
+                                            }}
+                                          >
+                                            Pricing:
+                                          </Typography>
+                                          {pkg.pricing_tiers.map(
+                                            (tier, tIdx) => (
+                                              <Chip
+                                                key={tIdx}
+                                                label={`${tier.tier}: ${tier.price_range}`}
+                                                size="small"
+                                                sx={{ mr: 0.5, mb: 0.5 }}
+                                              />
+                                            ),
+                                          )}
+                                        </Box>
+                                      )}
+                                    {Array.isArray(pkg.gallery) &&
+                                      pkg.gallery.length > 0 && (
+                                        <Box sx={{ mt: 1 }}>
+                                          <Typography
+                                            variant="caption"
+                                            sx={{
+                                              color: "text.secondary",
+                                              mb: 0.5,
+                                              display: "block",
+                                            }}
+                                          >
+                                            Gallery ({pkg.gallery.length}{" "}
+                                            images)
+                                          </Typography>
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              flexWrap: "wrap",
+                                              gap: 0.5,
+                                            }}
+                                          >
+                                            {pkg.gallery
+                                              .slice(0, 4)
+                                              .map((img, imgIdx) => (
+                                                <Box
+                                                  key={imgIdx}
+                                                  component="img"
+                                                  src={buildImageUrl(img)}
+                                                  alt={`Package ${pkgIdx + 1} - Image ${imgIdx + 1}`}
+                                                  sx={{
+                                                    width: 60,
+                                                    height: 45,
+                                                    objectFit: "cover",
+                                                    borderRadius: 1,
+                                                    border: "1px solid #e0e0e0",
+                                                  }}
+                                                />
+                                              ))}
+                                          </Box>
+                                        </Box>
+                                      )}
+
+                                    {/* Itinerary Map */}
+                                    {Array.isArray(pkg.itinerary) &&
+                                      pkg.itinerary.length > 0 && (
+                                        <Box sx={{ mt: 2 }}>
+                                          <Typography
+                                            variant="caption"
+                                            sx={{
+                                              fontWeight: 600,
+                                              display: "block",
+                                              mb: 1,
+                                            }}
+                                          >
+                                            Itinerary Route Map
+                                          </Typography>
+                                          <ItineraryMap
+                                            itinerary={pkg.itinerary}
+                                            height={250}
+                                          />
+                                          <Box sx={{ mt: 1 }}>
+                                            <Typography
+                                              variant="caption"
+                                              sx={{
+                                                color: "text.secondary",
+                                                display: "block",
+                                              }}
+                                            >
+                                              {pkg.itinerary.length} day
+                                              {pkg.itinerary.length !== 1
+                                                ? "s"
+                                                : ""}{" "}
+                                              itinerary
+                                            </Typography>
+                                            <Box
+                                              component="ul"
+                                              sx={{ pl: 2, m: 0, mt: 0.5 }}
+                                            >
+                                              {pkg.itinerary.map(
+                                                (day, dayIdx) => (
+                                                  <Typography
+                                                    key={dayIdx}
+                                                    component="li"
+                                                    variant="caption"
+                                                    sx={{ mb: 0.3 }}
+                                                  >
+                                                    <strong>
+                                                      Day {day.day}:
+                                                    </strong>{" "}
+                                                    {day.description ||
+                                                      "No description"}
+                                                  </Typography>
+                                                ),
+                                              )}
+                                            </Box>
+                                          </Box>
+                                        </Box>
+                                      )}
+                                  </CardContent>
+                                </Card>
+                              </Grid>
+                            ))}
                           </Grid>
-                        ))}
-                      </Grid>
-                    )}
-                  </Box>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+                        )}
+                    </Box>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
 
           {/* Hero Image */}
           {destination.hero_image && (
@@ -377,7 +521,10 @@ const DestinationView = () => {
                 <Typography variant="h6" sx={{ mb: 1, fontWeight: 800 }}>
                   Hero Image
                 </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "text.secondary", mb: 2 }}
+                >
                   Main hero image for this destination
                 </Typography>
                 <Box
@@ -399,44 +546,49 @@ const DestinationView = () => {
           )}
 
           {/* Gallery Images */}
-          {Array.isArray(destination.gallery_images) && destination.gallery_images.length > 0 && (
-            <Card
-              sx={{
-                backgroundColor: "white",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-                border: "1px solid #e0e0e0",
-                borderLeft: "6px solid #B85C38",
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 1, fontWeight: 800 }}>
-                  Gallery Images
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-                  Additional gallery images for this destination ({destination.gallery_images.length} images)
-                </Typography>
-                <Grid container spacing={2}>
-                  {destination.gallery_images.map((img, idx) => (
-                    <Grid item xs={12} sm={6} md={4} key={idx}>
-                      <Box
-                        component="img"
-                        src={buildImageUrl(img)}
-                        alt={`Gallery ${idx + 1}`}
-                        sx={{
-                          width: "100%",
-                          height: 200,
-                          objectFit: "cover",
-                          borderRadius: 2,
-                          border: "1px solid #eee",
-                          boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-                        }}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </CardContent>
-            </Card>
-          )}
+          {Array.isArray(destination.gallery_images) &&
+            destination.gallery_images.length > 0 && (
+              <Card
+                sx={{
+                  backgroundColor: "white",
+                  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+                  border: "1px solid #e0e0e0",
+                  borderLeft: "6px solid #B85C38",
+                }}
+              >
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 1, fontWeight: 800 }}>
+                    Gallery Images
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "text.secondary", mb: 2 }}
+                  >
+                    Additional gallery images for this destination (
+                    {destination.gallery_images.length} images)
+                  </Typography>
+                  <Grid container spacing={2}>
+                    {destination.gallery_images.map((img, idx) => (
+                      <Grid item xs={12} sm={6} md={4} key={idx}>
+                        <Box
+                          component="img"
+                          src={buildImageUrl(img)}
+                          alt={`Gallery ${idx + 1}`}
+                          sx={{
+                            width: "100%",
+                            height: 200,
+                            objectFit: "cover",
+                            borderRadius: 2,
+                            border: "1px solid #eee",
+                            boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+                          }}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardContent>
+              </Card>
+            )}
         </Stack>
       </Container>
     </Box>

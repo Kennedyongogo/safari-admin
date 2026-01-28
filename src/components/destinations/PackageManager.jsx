@@ -54,7 +54,7 @@ const PACKAGE_CATEGORIES = [
   // Rwanda categories
   "GORILLA & PRIMATE SAFARIS",
   "WILDLIFE & SCENIC SAFARIS",
-  "CULTURE, SCENERY & RELAXATION"
+  "CULTURE, SCENERY & RELAXATION",
 ];
 
 const PackageManager = ({ packages, onChange, buildImageUrl }) => {
@@ -90,7 +90,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
     const updated = [...packages];
     const category = updated[catIndex];
     const newPackage = {
-      number: (category.packages.length + 1),
+      number: category.packages.length + 1,
       title: "",
       short_description: "",
       highlights: [],
@@ -114,7 +114,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
   const deletePackage = (catIndex, pkgIndex) => {
     const updated = [...packages];
     updated[catIndex].packages = updated[catIndex].packages.filter(
-      (_, i) => i !== pkgIndex
+      (_, i) => i !== pkgIndex,
     );
     onChange(updated);
   };
@@ -170,7 +170,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
   const handlePackageGalleryUpload = (catIndex, pkgIndex, event) => {
     const files = Array.from(event.target.files || []);
     const valid = files.filter(
-      (file) => file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024
+      (file) => file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024,
     );
     if (valid.length > 0) {
       const updated = [...packages];
@@ -193,9 +193,15 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
     const updated = [...packages];
     const pkg = updated[catIndex].packages[pkgIndex];
     const currentItinerary = pkg.itinerary || [];
-    const nextDayNumber = currentItinerary.length > 0 
-      ? Math.max(...currentItinerary.map(d => d.day)) + 1 
-      : 1;
+    const lastDayUsed =
+      currentItinerary.length > 0
+        ? Math.max(
+            ...currentItinerary.map((d) =>
+              d.day_end != null && d.day_end > d.day ? d.day_end : d.day,
+            ),
+          )
+        : 0;
+    const nextDayNumber = lastDayUsed + 1;
     const newDay = {
       day: nextDayNumber,
       title: "",
@@ -213,7 +219,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
     const updated = [...packages];
     const pkg = updated[catIndex].packages[pkgIndex];
     const day = pkg.itinerary[dayIndex];
-    
+
     // Handle nested location fields
     if (field === "start_latitude" || field === "start_longitude") {
       const locationType = field.replace("start_", "");
@@ -226,7 +232,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
     } else {
       day[field] = value;
     }
-    
+
     pkg.itinerary[dayIndex] = day;
     onChange(updated);
   };
@@ -279,20 +285,48 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
   };
 
   const handleLocationSelect = (location) => {
-    if (locationPickerState.catIndex !== null && 
-        locationPickerState.pkgIndex !== null && 
-        locationPickerState.dayIndex !== null &&
-        locationPickerState.locationType) {
-      const { catIndex, pkgIndex, dayIndex, locationType } = locationPickerState;
-      updateItineraryDay(catIndex, pkgIndex, dayIndex, `${locationType}_latitude`, location.latitude);
-      updateItineraryDay(catIndex, pkgIndex, dayIndex, `${locationType}_longitude`, location.longitude);
+    if (
+      locationPickerState.catIndex !== null &&
+      locationPickerState.pkgIndex !== null &&
+      locationPickerState.dayIndex !== null &&
+      locationPickerState.locationType
+    ) {
+      const { catIndex, pkgIndex, dayIndex, locationType } =
+        locationPickerState;
+      updateItineraryDay(
+        catIndex,
+        pkgIndex,
+        dayIndex,
+        `${locationType}_latitude`,
+        location.latitude,
+      );
+      updateItineraryDay(
+        catIndex,
+        pkgIndex,
+        dayIndex,
+        `${locationType}_longitude`,
+        location.longitude,
+      );
     }
-    setLocationPickerState({ open: false, catIndex: null, pkgIndex: null, dayIndex: null, locationType: null });
+    setLocationPickerState({
+      open: false,
+      catIndex: null,
+      pkgIndex: null,
+      dayIndex: null,
+      locationType: null,
+    });
   };
 
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
           Packages by Category
         </Typography>
@@ -320,7 +354,14 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
           sx={{ mb: 2 }}
         >
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Box sx={{ display: "flex", alignItems: "center", width: "100%", gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                gap: 2,
+              }}
+            >
               <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                 {category.category_name || `Category ${catIndex + 1}`}
               </Typography>
@@ -335,13 +376,19 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
             <Card sx={{ mb: 2, border: "1px solid #e0e0e0" }}>
               <CardContent>
                 <Stack spacing={2}>
-                  <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+                  <Box
+                    sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}
+                  >
                     <FormControl fullWidth>
                       <InputLabel>Category Name</InputLabel>
                       <Select
                         value={category.category_name || ""}
                         onChange={(e) =>
-                          updateCategory(catIndex, "category_name", e.target.value)
+                          updateCategory(
+                            catIndex,
+                            "category_name",
+                            e.target.value,
+                          )
                         }
                         label="Category Name"
                       >
@@ -360,7 +407,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                         updateCategory(
                           catIndex,
                           "category_order",
-                          parseInt(e.target.value) || catIndex + 1
+                          parseInt(e.target.value) || catIndex + 1,
                         )
                       }
                       sx={{ width: 120 }}
@@ -377,7 +424,13 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                   <Divider />
 
                   <Box>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: 2,
+                      }}
+                    >
                       <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                         Packages in this Category
                       </Typography>
@@ -410,8 +463,17 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                         }}
                       >
                         <Stack spacing={2}>
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ fontWeight: 600 }}
+                            >
                               Package #{pkg.number || pkgIndex + 1}
                             </Typography>
                             <IconButton
@@ -435,7 +497,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                     catIndex,
                                     pkgIndex,
                                     "number",
-                                    parseInt(e.target.value) || pkgIndex + 1
+                                    parseInt(e.target.value) || pkgIndex + 1,
                                   )
                                 }
                                 size="small"
@@ -447,7 +509,12 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                 label="Package Title"
                                 value={pkg.title || ""}
                                 onChange={(e) =>
-                                  updatePackage(catIndex, pkgIndex, "title", e.target.value)
+                                  updatePackage(
+                                    catIndex,
+                                    pkgIndex,
+                                    "title",
+                                    e.target.value,
+                                  )
                                 }
                                 placeholder="e.g., 3-Day Murchison Falls Wildlife & Nile Safari"
                                 size="small"
@@ -463,7 +530,7 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                     catIndex,
                                     pkgIndex,
                                     "short_description",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 multiline
@@ -476,36 +543,48 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
 
                           {/* Highlights */}
                           <Box>
-                            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ mb: 1, fontWeight: 600 }}
+                            >
                               Highlights
                             </Typography>
-                            {(pkg.highlights || []).map((highlight, highlightIndex) => (
-                              <Box key={highlightIndex} sx={{ display: "flex", gap: 1, mb: 1 }}>
-                                <TextField
-                                  fullWidth
-                                  size="small"
-                                  value={highlight}
-                                  onChange={(e) =>
-                                    updateHighlight(
-                                      catIndex,
-                                      pkgIndex,
-                                      highlightIndex,
-                                      e.target.value
-                                    )
-                                  }
-                                  placeholder="Enter a highlight"
-                                />
-                                <IconButton
-                                  size="small"
-                                  color="error"
-                                  onClick={() =>
-                                    removeHighlight(catIndex, pkgIndex, highlightIndex)
-                                  }
+                            {(pkg.highlights || []).map(
+                              (highlight, highlightIndex) => (
+                                <Box
+                                  key={highlightIndex}
+                                  sx={{ display: "flex", gap: 1, mb: 1 }}
                                 >
-                                  <CloseIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            ))}
+                                  <TextField
+                                    fullWidth
+                                    size="small"
+                                    value={highlight}
+                                    onChange={(e) =>
+                                      updateHighlight(
+                                        catIndex,
+                                        pkgIndex,
+                                        highlightIndex,
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="Enter a highlight"
+                                  />
+                                  <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() =>
+                                      removeHighlight(
+                                        catIndex,
+                                        pkgIndex,
+                                        highlightIndex,
+                                      )
+                                    }
+                                  >
+                                    <CloseIcon fontSize="small" />
+                                  </IconButton>
+                                </Box>
+                              ),
+                            )}
                             <Button
                               size="small"
                               startIcon={<AddIcon />}
@@ -518,54 +597,66 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
 
                           {/* Pricing Tiers */}
                           <Box>
-                            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ mb: 1, fontWeight: 600 }}
+                            >
                               Pricing Tiers
                             </Typography>
-                            {(pkg.pricing_tiers || []).map((tier, tierIndex) => (
-                              <Box key={tierIndex} sx={{ display: "flex", gap: 1, mb: 1 }}>
-                                <TextField
-                                  size="small"
-                                  label="Tier"
-                                  value={tier.tier || ""}
-                                  onChange={(e) =>
-                                    updatePricingTier(
-                                      catIndex,
-                                      pkgIndex,
-                                      tierIndex,
-                                      "tier",
-                                      e.target.value
-                                    )
-                                  }
-                                  placeholder="e.g., Mid-range"
-                                  sx={{ flex: 1 }}
-                                />
-                                <TextField
-                                  size="small"
-                                  label="Price Range"
-                                  value={tier.price_range || ""}
-                                  onChange={(e) =>
-                                    updatePricingTier(
-                                      catIndex,
-                                      pkgIndex,
-                                      tierIndex,
-                                      "price_range",
-                                      e.target.value
-                                    )
-                                  }
-                                  placeholder="e.g., USD 750–1,100 per person"
-                                  sx={{ flex: 2 }}
-                                />
-                                <IconButton
-                                  size="small"
-                                  color="error"
-                                  onClick={() =>
-                                    removePricingTier(catIndex, pkgIndex, tierIndex)
-                                  }
+                            {(pkg.pricing_tiers || []).map(
+                              (tier, tierIndex) => (
+                                <Box
+                                  key={tierIndex}
+                                  sx={{ display: "flex", gap: 1, mb: 1 }}
                                 >
-                                  <CloseIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            ))}
+                                  <TextField
+                                    size="small"
+                                    label="Tier"
+                                    value={tier.tier || ""}
+                                    onChange={(e) =>
+                                      updatePricingTier(
+                                        catIndex,
+                                        pkgIndex,
+                                        tierIndex,
+                                        "tier",
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="e.g., Mid-range"
+                                    sx={{ flex: 1 }}
+                                  />
+                                  <TextField
+                                    size="small"
+                                    label="Price Range"
+                                    value={tier.price_range || ""}
+                                    onChange={(e) =>
+                                      updatePricingTier(
+                                        catIndex,
+                                        pkgIndex,
+                                        tierIndex,
+                                        "price_range",
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="e.g., USD 750–1,100 per person"
+                                    sx={{ flex: 2 }}
+                                  />
+                                  <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() =>
+                                      removePricingTier(
+                                        catIndex,
+                                        pkgIndex,
+                                        tierIndex,
+                                      )
+                                    }
+                                  >
+                                    <CloseIcon fontSize="small" />
+                                  </IconButton>
+                                </Box>
+                              ),
+                            )}
                             <Button
                               size="small"
                               startIcon={<AddIcon />}
@@ -578,7 +669,10 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
 
                           {/* Package Gallery */}
                           <Box>
-                            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ mb: 1, fontWeight: 600 }}
+                            >
                               Package Gallery Images
                             </Typography>
                             <input
@@ -586,12 +680,18 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                               accept="image/*"
                               multiple
                               onChange={(e) =>
-                                handlePackageGalleryUpload(catIndex, pkgIndex, e)
+                                handlePackageGalleryUpload(
+                                  catIndex,
+                                  pkgIndex,
+                                  e,
+                                )
                               }
                               style={{ display: "none" }}
                               id={`package-gallery-${catIndex}-${pkgIndex}`}
                             />
-                            <label htmlFor={`package-gallery-${catIndex}-${pkgIndex}`}>
+                            <label
+                              htmlFor={`package-gallery-${catIndex}-${pkgIndex}`}
+                            >
                               <Button
                                 variant="outlined"
                                 component="span"
@@ -613,7 +713,13 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                             {(pkg.gallery || []).length > 0 && (
                               <Grid container spacing={1} sx={{ mt: 1 }}>
                                 {pkg.gallery.map((img, imgIndex) => (
-                                  <Grid item xs={6} sm={4} md={3} key={imgIndex}>
+                                  <Grid
+                                    item
+                                    xs={6}
+                                    sm={4}
+                                    md={3}
+                                    key={imgIndex}
+                                  >
                                     <Box
                                       sx={{
                                         position: "relative",
@@ -639,18 +745,26 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                       <IconButton
                                         size="small"
                                         onClick={() =>
-                                          removePackageGalleryImage(catIndex, pkgIndex, imgIndex)
+                                          removePackageGalleryImage(
+                                            catIndex,
+                                            pkgIndex,
+                                            imgIndex,
+                                          )
                                         }
                                         sx={{
                                           position: "absolute",
                                           top: 2,
                                           right: 2,
-                                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                                          backgroundColor:
+                                            "rgba(255, 255, 255, 0.9)",
                                           width: 20,
                                           height: 20,
                                         }}
                                       >
-                                        <CloseIcon fontSize="small" color="error" />
+                                        <CloseIcon
+                                          fontSize="small"
+                                          color="error"
+                                        />
                                       </IconButton>
                                     </Box>
                                   </Grid>
@@ -661,7 +775,10 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
 
                           {/* Itinerary Section */}
                           <Box>
-                            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ mb: 1, fontWeight: 600 }}
+                            >
                               Day-by-Day Itinerary with Locations
                             </Typography>
                             {(pkg.itinerary || []).map((day, dayIndex) => (
@@ -675,14 +792,33 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                 }}
                               >
                                 <Stack spacing={2}>
-                                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                                      Day {day.day}
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="subtitle2"
+                                      sx={{ fontWeight: 600 }}
+                                    >
+                                      Day{" "}
+                                      {day.day_end != null &&
+                                      day.day_end > day.day
+                                        ? `${day.day}–${day.day_end}`
+                                        : day.day}
                                     </Typography>
                                     <IconButton
                                       size="small"
                                       color="error"
-                                      onClick={() => removeItineraryDay(catIndex, pkgIndex, dayIndex)}
+                                      onClick={() =>
+                                        removeItineraryDay(
+                                          catIndex,
+                                          pkgIndex,
+                                          dayIndex,
+                                        )
+                                      }
                                     >
                                       <DeleteIcon fontSize="small" />
                                     </IconButton>
@@ -698,10 +834,41 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                         pkgIndex,
                                         dayIndex,
                                         "title",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
-                                    placeholder="e.g., Day 1: Nairobi to Maasai Mara"
+                                    placeholder="e.g., Day 1: Nairobi to Maasai Mara — or Beach Relaxation for Day 7–9"
+                                  />
+                                  <TextField
+                                    type="number"
+                                    size="small"
+                                    label="Day end (optional)"
+                                    value={
+                                      day.day_end != null &&
+                                      day.day_end > day.day
+                                        ? day.day_end
+                                        : ""
+                                    }
+                                    onChange={(e) => {
+                                      const v = e.target.value.trim();
+                                      const num =
+                                        v === "" ? null : parseInt(v, 10);
+                                      const val =
+                                        num != null && num > day.day
+                                          ? num
+                                          : null;
+                                      updateItineraryDay(
+                                        catIndex,
+                                        pkgIndex,
+                                        dayIndex,
+                                        "day_end",
+                                        val,
+                                      );
+                                    }}
+                                    placeholder="e.g. 9 for Day 7–9"
+                                    inputProps={{ min: day.day, step: 1 }}
+                                    helperText="Use for combined days (e.g. Day 7–9: Beach Relaxation). Leave empty for a single day."
+                                    sx={{ maxWidth: 200 }}
                                   />
                                   <TextField
                                     fullWidth
@@ -714,32 +881,47 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                         pkgIndex,
                                         dayIndex,
                                         "description",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                     placeholder="e.g., Depart Nairobi in the morning for a scenic drive down the Great Rift Valley escarpment. Arrive at your lodge/camp in time for lunch. Embark on your first thrilling afternoon game drive across the rolling savannah plains in search of wildlife."
                                     multiline
                                     rows={4}
                                   />
-                                  
+
                                   {/* Start Location */}
                                   <Box>
-                                    <Typography variant="caption" sx={{ fontWeight: 600, mb: 1, display: "block" }}>
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        fontWeight: 600,
+                                        mb: 1,
+                                        display: "block",
+                                      }}
+                                    >
                                       Start Location *
                                     </Typography>
-                                    <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        gap: 2,
+                                        alignItems: "flex-start",
+                                      }}
+                                    >
                                       <TextField
                                         size="small"
                                         label="Latitude"
                                         type="number"
-                                        value={day.start_location?.latitude || ""}
+                                        value={
+                                          day.start_location?.latitude || ""
+                                        }
                                         onChange={(e) =>
                                           updateItineraryDay(
                                             catIndex,
                                             pkgIndex,
                                             dayIndex,
                                             "start_latitude",
-                                            parseFloat(e.target.value) || 0
+                                            parseFloat(e.target.value) || 0,
                                           )
                                         }
                                         sx={{ flex: 1 }}
@@ -749,14 +931,16 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                         size="small"
                                         label="Longitude"
                                         type="number"
-                                        value={day.start_location?.longitude || ""}
+                                        value={
+                                          day.start_location?.longitude || ""
+                                        }
                                         onChange={(e) =>
                                           updateItineraryDay(
                                             catIndex,
                                             pkgIndex,
                                             dayIndex,
                                             "start_longitude",
-                                            parseFloat(e.target.value) || 0
+                                            parseFloat(e.target.value) || 0,
                                           )
                                         }
                                         sx={{ flex: 1 }}
@@ -766,54 +950,101 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                         variant="outlined"
                                         size="small"
                                         startIcon={<LocationOnIcon />}
-                                        onClick={() => openLocationPicker(catIndex, pkgIndex, dayIndex, "start")}
+                                        onClick={() =>
+                                          openLocationPicker(
+                                            catIndex,
+                                            pkgIndex,
+                                            dayIndex,
+                                            "start",
+                                          )
+                                        }
                                         sx={{
                                           color: "#6B4E3D",
                                           borderColor: "#6B4E3D",
                                           "&:hover": {
                                             borderColor: "#B85C38",
-                                            backgroundColor: "rgba(107, 78, 61, 0.1)",
+                                            backgroundColor:
+                                              "rgba(107, 78, 61, 0.1)",
                                           },
                                         }}
                                       >
                                         Pick on Map
                                       </Button>
                                     </Box>
-                                    {day.start_location?.latitude && day.start_location?.longitude && (
-                                      <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
-                                        Start: {day.start_location.latitude.toFixed(6)}, {day.start_location.longitude.toFixed(6)}
-                                      </Typography>
-                                    )}
+                                    {day.start_location?.latitude &&
+                                      day.start_location?.longitude && (
+                                        <Typography
+                                          variant="caption"
+                                          sx={{
+                                            color: "text.secondary",
+                                            mt: 0.5,
+                                            display: "block",
+                                          }}
+                                        >
+                                          Start:{" "}
+                                          {day.start_location.latitude.toFixed(
+                                            6,
+                                          )}
+                                          ,{" "}
+                                          {day.start_location.longitude.toFixed(
+                                            6,
+                                          )}
+                                        </Typography>
+                                      )}
                                   </Box>
 
                                   {/* End Location - Optional */}
                                   {day.end_location ? (
                                     <Box>
-                                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                                        <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          justifyContent: "space-between",
+                                          alignItems: "center",
+                                          mb: 1,
+                                        }}
+                                      >
+                                        <Typography
+                                          variant="caption"
+                                          sx={{ fontWeight: 600 }}
+                                        >
                                           End Location (optional)
                                         </Typography>
                                         <Button
                                           size="small"
-                                          onClick={() => removeEndLocation(catIndex, pkgIndex, dayIndex)}
+                                          onClick={() =>
+                                            removeEndLocation(
+                                              catIndex,
+                                              pkgIndex,
+                                              dayIndex,
+                                            )
+                                          }
                                           sx={{ minWidth: "auto", p: 0.5 }}
                                         >
                                           <CloseIcon fontSize="small" />
                                         </Button>
                                       </Box>
-                                      <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          gap: 2,
+                                          alignItems: "flex-start",
+                                        }}
+                                      >
                                         <TextField
                                           size="small"
                                           label="Latitude"
                                           type="number"
-                                          value={day.end_location?.latitude || ""}
+                                          value={
+                                            day.end_location?.latitude || ""
+                                          }
                                           onChange={(e) =>
                                             updateItineraryDay(
                                               catIndex,
                                               pkgIndex,
                                               dayIndex,
                                               "end_latitude",
-                                              parseFloat(e.target.value) || 0
+                                              parseFloat(e.target.value) || 0,
                                             )
                                           }
                                           sx={{ flex: 1 }}
@@ -823,14 +1054,16 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                           size="small"
                                           label="Longitude"
                                           type="number"
-                                          value={day.end_location?.longitude || ""}
+                                          value={
+                                            day.end_location?.longitude || ""
+                                          }
                                           onChange={(e) =>
                                             updateItineraryDay(
                                               catIndex,
                                               pkgIndex,
                                               dayIndex,
                                               "end_longitude",
-                                              parseFloat(e.target.value) || 0
+                                              parseFloat(e.target.value) || 0,
                                             )
                                           }
                                           sx={{ flex: 1 }}
@@ -840,31 +1073,60 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                                           variant="outlined"
                                           size="small"
                                           startIcon={<LocationOnIcon />}
-                                          onClick={() => openLocationPicker(catIndex, pkgIndex, dayIndex, "end")}
+                                          onClick={() =>
+                                            openLocationPicker(
+                                              catIndex,
+                                              pkgIndex,
+                                              dayIndex,
+                                              "end",
+                                            )
+                                          }
                                           sx={{
                                             color: "#6B4E3D",
                                             borderColor: "#6B4E3D",
                                             "&:hover": {
                                               borderColor: "#B85C38",
-                                              backgroundColor: "rgba(107, 78, 61, 0.1)",
+                                              backgroundColor:
+                                                "rgba(107, 78, 61, 0.1)",
                                             },
                                           }}
                                         >
                                           Pick on Map
                                         </Button>
                                       </Box>
-                                      {day.end_location?.latitude && day.end_location?.longitude && (
-                                        <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
-                                          End: {day.end_location.latitude.toFixed(6)}, {day.end_location.longitude.toFixed(6)}
-                                        </Typography>
-                                      )}
+                                      {day.end_location?.latitude &&
+                                        day.end_location?.longitude && (
+                                          <Typography
+                                            variant="caption"
+                                            sx={{
+                                              color: "text.secondary",
+                                              mt: 0.5,
+                                              display: "block",
+                                            }}
+                                          >
+                                            End:{" "}
+                                            {day.end_location.latitude.toFixed(
+                                              6,
+                                            )}
+                                            ,{" "}
+                                            {day.end_location.longitude.toFixed(
+                                              6,
+                                            )}
+                                          </Typography>
+                                        )}
                                     </Box>
                                   ) : (
                                     <Button
                                       size="small"
                                       variant="text"
                                       startIcon={<AddIcon />}
-                                      onClick={() => addEndLocation(catIndex, pkgIndex, dayIndex)}
+                                      onClick={() =>
+                                        addEndLocation(
+                                          catIndex,
+                                          pkgIndex,
+                                          dayIndex,
+                                        )
+                                      }
                                       sx={{ mt: -1 }}
                                     >
                                       Add End Location (for routes)
@@ -876,7 +1138,9 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
                             <Button
                               size="small"
                               startIcon={<AddIcon />}
-                              onClick={() => addItineraryDay(catIndex, pkgIndex)}
+                              onClick={() =>
+                                addItineraryDay(catIndex, pkgIndex)
+                              }
                               sx={{ mt: 1 }}
                             >
                               Add Day
@@ -897,16 +1161,30 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
       {locationPickerState.open && (
         <LocationPicker
           open={locationPickerState.open}
-          onClose={() => setLocationPickerState({ open: false, catIndex: null, pkgIndex: null, dayIndex: null, locationType: null })}
+          onClose={() =>
+            setLocationPickerState({
+              open: false,
+              catIndex: null,
+              pkgIndex: null,
+              dayIndex: null,
+              locationType: null,
+            })
+          }
           onSelect={handleLocationSelect}
           initialLat={
             locationPickerState.catIndex !== null &&
             locationPickerState.pkgIndex !== null &&
             locationPickerState.dayIndex !== null &&
             locationPickerState.locationType
-              ? (locationPickerState.locationType === "start"
-                  ? packages[locationPickerState.catIndex]?.packages[locationPickerState.pkgIndex]?.itinerary?.[locationPickerState.dayIndex]?.start_location?.latitude
-                  : packages[locationPickerState.catIndex]?.packages[locationPickerState.pkgIndex]?.itinerary?.[locationPickerState.dayIndex]?.end_location?.latitude)
+              ? locationPickerState.locationType === "start"
+                ? packages[locationPickerState.catIndex]?.packages[
+                    locationPickerState.pkgIndex
+                  ]?.itinerary?.[locationPickerState.dayIndex]?.start_location
+                    ?.latitude
+                : packages[locationPickerState.catIndex]?.packages[
+                    locationPickerState.pkgIndex
+                  ]?.itinerary?.[locationPickerState.dayIndex]?.end_location
+                    ?.latitude
               : null
           }
           initialLng={
@@ -914,9 +1192,15 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
             locationPickerState.pkgIndex !== null &&
             locationPickerState.dayIndex !== null &&
             locationPickerState.locationType
-              ? (locationPickerState.locationType === "start"
-                  ? packages[locationPickerState.catIndex]?.packages[locationPickerState.pkgIndex]?.itinerary?.[locationPickerState.dayIndex]?.start_location?.longitude
-                  : packages[locationPickerState.catIndex]?.packages[locationPickerState.pkgIndex]?.itinerary?.[locationPickerState.dayIndex]?.end_location?.longitude)
+              ? locationPickerState.locationType === "start"
+                ? packages[locationPickerState.catIndex]?.packages[
+                    locationPickerState.pkgIndex
+                  ]?.itinerary?.[locationPickerState.dayIndex]?.start_location
+                    ?.longitude
+                : packages[locationPickerState.catIndex]?.packages[
+                    locationPickerState.pkgIndex
+                  ]?.itinerary?.[locationPickerState.dayIndex]?.end_location
+                    ?.longitude
               : null
           }
         />
@@ -935,4 +1219,3 @@ const PackageManager = ({ packages, onChange, buildImageUrl }) => {
 };
 
 export default PackageManager;
-

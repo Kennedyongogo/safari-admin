@@ -100,7 +100,7 @@ const DestinationEdit = () => {
   const handleGallerySelect = (event) => {
     const files = Array.from(event.target.files || []);
     const valid = files.filter(
-      (file) => file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024
+      (file) => file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024,
     );
     setGalleryFiles((prev) => [...prev, ...valid]);
     event.target.value = "";
@@ -132,7 +132,7 @@ const DestinationEdit = () => {
           destinationForm.title
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-|-$/g, "")
+            .replace(/^-|-$/g, ""),
       );
       formData.append("brief_description", destinationForm.brief_description);
       formData.append("location", destinationForm.location);
@@ -141,40 +141,54 @@ const DestinationEdit = () => {
       formData.append("hero_image", destinationForm.hero_image || "");
 
       // Process packages - separate File objects from data
-      const packagesForJson = destinationForm.packages.map((category, catIndex) => ({
-        category_name: category.category_name,
-        category_order: category.category_order || catIndex + 1,
-        packages: category.packages.map((pkg, pkgIndex) => ({
-          number: pkg.number || pkgIndex + 1,
-          title: pkg.title,
-          short_description: pkg.short_description,
-          highlights: pkg.highlights || [],
-          pricing_tiers: pkg.pricing_tiers || [],
-          // Keep only string URLs (existing images), File objects will be uploaded separately
-          gallery: (pkg.gallery || []).filter((img) => typeof img === "string"),
-          itinerary: (pkg.itinerary || []).map((day) => {
-            const itineraryDay = {
-              day: day.day,
-              title: day.title || "",
-              description: day.description || "",
-              start_location: {
-                latitude: day.start_location?.latitude || 0,
-                longitude: day.start_location?.longitude || 0,
-              },
-            };
-            // Only include end_location if it exists and is different from start
-            if (day.end_location && 
-                (day.end_location.latitude !== day.start_location?.latitude || 
-                 day.end_location.longitude !== day.start_location?.longitude)) {
-              itineraryDay.end_location = {
-                latitude: day.end_location.latitude || 0,
-                longitude: day.end_location.longitude || 0,
+      const packagesForJson = destinationForm.packages.map(
+        (category, catIndex) => ({
+          category_name: category.category_name,
+          category_order: category.category_order || catIndex + 1,
+          packages: category.packages.map((pkg, pkgIndex) => ({
+            number: pkg.number || pkgIndex + 1,
+            title: pkg.title,
+            short_description: pkg.short_description,
+            highlights: pkg.highlights || [],
+            pricing_tiers: pkg.pricing_tiers || [],
+            // Keep only string URLs (existing images), File objects will be uploaded separately
+            gallery: (pkg.gallery || []).filter(
+              (img) => typeof img === "string",
+            ),
+            itinerary: (pkg.itinerary || []).map((day) => {
+              const itineraryDay = {
+                day: day.day,
+                title: day.title || "",
+                description: day.description || "",
+                start_location: {
+                  latitude: day.start_location?.latitude || 0,
+                  longitude: day.start_location?.longitude || 0,
+                },
               };
-            }
-            return itineraryDay;
-          }),
-        })),
-      }));
+              // Combined days (e.g. Day 7–9): only include day_end when > day
+              if (
+                day.day_end != null &&
+                typeof day.day_end === "number" &&
+                day.day_end > day.day
+              ) {
+                itineraryDay.day_end = day.day_end;
+              }
+              // Only include end_location if it exists and is different from start
+              if (
+                day.end_location &&
+                (day.end_location.latitude !== day.start_location?.latitude ||
+                  day.end_location.longitude !== day.start_location?.longitude)
+              ) {
+                itineraryDay.end_location = {
+                  latitude: day.end_location.latitude || 0,
+                  longitude: day.end_location.longitude || 0,
+                };
+              }
+              return itineraryDay;
+            }),
+          })),
+        }),
+      );
 
       formData.append("packages", JSON.stringify(packagesForJson));
 
@@ -183,7 +197,10 @@ const DestinationEdit = () => {
       formData.append("sort_order", destinationForm.sort_order.toString());
 
       // Add existing gallery images
-      formData.append("gallery_images", JSON.stringify(destinationForm.gallery_images));
+      formData.append(
+        "gallery_images",
+        JSON.stringify(destinationForm.gallery_images),
+      );
 
       // Add new gallery files
       galleryFiles.forEach((file) => formData.append("gallery_images", file));
@@ -192,7 +209,7 @@ const DestinationEdit = () => {
       destinationForm.packages.forEach((category, catIndex) => {
         category.packages.forEach((pkg, pkgIndex) => {
           const newGalleryImages = (pkg.gallery || []).filter(
-            (img) => img instanceof File
+            (img) => img instanceof File,
           );
           newGalleryImages.forEach((file) => {
             formData.append(`package_gallery_${catIndex}_${pkgIndex}`, file);
@@ -228,7 +245,11 @@ const DestinationEdit = () => {
       navigate("/destinations");
     } catch (err) {
       setError(err.message || "Failed to update destination");
-      Swal.fire("Error", err.message || "Failed to update destination", "error");
+      Swal.fire(
+        "Error",
+        err.message || "Failed to update destination",
+        "error",
+      );
     } finally {
       setSaving(false);
     }
@@ -324,10 +345,12 @@ const DestinationEdit = () => {
                 onClick={handleSave}
                 disabled={!isFormValid() || saving}
                 sx={{
-                  background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
+                  background:
+                    "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
                   color: "white",
                   "&:hover": {
-                    background: "linear-gradient(135deg, #8B4225 0%, #6B4E3D 100%)",
+                    background:
+                      "linear-gradient(135deg, #8B4225 0%, #6B4E3D 100%)",
                   },
                   "&:disabled": { backgroundColor: "rgba(255,255,255,0.15)" },
                 }}
@@ -384,19 +407,7 @@ const DestinationEdit = () => {
                 onChange={(e) => handleInputChange("location", e.target.value)}
               />
 
-              {/* Packages Section */}
-              <Box>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
-                  Packages
-                </Typography>
-                <PackageManager
-                  packages={destinationForm.packages}
-                  onChange={(packages) => handleInputChange("packages", packages)}
-                  buildImageUrl={buildImageUrl}
-                />
-              </Box>
-
-              {/* Administrative Fields */}
+              {/* Settings: Status & Sort Order */}
               <Box>
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Settings
@@ -420,10 +431,28 @@ const DestinationEdit = () => {
                   type="number"
                   value={destinationForm.sort_order}
                   onChange={(e) =>
-                    handleInputChange("sort_order", parseInt(e.target.value) || 0)
+                    handleInputChange(
+                      "sort_order",
+                      Math.max(0, parseInt(e.target.value, 10) || 0),
+                    )
                   }
-                  helperText="Lower numbers appear first"
+                  helperText="Display order on the website. Lower numbers appear first."
+                  inputProps={{ min: 0, step: 1 }}
                   sx={{ mb: 2 }}
+                />
+              </Box>
+
+              {/* Packages Section */}
+              <Box>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
+                  Packages
+                </Typography>
+                <PackageManager
+                  packages={destinationForm.packages}
+                  onChange={(packages) =>
+                    handleInputChange("packages", packages)
+                  }
+                  buildImageUrl={buildImageUrl}
                 />
               </Box>
 
@@ -432,7 +461,10 @@ const DestinationEdit = () => {
                 <Typography variant="h6" sx={{ mb: 1 }}>
                   Images
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 2, color: "text.secondary" }}
+                >
                   First image will be used as the hero image, additional images
                   will be in the gallery.
                 </Typography>
@@ -518,11 +550,18 @@ const DestinationEdit = () => {
                         variant="subtitle2"
                         sx={{ mb: 1, color: "text.secondary" }}
                       >
-                        Existing Gallery Images ({destinationForm.gallery_images.length})
+                        Existing Gallery Images (
+                        {destinationForm.gallery_images.length})
                       </Typography>
                       <Grid container spacing={2}>
                         {destinationForm.gallery_images.map((image, idx) => (
-                          <Grid item xs={12} sm={6} md={4} key={`existing-${idx}`}>
+                          <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                            key={`existing-${idx}`}
+                          >
                             <Box
                               sx={{
                                 position: "relative",
@@ -559,9 +598,12 @@ const DestinationEdit = () => {
                                   onClick={() => {
                                     const updatedImages =
                                       destinationForm.gallery_images.filter(
-                                        (_, i) => i !== idx
+                                        (_, i) => i !== idx,
                                       );
-                                    handleInputChange("gallery_images", updatedImages);
+                                    handleInputChange(
+                                      "gallery_images",
+                                      updatedImages,
+                                    );
                                   }}
                                   sx={{
                                     backgroundColor: "rgba(255, 255, 255, 0.9)",

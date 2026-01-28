@@ -60,7 +60,7 @@ const DestinationCreate = () => {
   const handleGallerySelect = (event) => {
     const files = Array.from(event.target.files || []);
     const valid = files.filter(
-      (file) => file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024
+      (file) => file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024,
     );
     setGalleryFiles((prev) => [...prev, ...valid]);
     event.target.value = "";
@@ -93,7 +93,7 @@ const DestinationCreate = () => {
           destinationForm.title
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-|-$/g, "")
+            .replace(/^-|-$/g, ""),
       );
       formData.append("brief_description", destinationForm.brief_description);
       formData.append("location", destinationForm.location);
@@ -101,40 +101,54 @@ const DestinationCreate = () => {
       formData.append("sort_order", destinationForm.sort_order.toString());
 
       // Process packages - separate File objects from data
-      const packagesForJson = destinationForm.packages.map((category, catIndex) => ({
-        category_name: category.category_name,
-        category_order: category.category_order || catIndex + 1,
-        packages: category.packages.map((pkg, pkgIndex) => ({
-          number: pkg.number || pkgIndex + 1,
-          title: pkg.title,
-          short_description: pkg.short_description,
-          highlights: pkg.highlights || [],
-          pricing_tiers: pkg.pricing_tiers || [],
-          // Keep only string URLs (existing images), File objects will be uploaded separately
-          gallery: (pkg.gallery || []).filter((img) => typeof img === "string"),
-          itinerary: (pkg.itinerary || []).map((day) => {
-            const itineraryDay = {
-              day: day.day,
-              title: day.title || "",
-              description: day.description || "",
-              start_location: {
-                latitude: day.start_location?.latitude || 0,
-                longitude: day.start_location?.longitude || 0,
-              },
-            };
-            // Only include end_location if it exists and is different from start
-            if (day.end_location && 
-                (day.end_location.latitude !== day.start_location?.latitude || 
-                 day.end_location.longitude !== day.start_location?.longitude)) {
-              itineraryDay.end_location = {
-                latitude: day.end_location.latitude || 0,
-                longitude: day.end_location.longitude || 0,
+      const packagesForJson = destinationForm.packages.map(
+        (category, catIndex) => ({
+          category_name: category.category_name,
+          category_order: category.category_order || catIndex + 1,
+          packages: category.packages.map((pkg, pkgIndex) => ({
+            number: pkg.number || pkgIndex + 1,
+            title: pkg.title,
+            short_description: pkg.short_description,
+            highlights: pkg.highlights || [],
+            pricing_tiers: pkg.pricing_tiers || [],
+            // Keep only string URLs (existing images), File objects will be uploaded separately
+            gallery: (pkg.gallery || []).filter(
+              (img) => typeof img === "string",
+            ),
+            itinerary: (pkg.itinerary || []).map((day) => {
+              const itineraryDay = {
+                day: day.day,
+                title: day.title || "",
+                description: day.description || "",
+                start_location: {
+                  latitude: day.start_location?.latitude || 0,
+                  longitude: day.start_location?.longitude || 0,
+                },
               };
-            }
-            return itineraryDay;
-          }),
-        })),
-      }));
+              // Combined days (e.g. Day 7–9): only include day_end when > day
+              if (
+                day.day_end != null &&
+                typeof day.day_end === "number" &&
+                day.day_end > day.day
+              ) {
+                itineraryDay.day_end = day.day_end;
+              }
+              // Only include end_location if it exists and is different from start
+              if (
+                day.end_location &&
+                (day.end_location.latitude !== day.start_location?.latitude ||
+                  day.end_location.longitude !== day.start_location?.longitude)
+              ) {
+                itineraryDay.end_location = {
+                  latitude: day.end_location.latitude || 0,
+                  longitude: day.end_location.longitude || 0,
+                };
+              }
+              return itineraryDay;
+            }),
+          })),
+        }),
+      );
 
       formData.append("packages", JSON.stringify(packagesForJson));
 
@@ -151,7 +165,7 @@ const DestinationCreate = () => {
       destinationForm.packages.forEach((category, catIndex) => {
         category.packages.forEach((pkg, pkgIndex) => {
           const newGalleryImages = (pkg.gallery || []).filter(
-            (img) => img instanceof File
+            (img) => img instanceof File,
           );
           newGalleryImages.forEach((file) => {
             formData.append(`package_gallery_${catIndex}_${pkgIndex}`, file);
@@ -329,19 +343,7 @@ const DestinationCreate = () => {
                 required
               />
 
-              {/* Packages Section */}
-              <Box>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
-                  Packages
-                </Typography>
-                <PackageManager
-                  packages={destinationForm.packages}
-                  onChange={(packages) => handleInputChange("packages", packages)}
-                  buildImageUrl={buildImageUrl}
-                />
-              </Box>
-
-              {/* Administrative Fields */}
+              {/* Settings: Status & Sort Order */}
               <Box>
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Settings
@@ -365,10 +367,28 @@ const DestinationCreate = () => {
                   type="number"
                   value={destinationForm.sort_order}
                   onChange={(e) =>
-                    handleInputChange("sort_order", parseInt(e.target.value) || 0)
+                    handleInputChange(
+                      "sort_order",
+                      Math.max(0, parseInt(e.target.value, 10) || 0),
+                    )
                   }
-                  helperText="Lower numbers appear first"
+                  helperText="Display order on the website. Lower numbers appear first."
+                  inputProps={{ min: 0, step: 1 }}
                   sx={{ mb: 2 }}
+                />
+              </Box>
+
+              {/* Packages Section */}
+              <Box>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
+                  Packages
+                </Typography>
+                <PackageManager
+                  packages={destinationForm.packages}
+                  onChange={(packages) =>
+                    handleInputChange("packages", packages)
+                  }
+                  buildImageUrl={buildImageUrl}
                 />
               </Box>
 
@@ -378,7 +398,10 @@ const DestinationCreate = () => {
                   <Collections sx={{ mr: 1, verticalAlign: "middle" }} />
                   Destination Images
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 2, color: "text.secondary" }}
+                >
                   First image will be used as the hero image, additional images
                   will be in the gallery.
                 </Typography>
@@ -472,9 +495,7 @@ const DestinationCreate = () => {
                               left: 0,
                               right: 0,
                               backgroundColor:
-                                index === 0
-                                  ? "#6B4E3D"
-                                  : "rgba(0, 0, 0, 0.7)",
+                                index === 0 ? "#6B4E3D" : "rgba(0, 0, 0, 0.7)",
                               color: "white",
                               padding: "2px 6px",
                               fontSize: "0.75rem",
@@ -483,8 +504,8 @@ const DestinationCreate = () => {
                             {index === 0
                               ? "HERO"
                               : file.name.length > 15
-                              ? `${file.name.substring(0, 12)}...`
-                              : file.name}
+                                ? `${file.name.substring(0, 12)}...`
+                                : file.name}
                           </Box>
                         </Box>
                       ))}
@@ -501,7 +522,10 @@ const DestinationCreate = () => {
                     }}
                   >
                     <ImageIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} />
-                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.secondary" }}
+                    >
                       No images selected. Click "Upload Images" to add a hero
                       image and gallery images.
                     </Typography>
@@ -518,10 +542,12 @@ const DestinationCreate = () => {
                   disabled={!isFormValid() || saving}
                   sx={{
                     flex: 1,
-                    background: "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
+                    background:
+                      "linear-gradient(135deg, #6B4E3D 0%, #B85C38 100%)",
                     color: "white",
                     "&:hover": {
-                      background: "linear-gradient(135deg, #8B4225 0%, #6B4E3D 100%)",
+                      background:
+                        "linear-gradient(135deg, #8B4225 0%, #6B4E3D 100%)",
                     },
                     "&:disabled": {
                       background: "#e0e0e0",
