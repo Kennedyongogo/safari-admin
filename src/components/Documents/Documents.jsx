@@ -189,6 +189,18 @@ const Documents = () => {
     setOpenViewDialog(true);
   };
 
+  const handleEditDocument = (document) => {
+    setSelectedDocument(document);
+    setIsEditMode(true);
+    setDocumentForm({
+      title: document.title || "",
+      slug: document.slug || "",
+      description: document.description || "",
+      file_type: document.file_type || "pdf",
+    });
+    setOpenCreateDialog(true);
+  };
+
   const handleDeleteDocument = async (document) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -428,6 +440,71 @@ const Documents = () => {
     }
   };
 
+  const handleUpdateDocument = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("No authentication token found. Please login again.");
+        return;
+      }
+
+      if (!selectedDocument?.id) {
+        throw new Error("No document selected for update.");
+      }
+
+      const response = await fetch(`/api/documents/${selectedDocument.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: documentForm.title,
+          slug: documentForm.slug,
+          description: documentForm.description,
+          file_type: documentForm.file_type,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to update document");
+      }
+
+      setDocumentForm({
+        title: "",
+        slug: "",
+        description: "",
+        file_type: "pdf",
+      });
+      setSelectedDocument(null);
+      setOpenCreateDialog(false);
+      setIsEditMode(false);
+
+      fetchDocuments();
+
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Document updated successfully!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error("Error updating document:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message || "Failed to update document. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (error && documents.length === 0) {
     return (
       <Box p={3}>
@@ -519,6 +596,7 @@ const Documents = () => {
               startIcon={<AddIcon />}
               onClick={() => {
                 setSelectedDocument(null);
+                setIsEditMode(false);
                 setDocumentForm({
                   title: "",
                   slug: "",
@@ -840,6 +918,24 @@ const Documents = () => {
                               <ViewIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
+                          <Tooltip title="Edit Document" arrow>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEditDocument(document)}
+                              sx={{
+                                color: "#f39c12",
+                                backgroundColor: "rgba(243, 156, 18, 0.1)",
+                                "&:hover": {
+                                  backgroundColor: "rgba(243, 156, 18, 0.2)",
+                                  transform: "scale(1.1)",
+                                },
+                                transition: "all 0.2s ease",
+                                borderRadius: 2,
+                              }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
                           <Tooltip title="Delete Document" arrow>
                             <IconButton
                               size="small"
@@ -897,6 +993,7 @@ const Documents = () => {
             setOpenViewDialog(false);
             setOpenCreateDialog(false);
             setSelectedDocument(null);
+            setIsEditMode(false);
             setDocumentForm({
               title: "",
               slug: "",
@@ -967,12 +1064,18 @@ const Documents = () => {
                   textShadow: "0 2px 4px rgba(0,0,0,0.3)",
                 }}
               >
-                {openViewDialog ? "Document Details" : "Add New Document"}
+                {openViewDialog
+                  ? "Document Details"
+                  : isEditMode
+                    ? "Edit Document"
+                    : "Add New Document"}
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
                 {openViewDialog
                   ? "View document information"
-                  : "Add a new document to the system"}
+                  : isEditMode
+                    ? "Update document details"
+                    : "Add a new document to the system"}
               </Typography>
             </Box>
           </DialogTitle>
@@ -1358,69 +1461,71 @@ const Documents = () => {
                   />
 
                   {/* File Upload Section */}
-                  <Box
-                    sx={{
-                      border: "2px dashed #B85C38",
-                      borderRadius: 2,
-                      p: 2,
-                      textAlign: "center",
-                      backgroundColor: "rgba(184, 92, 56, 0.05)",
-                    }}
-                  >
-                    <UploadIcon
-                      sx={{ fontSize: 48, color: "#B85C38", mb: 1 }}
-                    />
-                    <Typography variant="h6" sx={{ mb: 1, color: "#B85C38" }}>
-                      Upload Document
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 2 }}
+                  {!isEditMode && (
+                    <Box
+                      sx={{
+                        border: "2px dashed #B85C38",
+                        borderRadius: 2,
+                        p: 2,
+                        textAlign: "center",
+                        backgroundColor: "rgba(184, 92, 56, 0.05)",
+                      }}
                     >
-                      Drag and drop files here, or click to select files
-                    </Typography>
-                    {selectedFile && (
-                      <Box
-                        sx={{
-                          mb: 2,
-                          p: 1,
-                          backgroundColor: "rgba(184, 92, 56, 0.1)",
-                          borderRadius: 1,
-                        }}
+                      <UploadIcon
+                        sx={{ fontSize: 48, color: "#B85C38", mb: 1 }}
+                      />
+                      <Typography variant="h6" sx={{ mb: 1, color: "#B85C38" }}>
+                        Upload Document
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 2 }}
                       >
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: 600, color: "#B85C38" }}
+                        Drag and drop files here, or click to select files
+                      </Typography>
+                      {selectedFile && (
+                        <Box
+                          sx={{
+                            mb: 2,
+                            p: 1,
+                            backgroundColor: "rgba(184, 92, 56, 0.1)",
+                            borderRadius: 1,
+                          }}
                         >
-                          Selected: {selectedFile.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          Size: {(selectedFile.size / 1024 / 1024).toFixed(2)}{" "}
-                          MB
-                        </Typography>
-                      </Box>
-                    )}
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                      style={{ display: "none" }}
-                      id="file-upload"
-                      onChange={handleFileChange}
-                    />
-                    <label htmlFor="file-upload">
-                      <Button
-                        variant="contained"
-                        component="span"
-                        sx={{
-                          background:
-                            "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
-                        }}
-                      >
-                        {selectedFile ? "Change File" : "Choose File"}
-                      </Button>
-                    </label>
-                  </Box>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: 600, color: "#B85C38" }}
+                          >
+                            Selected: {selectedFile.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Size: {(selectedFile.size / 1024 / 1024).toFixed(2)}{" "}
+                            MB
+                          </Typography>
+                        </Box>
+                      )}
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                        style={{ display: "none" }}
+                        id="file-upload"
+                        onChange={handleFileChange}
+                      />
+                      <label htmlFor="file-upload">
+                        <Button
+                          variant="contained"
+                          component="span"
+                          sx={{
+                            background:
+                              "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
+                          }}
+                        >
+                          {selectedFile ? "Change File" : "Choose File"}
+                        </Button>
+                      </label>
+                    </Box>
+                  )}
                 </Stack>
               </Box>
             )}
@@ -1433,6 +1538,7 @@ const Documents = () => {
                 setOpenViewDialog(false);
                 setOpenCreateDialog(false);
                 setSelectedDocument(null);
+                setIsEditMode(false);
                 setDocumentForm({
                   title: "",
                   slug: "",
@@ -1458,7 +1564,7 @@ const Documents = () => {
             </Button>
             {openCreateDialog && (
               <Button
-                onClick={handleCreateDocument}
+                onClick={isEditMode ? handleUpdateDocument : handleCreateDocument}
                 variant="contained"
                 startIcon={<AddIcon />}
                 sx={{
@@ -1485,10 +1591,10 @@ const Documents = () => {
                 disabled={
                   !documentForm.title ||
                   !documentForm.file_type ||
-                  !selectedFile
+                  (!isEditMode && !selectedFile)
                 }
               >
-                Add Document
+                {isEditMode ? "Update Document" : "Add Document"}
               </Button>
             )}
           </DialogActions>
