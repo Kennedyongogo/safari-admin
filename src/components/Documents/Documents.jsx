@@ -52,6 +52,7 @@ import {
   Folder,
   Person as PersonIcon,
   Description as DescriptionIcon,
+  ContentCopy as ContentCopyIcon,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import Swal from "sweetalert2";
@@ -72,6 +73,7 @@ const Documents = () => {
   const [totalDocuments, setTotalDocuments] = useState(0);
   const [documentForm, setDocumentForm] = useState({
     title: "",
+    slug: "",
     description: "",
     file_type: "pdf",
   });
@@ -245,7 +247,7 @@ const Documents = () => {
     }
   };
 
-  const handleDownloadDocument = async (documentId) => {
+  const handleDownloadDocument = async (document) => {
     try {
       const token = localStorage.getItem("token");
       
@@ -270,7 +272,11 @@ const Documents = () => {
       });
 
       // Fetch the document with authentication
-      const response = await fetch(`/api/documents/${documentId}/download`, {
+      const downloadPath = document.slug
+        ? `/api/documents/slug/${document.slug}/download`
+        : `/api/documents/${document.id}/download`;
+
+      const response = await fetch(downloadPath, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -283,7 +289,7 @@ const Documents = () => {
 
       // Get the filename from Content-Disposition header or use document ID
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `document-${documentId}`;
+      let filename = `document-${document.id}`;
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
         if (filenameMatch) {
@@ -368,6 +374,9 @@ const Documents = () => {
       const formData = new FormData();
       formData.append("document", selectedFile);
       formData.append("title", documentForm.title);
+      if (documentForm.slug) {
+        formData.append("slug", documentForm.slug);
+      }
       formData.append("description", documentForm.description);
       formData.append("file_type", documentForm.file_type);
 
@@ -388,6 +397,7 @@ const Documents = () => {
       // Reset form and close dialog
       setDocumentForm({
         title: "",
+        slug: "",
         description: "",
         file_type: "pdf",
       });
@@ -511,6 +521,7 @@ const Documents = () => {
                 setSelectedDocument(null);
                 setDocumentForm({
                   title: "",
+                  slug: "",
                   description: "",
                   file_type: "pdf",
                 });
@@ -629,6 +640,7 @@ const Documents = () => {
                   <TableCell>No</TableCell>
                   <TableCell>Title</TableCell>
                   <TableCell>File Type</TableCell>
+                  <TableCell>Slug</TableCell>
                   <TableCell>Uploaded By</TableCell>
                   <TableCell>Upload Date</TableCell>
                   <TableCell>Actions</TableCell>
@@ -637,13 +649,13 @@ const Documents = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                       <CircularProgress sx={{ color: "#B85C38" }} />
                     </TableCell>
                   </TableRow>
                 ) : error ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                       <Alert severity="error" sx={{ mb: 2 }}>
                         {error}
                       </Alert>
@@ -661,7 +673,7 @@ const Documents = () => {
                   </TableRow>
                 ) : documents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                       <Typography variant="h6" color="text.secondary">
                         No documents found.
                       </Typography>
@@ -718,6 +730,63 @@ const Documents = () => {
                         />
                       </TableCell>
                       <TableCell>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: "#2c3e50",
+                              fontWeight: 600,
+                              maxWidth: 140,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                            title={document.slug || "—"}
+                          >
+                            {document.slug || "—"}
+                          </Typography>
+                          {document.slug && (
+                            <Tooltip title="Copy slug" arrow>
+                              <IconButton
+                                size="small"
+                                onClick={async () => {
+                                  try {
+                                    await navigator.clipboard.writeText(
+                                      document.slug
+                                    );
+                                    Swal.fire({
+                                      icon: "success",
+                                      title: "Copied!",
+                                      text: "Slug copied to clipboard.",
+                                      timer: 1200,
+                                      showConfirmButton: false,
+                                    });
+                                  } catch (error) {
+                                    Swal.fire({
+                                      icon: "error",
+                                      title: "Copy failed",
+                                      text: "Unable to copy slug. Please try again.",
+                                    });
+                                  }
+                                }}
+                                sx={{
+                                  color: "#B85C38",
+                                  backgroundColor: "rgba(184, 92, 56, 0.1)",
+                                  "&:hover": {
+                                    backgroundColor: "rgba(184, 92, 56, 0.2)",
+                                    transform: "scale(1.1)",
+                                  },
+                                  transition: "all 0.2s ease",
+                                  borderRadius: 2,
+                                }}
+                              >
+                                <ContentCopyIcon fontSize="inherit" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
                         <Typography
                           variant="body2"
                           sx={{ color: "#2c3e50", fontWeight: 600 }}
@@ -738,7 +807,7 @@ const Documents = () => {
                           <Tooltip title="Download Document" arrow>
                             <IconButton
                               size="small"
-                              onClick={() => handleDownloadDocument(document.id)}
+                              onClick={() => handleDownloadDocument(document)}
                               sx={{
                                 color: "#27ae60",
                                 backgroundColor: "rgba(39, 174, 96, 0.1)",
@@ -830,6 +899,7 @@ const Documents = () => {
             setSelectedDocument(null);
             setDocumentForm({
               title: "",
+              slug: "",
               description: "",
               file_type: "pdf",
             });
@@ -1017,6 +1087,73 @@ const Documents = () => {
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={2}>
+                      <Folder sx={{ fontSize: 24, color: "#B85C38" }} />
+                      <Box>
+                        <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
+                          SLUG
+                        </Typography>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Typography
+                            variant="body1"
+                            sx={{ fontWeight: 600, color: "#2c3e50" }}
+                          >
+                            {selectedDocument.slug || "—"}
+                          </Typography>
+                          {selectedDocument.slug && (
+                            <Tooltip title="Copy slug" arrow>
+                              <IconButton
+                                size="small"
+                                onClick={async () => {
+                                  try {
+                                    await navigator.clipboard.writeText(
+                                      selectedDocument.slug
+                                    );
+                                    Swal.fire({
+                                      icon: "success",
+                                      title: "Copied!",
+                                      text: "Slug copied to clipboard.",
+                                      timer: 1200,
+                                      showConfirmButton: false,
+                                    });
+                                  } catch (error) {
+                                    Swal.fire({
+                                      icon: "error",
+                                      title: "Copy failed",
+                                      text: "Unable to copy slug. Please try again.",
+                                    });
+                                  }
+                                }}
+                                sx={{
+                                  color: "#B85C38",
+                                  backgroundColor: "rgba(184, 92, 56, 0.1)",
+                                  "&:hover": {
+                                    backgroundColor: "rgba(184, 92, 56, 0.2)",
+                                  },
+                                }}
+                              >
+                                <ContentCopyIcon fontSize="inherit" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Card>
+
+                  <Card
+                    sx={{
+                      background: "white",
+                      borderRadius: 2,
+                      p: 2,
+                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.12)",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  >
+                    <Box display="flex" alignItems="center" gap={2}>
                       <PersonIcon sx={{ fontSize: 24, color: "#B85C38" }} />
                       <Box>
                         <Typography variant="caption" sx={{ color: "#7f8c8d" }}>
@@ -1157,6 +1294,23 @@ const Documents = () => {
                     placeholder="Document title"
                   />
 
+                  {/* Slug */}
+                  <TextField
+                    fullWidth
+                    label="Slug (optional)"
+                    value={documentForm.slug}
+                    onChange={(e) =>
+                      setDocumentForm({
+                        ...documentForm,
+                        slug: e.target.value,
+                      })
+                    }
+                    variant="outlined"
+                    size="small"
+                    placeholder="e.g. tra-license"
+                    helperText="Leave empty to auto-generate from title"
+                  />
+
                   {/* File Type Selection */}
                   <FormControl
                     fullWidth
@@ -1281,6 +1435,7 @@ const Documents = () => {
                 setSelectedDocument(null);
                 setDocumentForm({
                   title: "",
+                  slug: "",
                   description: "",
                   file_type: "pdf",
                 });
