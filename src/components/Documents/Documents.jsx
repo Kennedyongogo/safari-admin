@@ -53,9 +53,18 @@ import {
   Person as PersonIcon,
   Description as DescriptionIcon,
   ContentCopy as ContentCopyIcon,
+  Lock as LockIcon,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import Swal from "sweetalert2";
+
+// Slugs that support "Encrypt" (password-protect PDF). Must match backend PROTECTED_SLUGS.
+const PROTECTED_SLUGS = ["tra-license"];
+
+const canEncryptDocument = (doc) =>
+  doc?.slug &&
+  (doc.file_type || "").toLowerCase() === "pdf" &&
+  PROTECTED_SLUGS.includes((doc.slug || "").toLowerCase());
 
 const Documents = () => {
   const navigate = useNavigate();
@@ -337,6 +346,61 @@ const Documents = () => {
         icon: "error",
         title: "Download Failed",
         text: error.message || "Failed to download document. Please try again.",
+      });
+    }
+  };
+
+  const handleEncryptDocument = async (document) => {
+    if (!document?.slug) return;
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        Swal.fire({
+          icon: "error",
+          title: "Authentication Required",
+          text: "Please login again.",
+        });
+        return;
+      }
+      Swal.fire({
+        title: "Encrypting...",
+        text: "Password-protecting document. Please wait.",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading(),
+      });
+      const response = await fetch(
+        `/api/documents/slug/${encodeURIComponent(document.slug)}/encrypt`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json().catch(() => ({}));
+      Swal.close();
+      if (response.ok && data.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Document encrypted",
+          text: data.message || "Opening this document will now require the password.",
+        });
+        fetchDocuments();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Encrypt failed",
+          text: data.message || "Server may be missing TRA_DOCUMENT_PASSWORD in .env",
+        });
+      }
+    } catch (error) {
+      Swal.close();
+      Swal.fire({
+        icon: "error",
+        title: "Encrypt failed",
+        text: error.message || "Could not encrypt document.",
       });
     }
   };
@@ -918,6 +982,26 @@ const Documents = () => {
                               <ViewIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
+                          {canEncryptDocument(document) && (
+                            <Tooltip title="Encrypt (password-protect) PDF" arrow>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleEncryptDocument(document)}
+                                sx={{
+                                  color: "#8e44ad",
+                                  backgroundColor: "rgba(142, 68, 173, 0.1)",
+                                  "&:hover": {
+                                    backgroundColor: "rgba(142, 68, 173, 0.2)",
+                                    transform: "scale(1.1)",
+                                  },
+                                  transition: "all 0.2s ease",
+                                  borderRadius: 2,
+                                }}
+                              >
+                                <LockIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
                           <Tooltip title="Edit Document" arrow>
                             <IconButton
                               size="small"
@@ -1345,30 +1429,57 @@ const Documents = () => {
                       },
                     }}
                   >
-                    <Button
-                      variant="contained"
-                      startIcon={<UploadIcon />}
-                      onClick={() => handleDownloadDocument(selectedDocument.id)}
-                      sx={{
-                        background:
-                          "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
-                        borderRadius: 2,
-                        px: 4,
-                        py: 1.5,
-                        fontWeight: 600,
-                        textTransform: "none",
-                        boxShadow: "0 4px 15px rgba(184, 92, 56, 0.3)",
-                        "&:hover": {
+                    <Box display="flex" flexWrap="wrap" gap={2}>
+                      <Button
+                        variant="contained"
+                        startIcon={<UploadIcon />}
+                        onClick={() => handleDownloadDocument(selectedDocument)}
+                        sx={{
                           background:
-                            "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
-                          transform: "translateY(-1px)",
-                          boxShadow: "0 6px 20px rgba(184, 92, 56, 0.4)",
-                        },
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      Download Document
-                    </Button>
+                            "linear-gradient(135deg, #B85C38 0%, #6B4E3D 100%)",
+                          borderRadius: 2,
+                          px: 4,
+                          py: 1.5,
+                          fontWeight: 600,
+                          textTransform: "none",
+                          boxShadow: "0 4px 15px rgba(184, 92, 56, 0.3)",
+                          "&:hover": {
+                            background:
+                              "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+                            transform: "translateY(-1px)",
+                            boxShadow: "0 6px 20px rgba(184, 92, 56, 0.4)",
+                          },
+                          transition: "all 0.3s ease",
+                        }}
+                      >
+                        Download Document
+                      </Button>
+                      {canEncryptDocument(selectedDocument) && (
+                        <Button
+                          variant="outlined"
+                          startIcon={<LockIcon />}
+                          onClick={() => {
+                            handleEncryptDocument(selectedDocument);
+                            setOpenViewDialog(false);
+                          }}
+                          sx={{
+                            borderColor: "#8e44ad",
+                            color: "#8e44ad",
+                            borderRadius: 2,
+                            px: 4,
+                            py: 1.5,
+                            fontWeight: 600,
+                            textTransform: "none",
+                            "&:hover": {
+                              borderColor: "#7d3c98",
+                              backgroundColor: "rgba(142, 68, 173, 0.08)",
+                            },
+                          }}
+                        >
+                          Encrypt (password-protect)
+                        </Button>
+                      )}
+                    </Box>
                   </Card>
                 </Box>
               </Box>
