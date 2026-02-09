@@ -268,7 +268,7 @@ const Documents = () => {
     }
   };
 
-  const handleDownloadDocument = async (document) => {
+  const handleDownloadDocument = async (doc) => {
     try {
       const token = localStorage.getItem("token");
       
@@ -293,9 +293,9 @@ const Documents = () => {
       });
 
       // Fetch the document with authentication
-      const downloadPath = document.slug
-        ? `/api/documents/slug/${document.slug}/download`
-        : `/api/documents/${document.id}/download`;
+      const downloadPath = doc.slug
+        ? `/api/documents/slug/${doc.slug}/download`
+        : `/api/documents/${doc.id}/download`;
 
       const response = await fetch(downloadPath, {
         method: "GET",
@@ -310,7 +310,7 @@ const Documents = () => {
 
       // Get the filename from Content-Disposition header or use document ID
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `document-${document.id}`;
+      let filename = `document-${doc.id}`;
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
         if (filenameMatch) {
@@ -318,15 +318,15 @@ const Documents = () => {
         }
       }
 
-      // Create blob and download
+      // Create blob and download (use global document for DOM)
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = window.document.createElement('a');
       link.href = url;
       link.download = filename;
-      document.body.appendChild(link);
+      window.document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      window.document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
       // Close loading and show success
